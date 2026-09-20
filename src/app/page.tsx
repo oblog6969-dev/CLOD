@@ -24,6 +24,7 @@ import {
 import { Dialog } from "@/components/Dialog";
 import { AiAssistant } from "@/components/AiAssistant";
 import { JourneyGuide } from "@/components/JourneyGuide";
+import { BaselineAssessmentModal } from "@/components/BaselineAssessmentModal";
 import { planGuidance, type GuideAction, type View } from "@/lib/journey";
 import {
   TaskForm,
@@ -41,6 +42,7 @@ import {
   toggleTask,
   type Plan,
 } from "@/lib/domain";
+import { synthesizePlanFromAnswers } from "@/lib/questionnaire";
 
 const navigation = [
   { id: "today", label: "Today", icon: Sun },
@@ -93,14 +95,11 @@ export default function Home() {
   const openDraft = () =>
     setModal({
       type: "plan",
-      draft: {
-        ...state.plan,
-        identity: state.answers.m13 || state.plan.identity,
-        antiVision: state.answers.e3 || state.plan.antiVision,
-        vision: state.answers.e4 || state.plan.vision,
-        year: state.answers.e5 || state.plan.year,
-        month: state.answers.e6 || state.plan.month,
-      },
+      draft: synthesizePlanFromAnswers(
+        state.answers,
+        state.plan,
+        state.assessmentProfile,
+      ),
     });
   const guideAction = (action: GuideAction) => {
     const focus = (id: string) => {
@@ -572,6 +571,7 @@ export default function Home() {
               onCheckIn={(prompt) => setModal({ type: "checkin", prompt })}
               onNotice={setNotice}
               onDirection={() => setView("direction")}
+              onOpenAssessment={() => setModal({ type: "assessment" })}
             />
           )}
           {view === "direction" && (
@@ -1010,6 +1010,17 @@ export default function Home() {
             </button>
           </div>
         </Dialog>
+      )}
+      {modal?.type === "assessment" && (
+        <BaselineAssessmentModal
+          currentProfile={state.assessmentProfile}
+          onClose={close}
+          onComplete={(profile) => {
+            setNotice(
+              `Calibrated as ${profile.archetypeName}. Daily MSQ reflections are ready!`,
+            );
+          }}
+        />
       )}
     </div>
   );

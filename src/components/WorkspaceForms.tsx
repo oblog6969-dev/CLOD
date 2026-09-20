@@ -13,6 +13,10 @@ import {
   Download,
   Archive,
   RotateCcw,
+  Sparkles,
+  Zap,
+  Award,
+  Pencil,
 } from "lucide-react";
 import {
   update,
@@ -26,15 +30,22 @@ import {
   decode,
   localDate,
   prompts,
+  type AssessmentProfile,
   type Plan,
   type State,
   type Task,
 } from "@/lib/domain";
+import {
+  getPromptMsq,
+  formatMsqAnswer,
+  type MsqOption,
+} from "@/lib/questionnaire";
 export type Modal =
   | { type: "task"; task?: Task }
   | { type: "checkin"; prompt?: string }
   | { type: "plan"; draft?: Plan }
   | { type: "reset" }
+  | { type: "assessment" }
   | { type: "import"; data: State }
   | null;
 
@@ -127,12 +138,14 @@ export function ResetJourney({
   onCheckIn,
   onNotice,
   onDirection,
+  onOpenAssessment,
 }: {
   state: State;
   onDraft: () => void;
   onCheckIn: (prompt: string) => void;
   onNotice: (s: string) => void;
   onDirection: () => void;
+  onOpenAssessment?: () => void;
 }) {
   const [phase, setPhase] = useState<"morning" | "daytime" | "evening">(
     "morning",
@@ -241,47 +254,92 @@ export function ResetJourney({
         </p>
       </section>
       {phase !== "daytime" ? (
-        <section className="card question-card">
-          <div className="section-heading">
-            <span className="eyebrow">
-              {phase} / QUESTION {index + 1} OF {questions.length}
-            </span>
-            <span className="tag">
-              {questions.filter(([id]) => state.answers[id]?.trim()).length}{" "}
-              explored
-            </span>
-          </div>
-          <div className="question-dots">
-            {questions.map(([id], i) => (
-              <button
-                key={id}
-                aria-label={`Question ${i + 1}${state.answers[id] ? ", answered" : ""}`}
-                aria-current={index === i ? "step" : undefined}
-                className={`${state.answers[id]?.trim() ? "filled" : ""} ${index === i ? "current" : ""}`}
-                onClick={() => setIndex(i)}
-              />
-            ))}
-          </div>
-          <AnswerForm
-            key={question[0]}
-            question={question}
-            answer={state.answers[question[0]] || ""}
-            onSave={(value) => {
-              if (
-                update((s) => ({
-                  ...s,
-                  answers: { ...s.answers, [question[0]]: value },
-                }))
-              ) {
-                onNotice("Answer saved.");
-                if (index < questions.length - 1) setIndex(index + 1);
-                else if (phase === "morning") {
-                  setPhase("daytime");
-                  setIndex(0);
-                } else onDraft();
-              }
-            }}
-          />
+        <>
+          {state.assessmentProfile ? (
+            <div className="assessment-active-banner">
+              <div className="banner-left">
+                <Sparkles size={16} />
+                <span>
+                  Attuned to <strong>{state.assessmentProfile.archetypeName}</strong> ({state.assessmentProfile.coreMotive.toUpperCase()} motive) • Quick-tap MSQs active
+                </span>
+              </div>
+              {onOpenAssessment && (
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={onOpenAssessment}
+                >
+                  Recalibrate
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="assessment-invite-banner">
+              <div className="banner-left">
+                <Zap size={16} />
+                <span>
+                  <strong>Tired of typing essays?</strong> Complete the 2-min baseline assessment to unlock personalized multiple-choice reflections.
+                </span>
+              </div>
+              {onOpenAssessment && (
+                <button
+                  type="button"
+                  className="button secondary sm"
+                  onClick={onOpenAssessment}
+                >
+                  Take Assessment <ArrowRight size={14} />
+                </button>
+              )}
+            </div>
+          )}
+          <section className="card question-card">
+            <div className="section-heading">
+              <span className="eyebrow">
+                {phase} / QUESTION {index + 1} OF {questions.length}
+              </span>
+              <span className="tag">
+                {questions.filter(([id]) => state.answers[id]?.trim()).length}{" "}
+                explored
+              </span>
+            </div>
+            <div className="question-dots">
+              {questions.map(([id], i) => (
+                <button
+                  key={id}
+                  aria-label={`Question ${i + 1}${state.answers[id] ? ", answered" : ""}`}
+                  aria-current={index === i ? "step" : undefined}
+                  className={`${state.answers[id]?.trim() ? "filled" : ""} ${index === i ? "current" : ""}`}
+                  onClick={() => setIndex(i)}
+                />
+              ))}
+            </div>
+            <AnswerForm
+              key={question[0]}
+              question={question}
+              answer={state.answers[question[0]] || ""}
+              selectedOptionIds={state.selectedOptions?.[question[0]] || []}
+              profile={state.assessmentProfile}
+              plan={state.plan}
+              onSave={(value, optionIds) => {
+                if (
+                  update((s) => ({
+                    ...s,
+                    answers: { ...s.answers, [question[0]]: value },
+                    selectedOptions: {
+                      ...(s.selectedOptions || {}),
+                      [question[0]]: optionIds,
+                    },
+                  }))
+                ) {
+                  onNotice("Answer saved.");
+                  if (index < questions.length - 1) setIndex(index + 1);
+                  else if (phase === "morning") {
+                    setPhase("daytime");
+                    setIndex(0);
+                  } else onDraft();
+                }
+              }}
+            />
           <div className="question-navigation">
             <button
               className="text-button"
@@ -309,7 +367,8 @@ export function ResetJourney({
             answer everything.
           </p>
         </section>
-      ) : (
+      </>
+    ) : (
         <>
           <section className="card">
             <div className="section-heading">
@@ -424,49 +483,207 @@ export function ResetJourney({
 function AnswerForm({
   question,
   answer,
+  selectedOptionIds = [],
+  profile,
+  plan,
   onSave,
 }: {
   question: readonly [string, string, string];
   answer: string;
-  onSave: (v: string) => void;
+  selectedOptionIds?: string[];
+  profile?: AssessmentProfile | null;
+  plan?: Plan;
+  onSave: (v: string, optionIds: string[]) => void;
 }) {
+  const msqDef = getPromptMsq(question[0], profile);
+  const [selected, setSelected] = useState<string[]>(selectedOptionIds);
+  const [customText, setCustomText] = useState("");
+  const [showCustom, setShowCustom] = useState(false);
+  const [aiOptions, setAiOptions] = useState<MsqOption[] | null>(null);
+  const [generatingAi, setGeneratingAi] = useState(false);
+  const [aiNotice, setAiNotice] = useState("");
+
+  const activeOptions = aiOptions || msqDef?.options || [];
+
+  const handleToggle = (optId: string) => {
+    let next: string[];
+    if (msqDef?.multiSelect) {
+      next = selected.includes(optId)
+        ? selected.filter((id) => id !== optId)
+        : [...selected, optId];
+    } else {
+      next = selected.includes(optId) ? [] : [optId];
+    }
+    setSelected(next);
+    if (msqDef) {
+      const synthesized = formatMsqAnswer(
+        { ...msqDef, options: activeOptions },
+        next,
+        customText,
+      );
+      onSave(synthesized, next);
+    }
+  };
+
+  const handleGenerateAi = async () => {
+    setGeneratingAi(true);
+    setAiNotice("");
+    try {
+      const res = await fetch("/api/ai/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          promptId: question[0],
+          profile,
+          plan,
+        }),
+      });
+      if (!res.ok) throw new Error("Could not generate AI options");
+      const data = await res.json();
+      if (Array.isArray(data.options) && data.options.length > 0) {
+        setAiOptions(data.options);
+        setAiNotice("Generated fresh choices tailored to your current goals!");
+      }
+    } catch {
+      setAiNotice("Could not reach AI provider. Showing calibrated archetype options.");
+    } finally {
+      setGeneratingAi(false);
+    }
+  };
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSave(
-          String(new FormData(e.currentTarget).get("answer") || "").trim(),
-        );
-      }}
-    >
-      <h2>{question[1]}</h2>
-      <p>{question[2]}</p>
-      <label className="sr-only" htmlFor="reset-answer">
-        Your answer
-      </label>
-      <textarea
-        id="reset-answer"
-        name="answer"
-        defaultValue={answer}
-        rows={7}
-        maxLength={10000}
-        placeholder="Take your time. Start wherever you are…"
-        onBlur={(e) => {
-          const value = e.target.value;
-          if (value !== answer)
-            update((s) => ({
-              ...s,
-              answers: { ...s.answers, [question[0]]: value },
-            }));
-        }}
-      />
+    <div className="msq-form">
+      <div className="msq-prompt-header">
+        <h2>{question[1]}</h2>
+        <p>{question[2]}</p>
+      </div>
+
+      {activeOptions.length > 0 ? (
+        <div className="msq-options-container">
+          <div className="msq-badge-row">
+            <span className="msq-mode-tag">
+              <Sparkles size={13} />
+              {profile ? `${profile.archetypeName}` : "Framework MSQ Mode"}
+            </span>
+            <small className="muted">
+              {msqDef?.multiSelect ? "Select all that resonate" : "Choose the closest match"}
+            </small>
+          </div>
+
+          <div className="msq-options-grid">
+            {activeOptions.map((opt) => {
+              const isSelected = selected.includes(opt.id);
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  className={`msq-card ${isSelected ? "selected" : ""}`}
+                  onClick={() => handleToggle(opt.id)}
+                >
+                  <div className="msq-card-head">
+                    {opt.archetypeTag ? (
+                      <span className="msq-opt-tag">{opt.archetypeTag}</span>
+                    ) : (
+                      <span />
+                    )}
+                    <span className={`msq-checkbox ${isSelected ? "checked" : ""}`}>
+                      {isSelected && <Check size={14} />}
+                    </span>
+                  </div>
+                  <strong>{opt.label}</strong>
+                  {opt.subtext && <p>{opt.subtext}</p>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <textarea
+          id="reset-answer"
+          name="answer"
+          defaultValue={answer}
+          rows={5}
+          placeholder="Reflect on this prompt in your own words…"
+          onBlur={(e) => {
+            const val = e.target.value.trim();
+            if (val !== answer) onSave(val, []);
+          }}
+        />
+      )}
+
+      <div className="msq-toolbar">
+        <button
+          type="button"
+          className="text-button"
+          disabled={generatingAi}
+          onClick={handleGenerateAi}
+        >
+          <Sparkles size={14} />
+          {generatingAi ? "Generating options with AI…" : "Generate AI-tailored choices"}
+        </button>
+
+        <button
+          type="button"
+          className="text-button"
+          onClick={() => setShowCustom(!showCustom)}
+        >
+          <Pencil size={14} />
+          {showCustom ? "Hide notes" : "Add personal nuance / notes"}
+        </button>
+      </div>
+
+      {aiNotice && <p className="msq-notice">{aiNotice}</p>}
+
+      {showCustom && (
+        <div className="msq-custom-box">
+          <label htmlFor="custom-notes">Personal nuance or additional thoughts (optional)</label>
+          <textarea
+            id="custom-notes"
+            rows={3}
+            placeholder="Type any specific details or nuance here…"
+            value={customText}
+            onChange={(e) => {
+              const nextText = e.target.value;
+              setCustomText(nextText);
+              if (msqDef) {
+                const synthesized = formatMsqAnswer(
+                  { ...msqDef, options: activeOptions },
+                  selected,
+                  nextText,
+                );
+                onSave(synthesized, selected);
+              }
+            }}
+          />
+        </div>
+      )}
+
       <div className="answer-actions">
-        <small>Saved when you leave this field or continue.</small>
-        <button className="button primary">
+        <small>
+          {selected.length > 0
+            ? `${selected.length} chosen. Your selection is automatically saved.`
+            : "Tap an option to select, or skip to move forward."}
+        </small>
+        <button
+          type="button"
+          className="button primary"
+          onClick={() => {
+            if (msqDef) {
+              const synthesized = formatMsqAnswer(
+                { ...msqDef, options: activeOptions },
+                selected,
+                customText,
+              );
+              onSave(synthesized, selected);
+            } else {
+              onSave(answer, []);
+            }
+          }}
+        >
           Save & continue <ArrowRight size={16} />
         </button>
       </div>
-    </form>
+    </div>
   );
 }
 function exportCalendar(state: State) {
@@ -560,6 +777,67 @@ export function SettingsView({
           />
           <button className="button primary">Save name</button>
         </form>
+      </section>
+      <section className="card settings-card">
+        <div className="section-heading">
+          <div>
+            <h2>Human Development & Psychometrics</h2>
+            <p>
+              Calibrated baseline frameworks from MatchWise powering your quick-tap
+              reflection MSQs.
+            </p>
+          </div>
+          <Award size={22} />
+        </div>
+        {state.assessmentProfile ? (
+          <div>
+            <div className="settings-profile-summary">
+              <span className="eyebrow">YOUR CALIBRATED ARCHETYPE</span>
+              <h3>{state.assessmentProfile.archetypeName}</h3>
+              <p>{state.assessmentProfile.motiveDescription}</p>
+            </div>
+            <div className="profile-tags-row">
+              <span className="tag">
+                Motive: {state.assessmentProfile.coreMotive.toUpperCase()}
+              </span>
+              <span className="tag">
+                DISC Pace: {state.assessmentProfile.discStyle}
+              </span>
+              <span className="tag">
+                Need: {state.assessmentProfile.primaryNeed}
+              </span>
+              <span className="tag">
+                Consciousness: {state.assessmentProfile.consciousnessLevel}+
+              </span>
+            </div>
+            <div className="settings-buttons" style={{ marginTop: "1rem" }}>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => onModal({ type: "assessment" })}
+              >
+                <RotateCcw size={16} />
+                Retake Baseline Assessment
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p>
+              Take our 2-minute baseline assessment to discover your core motive,
+              stress triggers, and execution style, and eliminate daily typing
+              friction.
+            </p>
+            <button
+              type="button"
+              className="button primary"
+              onClick={() => onModal({ type: "assessment" })}
+            >
+              <Sparkles size={16} />
+              Take Baseline Assessment
+            </button>
+          </div>
+        )}
       </section>
       <section className="card settings-card">
         <h2>Your data belongs to you</h2>

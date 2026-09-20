@@ -18,12 +18,25 @@ export type Plan = {
   month: string;
   constraints: string;
 };
+export type AssessmentProfile = {
+  completedAt: string;
+  coreMotive: "red" | "blue" | "white" | "yellow";
+  discStyle: "D" | "I" | "S" | "C";
+  primaryNeed: "structure" | "freedom" | "empathy" | "esteem";
+  stressTrigger: "chaos" | "restriction" | "conflict" | "dismissal";
+  consciousnessLevel: number;
+  topValues: string[];
+  archetypeName: string;
+  motiveDescription: string;
+};
 export type State = {
   version: 2;
   name: string;
   tasks: Task[];
   days: Record<string, Day>;
   answers: Record<string, string>;
+  selectedOptions?: Record<string, string[]>;
+  assessmentProfile?: AssessmentProfile | null;
   plan: Plan;
   steps: { id: string; title: string; done: boolean }[];
   reflections: { id: string; timestamp: string; note: string; mood: string }[];
@@ -297,6 +310,26 @@ export function decode(input: unknown): State {
       throw new Error(
         "The backup is incomplete or contains invalid data. Your current data has been kept.",
       );
+    if (
+      s.selectedOptions !== undefined &&
+      (!object(s.selectedOptions) ||
+        !Object.values(s.selectedOptions).every(
+          (arr) => Array.isArray(arr) && arr.every(string),
+        ))
+    )
+      throw new Error("The backup contains invalid selected options.");
+    if (
+      s.assessmentProfile !== undefined &&
+      s.assessmentProfile !== null &&
+      (!object(s.assessmentProfile) ||
+        !string((s.assessmentProfile as Record<string, unknown>).coreMotive) ||
+        !string((s.assessmentProfile as Record<string, unknown>).discStyle) ||
+        !string((s.assessmentProfile as Record<string, unknown>).primaryNeed) ||
+        !string((s.assessmentProfile as Record<string, unknown>).stressTrigger) ||
+        typeof (s.assessmentProfile as Record<string, unknown>).consciousnessLevel !== "number" ||
+        !Array.isArray((s.assessmentProfile as Record<string, unknown>).topValues))
+    )
+      throw new Error("The backup contains an invalid assessment profile.");
     const state = s as unknown as State;
     if (
       new Set(state.tasks.map((t) => t.id)).size !== state.tasks.length ||

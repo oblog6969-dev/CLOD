@@ -48,6 +48,16 @@
 - Report provider connection health after the server-side `/models` validation: green/working for responsive checks, yellow/slow at 3 seconds or more, and red/down for validation or reachability errors.
 - Add a user-triggered follow-up chat after analysis. Send only selected context and bounded recent messages, keep the transcript in component memory for the page session, apply the existing server-side session-key protection and rate limits, and never persist chat content in LifeOS data.
 
+## 2026-09-20: human development frameworks & AI MSQ reflection
+
+- The product owner instructed to utilize the clinical and consciousness frameworks from the MatchWise project (`D:\AI\MatchWise`) to eliminate manual essay writing in morning and evening reflections.
+- Integrated six core frameworks: Hartman Color Code (Core Motives: Red, Blue, White, Yellow), David Hawkins Map of Consciousness (Force <200 vs Power ≥200), Abraham Hicks Emotional Guidance (22 set points), The Birkman Method (Usual, Needs, Stress triggers), DISC Assessment (Pace & Focus), and Schwartz Basic Human Values.
+- Implemented an initial 8-question Baseline Assessment (`assessment.ts`) that determines the user's archetype profile and calibrates subsequent prompts.
+- Transformed all 14 morning (`m1`–`m14`) and 7 evening (`e1`–`e7`) Dan Koe prompts into tap-selectable MSQ cards (`questionnaire.ts`) with multi-select support, archetype alignment, and optional personal nuance input.
+- Added `/api/ai/questions` endpoint to dynamically generate 3–4 tailored contextual choices using active goals and psychometric profile when an AI provider is connected, falling back cleanly to curated framework options when offline.
+- Added automated plan drafting from MSQ answers, synthesizing selected choices into the Anti-Vision, Vision, Identity, Daily Levers, and Constraints.
+- State migration and backup validation (`domain.ts`) safely support `assessmentProfile` and `selectedOptions` while maintaining strict schema validity and full backward compatibility.
+
 ## Remaining constraints
 
 Browser storage offers no cross-device sync or transactional multi-tab edits. Reflection-day calendar reminders require calendar import. V1 logs used human-readable timestamps, so missing timestamps cannot be recovered accurately. Keep original exports for archival access.

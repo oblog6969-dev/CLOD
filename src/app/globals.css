@@ -2436,3 +2436,365 @@ textarea::placeholder {
     font-size: 27px;
   }
 }
+
+/* --- Psychometric Assessment & MSQ Reflections --- */
+.assessment-flow {
+  display: grid;
+  gap: 16px;
+}
+.assessment-meta-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.progress-fraction {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+}
+.assessment-prompt h3 {
+  font-size: 19px;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.assessment-prompt p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.assessment-options-list {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0;
+}
+.assessment-option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  gap: 6px;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.assessment-option-card:hover {
+  border-color: var(--green);
+  transform: translateY(-1px);
+}
+.assessment-option-card.selected {
+  border-color: var(--green);
+  background: var(--soft);
+}
+.option-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.option-tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: var(--green);
+}
+.option-check {
+  color: var(--green);
+}
+.assessment-option-card strong {
+  font-size: 14px;
+  color: var(--ink);
+}
+.assessment-option-card p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+.assessment-results {
+  display: grid;
+  gap: 18px;
+}
+.archetype-banner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+.archetype-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--green);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.archetype-banner h3 {
+  font-size: 20px;
+  margin: 2px 0 4px;
+}
+.archetype-banner p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.framework-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.metric-chip {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.metric-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.metric-chip strong {
+  font-size: 15px;
+  color: var(--ink);
+}
+.metric-chip small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.motive-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  width: fit-content;
+}
+.motive-red { background: #fee2e2; color: #b91c1c; }
+.motive-blue { background: #dbeafe; color: #1d4ed8; }
+.motive-white { background: #f3f4f6; color: #374151; }
+.motive-yellow { background: #fef3c7; color: #b45309; }
+
+:root[data-theme="dark"] .motive-red { background: #450a0a; color: #fca5a5; }
+:root[data-theme="dark"] .motive-blue { background: #172554; color: #93c5fd; }
+:root[data-theme="dark"] .motive-white { background: #1f2937; color: #e5e7eb; }
+:root[data-theme="dark"] .motive-yellow { background: #451a03; color: #fde68a; }
+
+.assessment-benefit-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px dashed var(--green);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.assessment-benefit-callout svg {
+  color: var(--green);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Banners in ResetJourney */
+.assessment-active-banner,
+.assessment-invite-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+.assessment-active-banner {
+  background: var(--soft);
+  border: 1px solid var(--line);
+}
+.assessment-invite-banner {
+  background: var(--surface);
+  border: 1px dashed var(--green);
+}
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.banner-left svg {
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+/* MSQ Form */
+.msq-form {
+  display: grid;
+  gap: 16px;
+}
+.msq-prompt-header h2 {
+  font-size: 19px;
+  margin-bottom: 4px;
+}
+.msq-prompt-header p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.msq-badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.msq-mode-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  background: var(--soft);
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+}
+.msq-options-grid {
+  display: grid;
+  gap: 10px;
+}
+.msq-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  gap: 6px;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
+  width: 100%;
+}
+.msq-card:hover {
+  border-color: var(--green);
+  transform: translateY(-1px);
+}
+.msq-card.selected {
+  border-color: var(--green);
+  background: var(--soft);
+}
+.msq-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.msq-opt-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 0.3px;
+}
+.msq-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  transition: border-color 0.15s, background 0.15s;
+}
+.msq-checkbox.checked {
+  border-color: var(--green);
+  background: var(--surface);
+}
+.msq-card strong {
+  font-size: 14px;
+  color: var(--ink);
+}
+.msq-card p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.45;
+}
+.msq-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding-top: 4px;
+}
+.msq-notice {
+  font-size: 12px;
+  color: var(--green);
+  margin: 0;
+}
+.msq-custom-box {
+  display: grid;
+  gap: 6px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.msq-custom-box label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.msq-custom-box textarea {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--ink);
+  font-size: 13px;
+}
+.settings-profile-summary {
+  margin-bottom: 12px;
+}
+.settings-profile-summary h3 {
+  font-size: 18px;
+  margin: 2px 0 4px;
+}
+.settings-profile-summary p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.profile-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 650px) {
+  .framework-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .archetype-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+  .assessment-active-banner,
+  .assessment-invite-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .msq-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

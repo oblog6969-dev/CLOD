@@ -159,3 +159,82 @@ test("AI configuration and structured responses are validated", () => {
     false,
   );
 });
+
+test("assessment calculation derives correct human development archetype", async () => {
+  const { calculateAssessment } = await import("../src/lib/assessment.ts");
+  const profile = calculateAssessment({
+    aq1: "aq1_d",
+    aq2: "aq2_red",
+    aq3: "aq3_freedom",
+    aq4: "aq4_demanding",
+    aq5: "aq5_courage",
+    aq6: "aq6_selfdir",
+    aq7: "aq7_high",
+    aq8: "aq8_d",
+  });
+  assert.equal(profile.coreMotive, "red");
+  assert.equal(profile.discStyle, "D");
+  assert.equal(profile.primaryNeed, "freedom");
+  assert.equal(profile.archetypeName, "The Sovereign Commander");
+  assert.equal(profile.consciousnessLevel >= 250, true);
+});
+
+test("MSQ catalog covers all 14 morning and 7 evening prompts", async () => {
+  const { MSQ_CATALOG, getPromptMsq, formatMsqAnswer, synthesizePlanFromAnswers } = await import(
+    "../src/lib/questionnaire.ts"
+  );
+  for (let i = 1; i <= 14; i++) {
+    const prompt = getPromptMsq(`m${i}`);
+    assert.ok(prompt, `Morning prompt m${i} must exist`);
+    assert.equal(prompt.options.length >= 3, true);
+  }
+  for (let i = 1; i <= 7; i++) {
+    const prompt = getPromptMsq(`e${i}`);
+    assert.ok(prompt, `Evening prompt e${i} must exist`);
+    assert.equal(prompt.options.length >= 3, true);
+  }
+
+  const m1 = MSQ_CATALOG.m1;
+  const formatted = formatMsqAnswer(m1, ["m1_red"], "A little tired");
+  assert.ok(formatted.includes("Low leverage & scattered focus"));
+  assert.ok(formatted.includes("A little tired"));
+
+  const plan = synthesizePlanFromAnswers(
+    {
+      m13: "A sovereign creator",
+      e3: "Refuse mediocrity",
+      e4: "Sovereign freedom",
+      e5: "10k monthly",
+      e6: "Launch MVP",
+    },
+    { vision: "", antiVision: "", identity: "", year: "", month: "", constraints: "" },
+  );
+  assert.equal(plan.identity, "A sovereign creator");
+  assert.equal(plan.antiVision, "Refuse mediocrity");
+  assert.equal(plan.vision, "Sovereign freedom");
+  assert.equal(plan.year, "10k monthly");
+  assert.equal(plan.month, "Launch MVP");
+});
+
+test("state decode validates and preserves assessment profile and selected options", () => {
+  const state = fixture();
+  state.assessmentProfile = {
+    completedAt: "2026-09-20T12:00:00.000Z",
+    coreMotive: "white",
+    discStyle: "S",
+    primaryNeed: "freedom",
+    stressTrigger: "chaos",
+    consciousnessLevel: 310,
+    topValues: ["self_direction", "peace"],
+    archetypeName: "The Grounded Harmonizer",
+    motiveDescription: "Calm composure",
+  };
+  state.selectedOptions = {
+    m1: ["m1_white"],
+    e1: ["e1_power"],
+  };
+
+  const decoded = decode(JSON.parse(JSON.stringify(state)));
+  assert.deepEqual(decoded.assessmentProfile, state.assessmentProfile);
+  assert.deepEqual(decoded.selectedOptions, state.selectedOptions);
+});

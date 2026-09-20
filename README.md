@@ -16,18 +16,17 @@ Open http://localhost:3000. For production, run `npm run build` followed by `npm
 ## Experience
 
 - **Guided journey:** a first-visit welcome explains LifeOS without requiring background reading. Every section offers a short explanation, a recommendation based on saved activity, and an expandable Notice → Choose → Practice → Learn walkthrough. Reset phases and plan fields include plain-language help. Returning users see the compact guide and can reopen the walkthrough.
+- **Baseline assessment & psychometrics:** an 8-question situational calibration derived from clinical & behavioral frameworks in MatchWise (Hartman Color Code motives, Hawkins Map of Consciousness, Abraham Hicks Emotional Continuum, Birkman needs & stress triggers, DISC pace & focus, and Schwartz values) to derive an individualized human development archetype.
 - **Today:** recurring priorities, optional time blocks, local-date completion, mood, and a quick reflection.
-- **Your reset:** 14 morning questions, six customizable calendar reminders, and seven evening questions. The source article skips the number 12; it contains 14 actual morning prompts, not 15. Each answer saves on blur or Continue. A plan draft copies the person's own answers for explicit review.
+- **Your reset & MSQ reflections:** 14 morning questions, six customizable calendar reminders, and seven evening questions. Prompts feature tap-selectable Multiple-Choice Questions (MSQs) calibrated to the user's archetype to eliminate typing fatigue, with optional personal nuance notes and dynamic AI option generation (`/api/ai/questions`). Each answer saves immediately. A plan draft synthesizes chosen options for explicit review.
 - **My direction:** editable vision, anti-vision, identity, yearly outcome, monthly project, and boundaries. Monthly progress depends only on its own steps.
 - **Reflections:** timestamped notes and seven days of completion history. Points and levels are secondary, derived metrics.
-- **AI guide:** optional provider-neutral pattern analysis with category-by-category consent. OpenAI, DeepSeek, NVIDIA NIM, and public OpenAI-compatible APIs are supported. Suggestions only change Today after explicit acceptance.
-- **Settings:** name, validated JSON import/export, archived-step recovery, reset with backup, and restoration of the previous workspace.
+- **AI guide:** optional provider-neutral pattern analysis with category-by-category consent. OpenAI, DeepSeek, NVIDIA NIM, Groq, Hugging Face, OpenRouter, and public OpenAI-compatible APIs are supported. Suggestions only change Today after explicit acceptance.
+- **Settings:** name, psychometric baseline review & recalibration, validated JSON import/export, archived-step recovery, reset with backup, and restoration of the previous workspace.
 
 ## Optional AI guide
 
 The AI guide uses server-only route handlers. OpenAI uses the Responses API; DeepSeek, NVIDIA NIM, Groq, Hugging Face Inference Providers, OpenRouter, and custom providers use OpenAI-compatible Chat Completions. Enter an API key and model ID in AI guide. The key passes from the browser form to the LifeOS server, so use HTTPS outside local development. The server validates it against the provider's models endpoint, encrypts it with AES-256-GCM, and returns it only as an HttpOnly, same-site session cookie scoped to `/api/ai`. It is never persisted in local storage, application state, exports, logs, or repository files, and the raw value is not returned to the browser after connection.
-
-Custom endpoints must be public HTTPS URLs and cannot redirect. A trusted self-hosted NIM or other private endpoint can be enabled with `LIFEOS_ALLOW_PRIVATE_AI_ENDPOINTS=true`; use this only on a server whose users are trusted because it permits requests to private network addresses.
 
 Set `LIFEOS_SESSION_SECRET` to a long random value for deployed or multi-instance environments (see `.env.example`). Without it, LifeOS creates an in-memory key suitable for local development; AI connection cookies become unreadable after a server restart and the person reconnects. HTTPS sets the cookie's Secure flag.
 

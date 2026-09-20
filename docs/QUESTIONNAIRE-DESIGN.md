@@ -1,6 +1,6 @@
 # LifeOS questionnaire: Dan Koe foundation
 
-Updated 2026-09-20. Status: product direction confirmed; questionnaire implementation pending.
+Updated 2026-09-20. Status: implemented.
 
 ## Source and scope
 
@@ -72,6 +72,13 @@ Verify source coverage, neutral choices, save/resume, skipped answers, editable 
 
 ## Feedback-led iteration
 
-Start with the agreed article foundation and collect feedback on effort, clarity, whether choices fit, and usefulness of the resulting plan. Evaluate wording and flow changes against that feedback. Broader framework additions require a later explicit product decision.
+Start with the agreed article foundation and collect feedback on effort, clarity, whether choices fit, and usefulness of the resulting plan. Evaluate wording and flow changes against that feedback.
 
-The article-led questionnaire remains a design proposal: no multiple-choice questionnaire, new data schema, or generated AI follow-up flow has been implemented. A separate guided-journey implementation now explains the existing sections, reset phases, and plan fields, with recommendations derived from saved activity and an optional walkthrough. It is the orientation layer for the future questionnaire.
+## Implementation completed (2026-09-20)
+
+The multiple-choice questionnaire and baseline assessment have been fully implemented:
+- **Baseline Assessment (`src/lib/assessment.ts`)**: 8 situational psychometric questions calibrated across MatchWise frameworks (Hartman Motives, Hawkins Consciousness, Hicks Continuum, Birkman Method, DISC, Schwartz Values).
+- **MSQ Catalog (`src/lib/questionnaire.ts`)**: All 14 morning (`m1`–`m14`) and 7 evening (`e1`–`e7`) prompts feature tap-selectable choice cards with multi-select support and personal nuance fields.
+- **Dynamic AI Generation (`/api/ai/questions`)**: Generates 3–4 tailored contextual choices using active goals and the user's archetype profile when connected.
+- **Auto-Plan Synthesis (`synthesizePlanFromAnswers`)**: Synthesizes chosen options directly into the Direction Draft (Anti-Vision, Vision, Identity, Yearly Goal, Monthly Project, Constraints).
+- **Interactive UI (`WorkspaceForms.tsx` & `BaselineAssessmentModal.tsx`)**: Responsive option cards, badges, checks, and theme persistence.
