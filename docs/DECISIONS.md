@@ -34,6 +34,13 @@
 - Preserve the source's reflection-to-action structure and the person's authorship of their plan. Multiple-choice wording and AI follow-ups are app adaptations, not validated psychological measurements.
 - Questionnaire implementation remains pending. See docs/QUESTIONNAIRE-DESIGN.md for the revised design and acceptance criteria; no runtime behavior changes accompany this decision.
 
+## 2026-09-20: guidance for users new to the article
+
+- Implement a welcome and an expandable journey map across Your reset, My direction, Today, and Reflections. Explain the optional AI guide and backup settings too. No prior knowledge of the article is assumed.
+- Derive next-step suggestions and saved-item counts from the existing workspace. Counts describe actual saved content, not completion of personal growth. No new data schema or invented user goals are introduced.
+- Explain each reset phase and all six plan fields where they are used. Give direct controls to open the relevant form or focus the next section; restore main-content focus on section navigation.
+- Keep guidance optional to expand for returning users. These are authored app-use recommendations, not automatic AI analysis or psychological screening. The multiple-choice questionnaire remains a separately documented, unimplemented feature.
+
 ## Remaining constraints
 
 Browser storage offers no cross-device sync or transactional multi-tab edits. Reflection-day calendar reminders require calendar import. V1 logs used human-readable timestamps, so missing timestamps cannot be recovered accurately. Keep original exports for archival access.

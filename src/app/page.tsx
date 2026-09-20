@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { Dialog } from "@/components/Dialog";
 import { AiAssistant } from "@/components/AiAssistant";
+import { JourneyGuide } from "@/components/JourneyGuide";
+import { planGuidance, type GuideAction, type View } from "@/lib/journey";
 import {
   TaskForm,
   ResetJourney,
@@ -40,8 +42,6 @@ import {
   type Plan,
 } from "@/lib/domain";
 
-type View =
-  "today" | "reset" | "direction" | "journal" | "assistant" | "settings";
 const navigation = [
   { id: "today", label: "Today", icon: Sun },
   { id: "reset", label: "Your reset", icon: Compass },
@@ -63,6 +63,14 @@ export default function Home() {
   const [view, setView] = useState<View>("today");
   const [modal, setModal] = useState<Modal>(null);
   const [notice, setNotice] = useState("");
+  const previousView = useRef(view);
+  useEffect(() => {
+    if (previousView.current !== view) {
+      previousView.current = view;
+      document.getElementById("main")?.focus();
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+  }, [view]);
   const toggleTheme = () => {
     const next = document.documentElement.dataset.theme !== "dark";
     document.documentElement.dataset.theme = next ? "dark" : "light";
@@ -82,6 +90,67 @@ export default function Home() {
   const completed = tasks.filter((t) => day.completed.includes(t.id)).length;
   const answered = prompts.filter(([id]) => state.answers[id]?.trim()).length;
   const close = () => setModal(null);
+  const openDraft = () =>
+    setModal({
+      type: "plan",
+      draft: {
+        ...state.plan,
+        identity: state.answers.m13 || state.plan.identity,
+        antiVision: state.answers.e3 || state.plan.antiVision,
+        vision: state.answers.e4 || state.plan.vision,
+        year: state.answers.e5 || state.plan.year,
+        month: state.answers.e6 || state.plan.month,
+      },
+    });
+  const guideAction = (action: GuideAction) => {
+    const focus = (id: string) => {
+      const target = document.getElementById(id);
+      target?.focus();
+      target?.scrollIntoView({ block: "start", behavior: "instant" });
+    };
+    switch (action) {
+      case "reset":
+        setView("reset");
+        break;
+      case "draft":
+        openDraft();
+        break;
+      case "plan":
+        setModal({ type: "plan" });
+        break;
+      case "task":
+        setModal({ type: "task" });
+        break;
+      case "checkin":
+        setModal({ type: "checkin" });
+        break;
+      case "tasks":
+        focus("daily-actions");
+        break;
+      case "questions":
+        focus("reset-work");
+        break;
+      case "project":
+        focus("project-step");
+        break;
+      case "assistant":
+        focus("ai-workspace");
+        break;
+      case "backup":
+        download(JSON.stringify(state, null, 2), `lifeos-${date}.json`);
+        break;
+    }
+  };
+  const guide = blocked ? null : (
+    <JourneyGuide
+      key={view}
+      view={view}
+      state={state}
+      date={date}
+      onNavigate={setView}
+      onAction={guideAction}
+    />
+  );
   const saved = (ok: boolean, message = "Saved. One small step forward.") => {
     if (ok) {
       setNotice(message);
@@ -216,6 +285,7 @@ export default function Home() {
               </button>
             </div>
           )}
+          {view !== "today" && guide}
           {view === "today" && (
             <>
               <div className="page-heading">
@@ -239,51 +309,7 @@ export default function Home() {
                   Take a mindful pause
                 </button>
               </div>
-              <section
-                className={`hero-card ${tasks.length || state.plan.vision ? "compact" : ""}`}
-              >
-                <div className="hero-copy">
-                  <span className="pill">
-                    <span />{" "}
-                    {answered === prompts.length
-                      ? "YOUR NEXT CHAPTER"
-                      : "A DAY TO FIND YOUR DIRECTION"}
-                  </span>
-                  <h2>
-                    {answered === prompts.length
-                      ? "Clarity begins with you.\nProgress begins today."
-                      : "A fresh start.\nOn your terms."}
-                  </h2>
-                  <p>
-                    {state.plan.vision ||
-                      "Step back, reconnect with what you want, and turn that clarity into a few small, meaningful actions."}
-                  </p>
-                  <button
-                    className="button light"
-                    onClick={() =>
-                      setView(
-                        answered === prompts.length ? "direction" : "reset",
-                      )
-                    }
-                  >
-                    {answered
-                      ? "Continue your journey"
-                      : "Begin your one-day reset"}
-                    <ArrowUpRight size={18} />
-                  </button>
-                  <span className="hero-footnote">
-                    Your words. Your pace. Room to change your mind.
-                  </span>
-                </div>
-                <div className="sunrise-art" aria-hidden="true">
-                  <div className="orbit orbit-one" />
-                  <div className="orbit orbit-two" />
-                  <div className="sun-disc" />
-                  <div className="hill hill-back" />
-                  <div className="hill hill-front" />
-                  <div className="art-caption">GROW AT YOUR OWN PACE</div>
-                </div>
-              </section>
+              {guide}
               <div className="stat-strip">
                 <div>
                   <span className="stat-icon">
@@ -323,7 +349,11 @@ export default function Home() {
                 </div>
               </div>
               <div className="dashboard-grid">
-                <section className="card priorities">
+                <section
+                  className="card priorities"
+                  id="daily-actions"
+                  tabIndex={-1}
+                >
                   <div className="section-heading">
                     <div>
                       <h2>Today’s small steps</h2>
@@ -538,21 +568,10 @@ export default function Home() {
           {view === "reset" && (
             <ResetJourney
               state={state}
-              onDraft={() =>
-                setModal({
-                  type: "plan",
-                  draft: {
-                    ...state.plan,
-                    identity: state.answers.m13 || state.plan.identity,
-                    antiVision: state.answers.e3 || state.plan.antiVision,
-                    vision: state.answers.e4 || state.plan.vision,
-                    year: state.answers.e5 || state.plan.year,
-                    month: state.answers.e6 || state.plan.month,
-                  },
-                })
-              }
+              onDraft={openDraft}
               onCheckIn={(prompt) => setModal({ type: "checkin", prompt })}
               onNotice={setNotice}
+              onDirection={() => setView("direction")}
             />
           )}
           {view === "direction" && (
@@ -584,6 +603,7 @@ export default function Home() {
                     <span className="eyebrow">
                       0{i + 1} / {planLabels[key]}
                     </span>
+                    <small className="plan-hint">{planGuidance[key]}</small>
                     <p>
                       {state.plan[key] ||
                         "Still taking shape. Make room to explore this in your reset."}
@@ -777,7 +797,11 @@ export default function Home() {
               </div>
             </>
           )}
-          {view === "assistant" && <AiAssistant state={state} date={date} />}
+          {view === "assistant" && (
+            <div id="ai-workspace" tabIndex={-1}>
+              <AiAssistant state={state} date={date} />
+            </div>
+          )}
           {view === "settings" && (
             <SettingsView
               key={state.name}
@@ -908,8 +932,12 @@ export default function Home() {
             {(Object.keys(planLabels) as (keyof Plan)[]).map((key) => (
               <div key={key}>
                 <label htmlFor={`plan-${key}`}>{planLabels[key]}</label>
+                <p className="field-hint" id={`plan-${key}-help`}>
+                  {planGuidance[key]}
+                </p>
                 <textarea
                   id={`plan-${key}`}
+                  aria-describedby={`plan-${key}-help`}
                   name={key}
                   defaultValue={(modal.draft || state.plan)[key]}
                   rows={2}

@@ -138,6 +138,9 @@ test("corrupt stored data is protected until recovery is chosen", async ({
   await expect(
     page.getByRole("alert").filter({ hasText: "Your saved data" }),
   ).toContainText("could not be opened");
+  await expect(
+    page.getByRole("region", { name: "Your journey guide" }),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Add a small step" }).click();
   await page
     .getByLabel("What will you do?")
@@ -169,7 +172,9 @@ test("AI guide shares selected context and lets the user accept one suggestion",
 }) => {
   let requestBody: { context?: Record<string, unknown> } = {};
   await page.route("**/api/ai/settings", async (route) => {
-    await route.fulfill({ json: { connected: true, model: "gpt-5-mini", provider: "openai" } });
+    await route.fulfill({
+      json: { connected: true, model: "gpt-5-mini", provider: "openai" },
+    });
   });
   await page.route("**/api/ai/analyze", async (route) => {
     requestBody = route.request().postDataJSON();
@@ -223,7 +228,9 @@ test("AI key form stays masked and reports connection errors", async ({
 }) => {
   await page.route("**/api/ai/settings", async (route) => {
     if (route.request().method() === "GET")
-      return route.fulfill({ json: { connected: false, model: null, provider: null } });
+      return route.fulfill({
+        json: { connected: false, model: null, provider: null },
+      });
     await route.fulfill({
       status: 401,
       json: {
@@ -255,8 +262,12 @@ test("AI settings endpoint rejects malformed keys before any upstream request", 
   expect((await response.json()).error).toContain("valid API key");
 });
 
-test("AI guide exposes DeepSeek, NVIDIA, and compatible providers", async ({ page }) => {
-  await page.route("**/api/ai/settings", (route) => route.fulfill({ json: { connected: false, model: null, provider: null } }));
+test("AI guide exposes DeepSeek, NVIDIA, and compatible providers", async ({
+  page,
+}) => {
+  await page.route("**/api/ai/settings", (route) =>
+    route.fulfill({ json: { connected: false, model: null, provider: null } }),
+  );
   await page.goto("/");
   await page.getByRole("button", { name: "AI guide" }).click();
   const provider = page.getByLabel("Provider");

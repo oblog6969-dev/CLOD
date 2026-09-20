@@ -15,6 +15,7 @@ Open http://localhost:3000. For production, run `npm run build` followed by `npm
 
 ## Experience
 
+- **Guided journey:** a first-visit welcome explains LifeOS without requiring background reading. Every section offers a short explanation, a recommendation based on saved activity, and an expandable Notice → Choose → Practice → Learn walkthrough. Reset phases and plan fields include plain-language help. Returning users see the compact guide and can reopen the walkthrough.
 - **Today:** recurring priorities, optional time blocks, local-date completion, mood, and a quick reflection.
 - **Your reset:** 14 morning questions, six customizable calendar reminders, and seven evening questions. The source article skips the number 12; it contains 14 actual morning prompts, not 15. Each answer saves on blur or Continue. A plan draft copies the person's own answers for explicit review.
 - **My direction:** editable vision, anti-vision, identity, yearly outcome, monthly project, and boundaries. Monthly progress depends only on its own steps.

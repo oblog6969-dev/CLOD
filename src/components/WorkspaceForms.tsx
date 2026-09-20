@@ -126,11 +126,13 @@ export function ResetJourney({
   onDraft,
   onCheckIn,
   onNotice,
+  onDirection,
 }: {
   state: State;
   onDraft: () => void;
   onCheckIn: (prompt: string) => void;
   onNotice: (s: string) => void;
+  onDirection: () => void;
 }) {
   const [phase, setPhase] = useState<"morning" | "daytime" | "evening">(
     "morning",
@@ -140,6 +142,29 @@ export function ResetJourney({
     phase === "evening" ? id.startsWith("e") : id.startsWith("m"),
   );
   const question = questions[Math.min(index, questions.length - 1)];
+  const phaseGuide = {
+    morning: {
+      title: "1. Explore what you want to change",
+      explanation:
+        "Begin by noticing your current patterns and what you want your future to look like. You are gathering ideas; you do not need a finished plan.",
+      recommendation:
+        "Start with a recent everyday moment. A phrase or a few words is enough to begin.",
+    },
+    daytime: {
+      title: "2. Notice your day as it happens",
+      explanation:
+        "Pause during ordinary activities and compare where your attention went with where you wanted it to go. These observations can inform your evening answers.",
+      recommendation:
+        "Choose reminder times that fit your day. Export and import them into your calendar, or use the reflection buttons here when you pause.",
+    },
+    evening: {
+      title: "3. Turn what you noticed into a direction",
+      explanation:
+        "Look for what you want to leave behind, what you want to move toward, and a small next step. You can review an editable plan draft after these questions.",
+      recommendation:
+        "Use something you actually noticed today. Your first direction is allowed to be provisional.",
+    },
+  }[phase];
   return (
     <>
       <div className="page-heading">
@@ -203,6 +228,18 @@ export function ResetJourney({
           </button>
         ))}
       </div>
+      <section
+        className="phase-guidance"
+        id="reset-work"
+        tabIndex={-1}
+        aria-label="Guidance for this phase"
+      >
+        <h2>{phaseGuide.title}</h2>
+        <p>{phaseGuide.explanation}</p>
+        <p>
+          <strong>Try this:</strong> {phaseGuide.recommendation}
+        </p>
+      </section>
       {phase !== "daytime" ? (
         <section className="card question-card">
           <div className="section-heading">
@@ -352,6 +389,23 @@ export function ResetJourney({
           </section>
         </>
       )}
+      <div className="journey-handoff">
+        <div>
+          <strong>Ready to connect your answers?</strong>
+          <p>
+            My direction brings your ideas into a plan you can revise. You can
+            go there before answering everything.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="button secondary"
+          aria-label="Continue to your plan"
+          onClick={onDirection}
+        >
+          Continue to your plan <ArrowRight size={16} />
+        </button>
+      </div>
       <p className="source-note">
         An original guided adaptation of{" "}
         <a

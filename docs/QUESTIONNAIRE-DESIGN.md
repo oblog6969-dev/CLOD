@@ -74,4 +74,4 @@ Verify source coverage, neutral choices, save/resume, skipped answers, editable 
 
 Start with the agreed article foundation and collect feedback on effort, clarity, whether choices fit, and usefulness of the resulting plan. Evaluate wording and flow changes against that feedback. Broader framework additions require a later explicit product decision.
 
-Current delivery is documentation only. No new questionnaire, data schema, AI behavior, or deployment has been implemented.
+The article-led questionnaire remains a design proposal: no multiple-choice questionnaire, new data schema, or generated AI follow-up flow has been implemented. A separate guided-journey implementation now explains the existing sections, reset phases, and plan fields, with recommendations derived from saved activity and an optional walkthrough. It is the orientation layer for the future questionnaire.

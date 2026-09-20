@@ -73,6 +73,10 @@ select:focus-visible {
 a {
   color: inherit;
 }
+summary:focus-visible {
+  outline: 3px solid #98b480;
+  outline-offset: 4px;
+}
 button {
   border: 0;
 }
@@ -976,7 +980,7 @@ footer a {
   flex: 1;
   min-width: 160px;
 }
-.inline-form label {
+.inline-form label:not(.sr-only) {
   width: 100%;
 }
 .week-chart {
@@ -1589,6 +1593,209 @@ textarea::placeholder {
 }
 .boundaries {
   margin-top: 21px;
+}
+.journey-guide {
+  margin-bottom: 26px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.journey-welcome {
+  background: var(--soft);
+}
+.journey-heading {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+}
+.journey-heading h2 {
+  margin-top: 4px;
+  font-size: 23px;
+}
+.journey-symbol {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 43px;
+  height: 43px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--green);
+  background: var(--surface);
+}
+.journey-guide .eyebrow {
+  color: var(--muted);
+}
+.journey-intro {
+  max-width: 740px;
+  margin: 13px 0 20px;
+}
+.journey-next,
+.journey-handoff {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  justify-content: space-between;
+}
+.journey-next {
+  padding: 17px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.journey-next strong,
+.journey-handoff strong {
+  font-size: 13px;
+}
+.journey-next p,
+.journey-handoff p {
+  font-size: 13px;
+  margin-top: 4px;
+  max-width: 640px;
+}
+.journey-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+  background: transparent;
+  color: var(--ink);
+}
+.journey-expand[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+.journey-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+  margin: 10px 0 16px;
+  padding: 0;
+}
+.journey-steps button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+}
+.journey-steps button[aria-current="step"] {
+  border-color: var(--green);
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+.journey-steps button:hover {
+  background: var(--soft);
+}
+.journey-number {
+  font-size: 12px;
+  color: var(--green);
+}
+.journey-steps button > span:not(.journey-number),
+.journey-steps small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.journey-steps small {
+  margin-top: auto;
+  padding-top: 8px;
+}
+.journey-tip {
+  font-size: 13px;
+}
+.journey-tip strong,
+.phase-guidance strong {
+  color: var(--ink);
+}
+.journey-footnote,
+.journey-source {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.journey-source summary {
+  cursor: pointer;
+  width: fit-content;
+  padding: 8px 0;
+  color: var(--ink);
+}
+.journey-source a {
+  display: inline-block;
+  margin-top: 8px;
+  text-underline-offset: 3px;
+}
+.phase-guidance {
+  border-left: 3px solid var(--green);
+  padding: 4px 18px;
+  margin-bottom: 25px;
+  scroll-margin-top: 24px;
+}
+.phase-guidance h2 {
+  font-size: 17px;
+}
+.phase-guidance p {
+  font-size: 13px;
+  margin-top: 8px;
+  max-width: 750px;
+}
+.journey-handoff {
+  margin-top: 25px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.plan-hint {
+  display: block;
+  margin-top: 9px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.field-hint {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+@media (max-width: 1000px) {
+  .journey-next,
+  .journey-handoff {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .journey-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 650px) {
+  .journey-guide {
+    padding: 19px;
+  }
+  .journey-heading h2 {
+    font-size: 21px;
+  }
+  .journey-symbol {
+    display: none;
+  }
+  .journey-next .button,
+  .journey-handoff .button {
+    white-space: normal;
+    width: 100%;
+  }
+  .journey-steps button {
+    padding: 12px;
+  }
+  .journey-intro {
+    font-size: 13px;
+  }
 }
 .boundary {
   display: flex;
