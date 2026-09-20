@@ -19,6 +19,7 @@ import {
   Sprout,
   Bot,
   X,
+  Moon,
 } from "lucide-react";
 import { Dialog } from "@/components/Dialog";
 import { AiAssistant } from "@/components/AiAssistant";
@@ -62,6 +63,11 @@ export default function Home() {
   const [view, setView] = useState<View>("today");
   const [modal, setModal] = useState<Modal>(null);
   const [notice, setNotice] = useState("");
+  const toggleTheme = () => {
+    const next = document.documentElement.dataset.theme !== "dark";
+    document.documentElement.dataset.theme = next ? "dark" : "light";
+    localStorage.setItem("lifeos_theme", next ? "dark" : "light");
+  };
   if (!snapshot)
     return (
       <main className="loading">
@@ -176,6 +182,17 @@ export default function Home() {
               year: "numeric",
             })}
           </span>
+          <button
+            className="theme-toggle"
+            type="button"
+            onClick={toggleTheme}
+            aria-label="Toggle color theme"
+            title="Toggle color theme"
+          >
+            <Sun className="theme-icon-light" size={16} />
+            <Moon className="theme-icon-dark" size={16} />
+            <span>Theme</span>
+          </button>
         </header>
         <main id="main" tabIndex={-1}>
           {(error || blocked) && (

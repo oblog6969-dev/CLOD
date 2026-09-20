@@ -11,6 +11,18 @@
   --green: #346449;
   --soft: #edf2e9;
   --accent: #dae8c3;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --paper: #111713;
+  --surface: #18201b;
+  --ink: #e7eee8;
+  --muted: #a5b1a8;
+  --line: #303b33;
+  --green: #79a986;
+  --soft: #202c23;
+  --accent: #344b38;
+  color-scheme: dark;
 }
 * {
   box-sizing: border-box;
@@ -259,6 +271,32 @@ p {
   align-items: center;
   gap: 7px;
   color: #7c887e;
+  margin-left: auto;
+}
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: 12px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  font-size: 11px;
+}
+.theme-toggle:hover {
+  color: var(--ink);
+  background: var(--soft);
+}
+.theme-icon-light {
+  display: none;
+}
+:root[data-theme="dark"] .theme-icon-light {
+  display: block;
+}
+:root[data-theme="dark"] .theme-icon-dark {
+  display: none;
 }
 main {
   max-width: 1280px;
@@ -1733,6 +1771,128 @@ textarea::placeholder {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Dark mode keeps the same quiet, natural palette with accessible contrast. */
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .topbar {
+  background: #151c17;
+}
+:root[data-theme="dark"] .nav-item {
+  color: #aab6ad;
+}
+:root[data-theme="dark"] .nav-item.active,
+:root[data-theme="dark"] .nav-item:hover,
+:root[data-theme="dark"] .icon-button:hover {
+  background: #27352a;
+  color: #dce9de;
+}
+:root[data-theme="dark"] .sidebar-note,
+:root[data-theme="dark"] .ai-intro {
+  background: linear-gradient(120deg, #1d2920, #20261f);
+  border-color: var(--line);
+}
+:root[data-theme="dark"] .sidebar-note p,
+:root[data-theme="dark"] .plan-card p,
+:root[data-theme="dark"] label {
+  color: #b7c7b8;
+}
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .button.secondary,
+:root[data-theme="dark"] .add-button,
+:root[data-theme="dark"] .phase,
+:root[data-theme="dark"] .mood,
+:root[data-theme="dark"] dialog {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+:root[data-theme="dark"] .button.secondary,
+:root[data-theme="dark"] .add-button,
+:root[data-theme="dark"] .mood,
+:root[data-theme="dark"] .phase {
+  color: #b8c8ba;
+}
+:root[data-theme="dark"] .button.secondary:hover,
+:root[data-theme="dark"] .add-button:hover {
+  background: #243128;
+}
+:root[data-theme="dark"] .button.primary {
+  background: #477c57;
+}
+:root[data-theme="dark"] .button.primary:hover {
+  background: #568f67;
+}
+:root[data-theme="dark"] .direction-card,
+:root[data-theme="dark"] .vision-plan,
+:root[data-theme="dark"] .phase.active,
+:root[data-theme="dark"] .mood.selected {
+  background: #223027;
+  border-color: #49634e;
+  color: #d7e7d9;
+}
+:root[data-theme="dark"] .gentle-note {
+  background: #29271f;
+  border-color: #454132;
+}
+:root[data-theme="dark"] .gentle-note p {
+  color: #d4ccb1;
+}
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] .context-option {
+  background: #131a15;
+  border-color: #3a463d;
+  color: var(--ink);
+}
+:root[data-theme="dark"] .stat-icon,
+:root[data-theme="dark"] .empty-icon,
+:root[data-theme="dark"] .phase-icon,
+:root[data-theme="dark"] .task-toggle[aria-pressed="true"],
+:root[data-theme="dark"] .tag,
+:root[data-theme="dark"] .toast,
+:root[data-theme="dark"] .ai-orb,
+:root[data-theme="dark"] .suggested-step,
+:root[data-theme="dark"] .recommendation-area,
+:root[data-theme="dark"] .key-note code {
+  background: #28362b;
+  border-color: #3b4a3e;
+  color: #b9ceb9;
+}
+:root[data-theme="dark"] .stat-icon.peach,
+:root[data-theme="dark"] .recommendation-area.wellbeing {
+  background: #392d25;
+  border-color: #554235;
+  color: #d7a77e;
+}
+:root[data-theme="dark"] .stat-icon.lavender,
+:root[data-theme="dark"] .recommendation-area.direction {
+  background: #302c39;
+  border-color: #494254;
+  color: #b7a8c7;
+}
+:root[data-theme="dark"] .alert {
+  background: #352b1c;
+  border-color: #5b492d;
+  color: #e0c38c;
+}
+:root[data-theme="dark"] .skip-link {
+  background: var(--surface);
+}
+:root[data-theme="dark"] dialog::backdrop {
+  background: #070b08b8;
+}
+@media (max-width: 650px) {
+  :root[data-theme="dark"] .sidebar {
+    background: #151c17f5;
+  }
+  .theme-toggle span {
+    display: none;
+  }
+  .theme-toggle {
+    padding: 8px;
   }
 }
 
