@@ -27,6 +27,13 @@
 - Validate through the provider models endpoint, disable redirects, retain credentials only in the encrypted scoped cookie, and re-check custom endpoint safety before analysis.
 - Use strict JSON Schema output for OpenAI. Compatible providers receive the same schema in the prompt; DeepSeek also receives JSON-object formatting. Every result passes shared runtime validation.
 
+## 2026-09-20: article-led questionnaire direction
+
+- The product owner selected Dan Koe's article at https://x.com/thedankoe/article/2010751592346030461 as the foundation for the questionnaire and AI assistance. Use the author's newsletter already referenced by this repository as the accessible working reference; exact X text equivalence remains unverified because direct access returned HTTP 403.
+- Replace the proposed psychological screening roadmap with source-mapped, tap-based reflection. WHO-5, COM-B, and PHQ-4 are outside the current scope. Later modifications should follow user feedback and an explicit product decision.
+- Preserve the source's reflection-to-action structure and the person's authorship of their plan. Multiple-choice wording and AI follow-ups are app adaptations, not validated psychological measurements.
+- Questionnaire implementation remains pending. See docs/QUESTIONNAIRE-DESIGN.md for the revised design and acceptance criteria; no runtime behavior changes accompany this decision.
+
 ## Remaining constraints
 
 Browser storage offers no cross-device sync or transactional multi-tab edits. Reflection-day calendar reminders require calendar import. V1 logs used human-readable timestamps, so missing timestamps cannot be recovered accurately. Keep original exports for archival access.
