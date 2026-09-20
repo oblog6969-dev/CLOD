@@ -2149,6 +2149,60 @@ textarea::placeholder {
   width: 100%;
   margin-top: 22px;
 }
+.ai-heading-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ai-connection-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+.ai-connect .ai-connection-status {
+  margin-top: 12px;
+}
+.provider-note {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+.ai-connection-status.working {
+  color: #397447;
+  background: #edf7ef;
+}
+.ai-connection-status.slow {
+  color: #92711c;
+  background: #fff8dd;
+}
+.ai-connection-status.down {
+  color: #a13f3f;
+  background: #fff0ee;
+}
+.ai-connection-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent);
+}
+.ai-connection-status small {
+  color: inherit;
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.78;
+}
 .key-note {
   display: flex;
   align-items: flex-start;
@@ -2290,6 +2344,52 @@ textarea::placeholder {
 }
 .ai-question {
   min-height: 130px;
+}
+.ai-chat {
+  display: grid;
+  gap: 16px;
+}
+.ai-chat-messages {
+  display: grid;
+  gap: 10px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.ai-chat-message {
+  display: grid;
+  gap: 4px;
+  max-width: 88%;
+  margin: 0;
+  padding: 11px 13px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.ai-chat-message strong {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.ai-chat-message.user {
+  justify-self: end;
+  background: #e7efe0;
+  color: #40553b;
+}
+.ai-chat-message.assistant {
+  background: #f4f6ef;
+  border: 1px solid var(--line);
+}
+.ai-chat-form {
+  display: grid;
+  gap: 10px;
+}
+.ai-chat-form textarea {
+  min-height: 84px;
+}
+.ai-chat-form .button {
+  justify-self: start;
 }
 .ai-empty {
   text-align: center;

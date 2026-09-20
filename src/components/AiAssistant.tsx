@@ -17,13 +17,49 @@ import {
   AI_PROVIDERS,
   AI_PROVIDER_INFO,
   type AiAnalysis,
+  type AiChatMessage,
   type AiContext,
   type AiProvider,
 } from "@/lib/ai";
 import { emptyDay, prompts, type State } from "@/lib/domain";
 import { update } from "@/lib/store";
 
-type Status = { connected: boolean; model: string | null; provider: AiProvider | null };
+type ConnectionHealth = "working" | "slow" | "down";
+type Status = {
+  connected: boolean;
+  model: string | null;
+  provider: AiProvider | null;
+  health?: Exclude<ConnectionHealth, "down">;
+  latencyMs?: number;
+};
+
+function ConnectionIndicator({
+  health,
+  latencyMs,
+}: {
+  health: ConnectionHealth;
+  latencyMs?: number;
+}) {
+  const label =
+    health === "working"
+      ? "Working"
+      : health === "slow"
+        ? "Slow response"
+        : "Connection down";
+  return (
+    <span
+      className={`ai-connection-status ${health}`}
+      role="status"
+      aria-label={`AI connection: ${label}`}
+    >
+      <span className="ai-connection-dot" aria-hidden="true" />
+      {label}
+      {latencyMs !== undefined && (
+        <small>{(latencyMs / 1000).toFixed(1)}s</small>
+      )}
+    </span>
+  );
+}
 async function jsonRequest<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
   const body = (await response.json().catch(() => ({}))) as T & {
@@ -38,7 +74,10 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [analysis, setAnalysis] = useState<AiAnalysis | null>(null);
+  const [chat, setChat] = useState<AiChatMessage[]>([]);
   const [provider, setProvider] = useState<AiProvider>("openai");
+  const [connectionHealth, setConnectionHealth] =
+    useState<ConnectionHealth | null>(null);
   const [sent, setSent] = useState<string[]>([]);
   const [include, setInclude] = useState({
     plan: true,
@@ -68,50 +107,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
   const hasShareable = (Object.keys(include) as (keyof typeof include)[]).some(
     (key) => include[key] && counts[key] > 0,
   );
-  const connect = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setBusy(true);
-    setError("");
-    const data = new FormData(event.currentTarget);
-    try {
-      const next = await jsonRequest<Status>("/api/ai/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          apiKey: data.get("apiKey"),
-          model: data.get("model"),
-          provider: data.get("provider"),
-          baseUrl: data.get("baseUrl"),
-        }),
-      });
-      setStatus(next);
-      event.currentTarget.reset();
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Connection failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
-  const disconnect = async () => {
-    setBusy(true);
-    setError("");
-    try {
-      await jsonRequest("/api/ai/settings", { method: "DELETE" });
-      setStatus({ connected: false, model: null, provider: null });
-      setAnalysis(null);
-    } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : "Could not disconnect.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-  const analyze = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setBusy(true);
-    setError("");
-    const data = new FormData(event.currentTarget);
+  const selectedContext = useMemo<AiContext>(() => {
     const context: AiContext = {};
     if (include.plan && counts.plan) context.plan = state.plan;
     if (include.tasks && counts.tasks) {
@@ -131,6 +127,58 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
       );
     if (include.reflections && counts.reflections)
       context.reflections = state.reflections.slice(-20);
+    return context;
+  }, [counts, date, include, state]);
+  const connect = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setBusy(true);
+    setError("");
+    const data = new FormData(form);
+    try {
+      const next = await jsonRequest<Status>("/api/ai/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey: data.get("apiKey"),
+          model: data.get("model"),
+          provider: data.get("provider"),
+          baseUrl: data.get("baseUrl"),
+        }),
+      });
+      setStatus(next);
+      setConnectionHealth(next.health ?? "working");
+      form.reset();
+    } catch (reason) {
+      setConnectionHealth("down");
+      setError(reason instanceof Error ? reason.message : "Connection failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const disconnect = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await jsonRequest("/api/ai/settings", { method: "DELETE" });
+      setStatus({ connected: false, model: null, provider: null });
+      setConnectionHealth(null);
+      setAnalysis(null);
+      setChat([]);
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : "Could not disconnect.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+  const analyze = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    const data = new FormData(event.currentTarget);
+    const context = selectedContext;
     try {
       const result = await jsonRequest<{ analysis: AiAnalysis }>(
         "/api/ai/analyze",
@@ -142,8 +190,34 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
       );
       setAnalysis(result.analysis);
       setSent(Object.keys(context));
+      setChat([]);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Analysis failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const continueConversation = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const message = new FormData(form).get("message");
+    if (typeof message !== "string" || !message.trim()) return;
+    const previous = chat;
+    const messages = [...previous, { role: "user" as const, content: message.trim() }];
+    setBusy(true);
+    setError("");
+    setChat(messages);
+    try {
+      const result = await jsonRequest<{ reply: string }>("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages, context: selectedContext }),
+      });
+      setChat([...messages, { role: "assistant", content: result.reply }]);
+      form.reset();
+    } catch (reason) {
+      setChat(previous);
+      setError(reason instanceof Error ? reason.message : "Conversation failed.");
     } finally {
       setBusy(false);
     }
@@ -176,10 +250,16 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
           </p>
         </div>
         {status?.connected && (
-          <span className="tag">
-            <ShieldCheck size={14} />
-            Connected · {status.provider ? AI_PROVIDER_INFO[status.provider].label : "AI"} · {status.model}
-          </span>
+          <div className="ai-heading-status">
+            <span className="tag">
+              <ShieldCheck size={14} />
+              Connected · {status.provider ? AI_PROVIDER_INFO[status.provider].label : "AI"} · {status.model}
+            </span>
+            <ConnectionIndicator
+              health={connectionHealth ?? status.health ?? "working"}
+              latencyMs={status.latencyMs}
+            />
+          </div>
         )}
       </div>
       {error && (
@@ -224,7 +304,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
             <div className="section-heading">
               <div>
                 <h2>Connect your AI provider</h2>
-                <p>OpenAI, DeepSeek, NVIDIA NIM, or another compatible API.</p>
+                <p>OpenAI, DeepSeek, NVIDIA, Groq, Hugging Face, OpenRouter, or another compatible API.</p>
               </div>
               <KeyRound size={22} />
             </div>
@@ -271,6 +351,9 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
               <datalist id={`ai-models-${provider}`}>
                 {AI_PROVIDER_INFO[provider].models.map((model) => <option value={model} key={model} />)}
               </datalist>
+              {AI_PROVIDER_INFO[provider].note && (
+                <p className="provider-note">{AI_PROVIDER_INFO[provider].note}</p>
+              )}
               <p className="key-note">
                 <LockKeyhole size={15} />
                 The key is validated server-side and placed in an encrypted,
@@ -290,6 +373,9 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   </>
                 )}
               </button>
+              {connectionHealth === "down" && (
+                <ConnectionIndicator health="down" />
+              )}
             </form>
           </section>
         </div>
@@ -449,6 +535,39 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   <p>{analysis.question}</p>
                 </div>
               </article>
+              <section className="card ai-chat" aria-label="Continue the conversation">
+                <div className="section-heading">
+                  <div>
+                    <h2>Talk it through</h2>
+                    <p>Ask a follow-up about the context you selected. This conversation is kept only in this page session.</p>
+                  </div>
+                  <Bot size={22} />
+                </div>
+                {chat.length > 0 && (
+                  <div className="ai-chat-messages" aria-live="polite">
+                    {chat.map((message, index) => (
+                      <p className={`ai-chat-message ${message.role}`} key={`${message.role}-${index}`}>
+                        <strong>{message.role === "user" ? "You" : "AI"}</strong>
+                        {message.content}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                <form onSubmit={continueConversation} className="ai-chat-form">
+                  <label htmlFor="ai-message">Your follow-up</label>
+                  <textarea
+                    id="ai-message"
+                    name="message"
+                    rows={3}
+                    maxLength={2000}
+                    placeholder="What would be a realistic first step this week?"
+                    disabled={busy}
+                  />
+                  <button className="button primary" disabled={busy}>
+                    {busy ? <><RefreshCw className="spin" size={16} /> Thinking…</> : <><Send size={16} /> Send message</>}
+                  </button>
+                </form>
+              </section>
             </section>
           ) : (
             <section className="card ai-empty">

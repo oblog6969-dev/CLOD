@@ -25,13 +25,13 @@ Open http://localhost:3000. For production, run `npm run build` followed by `npm
 
 ## Optional AI guide
 
-The AI guide uses server-only route handlers. OpenAI uses the Responses API; DeepSeek, NVIDIA NIM, and custom providers use OpenAI-compatible Chat Completions. Enter an API key and model ID in AI guide. The key passes from the browser form to the LifeOS server, so use HTTPS outside local development. The server validates it against the provider's models endpoint, encrypts it with AES-256-GCM, and returns it only as an HttpOnly, same-site session cookie scoped to `/api/ai`. It is never persisted in local storage, application state, exports, logs, or repository files, and the raw value is not returned to the browser after connection.
+The AI guide uses server-only route handlers. OpenAI uses the Responses API; DeepSeek, NVIDIA NIM, Groq, Hugging Face Inference Providers, OpenRouter, and custom providers use OpenAI-compatible Chat Completions. Enter an API key and model ID in AI guide. The key passes from the browser form to the LifeOS server, so use HTTPS outside local development. The server validates it against the provider's models endpoint, encrypts it with AES-256-GCM, and returns it only as an HttpOnly, same-site session cookie scoped to `/api/ai`. It is never persisted in local storage, application state, exports, logs, or repository files, and the raw value is not returned to the browser after connection.
 
 Custom endpoints must be public HTTPS URLs and cannot redirect. A trusted self-hosted NIM or other private endpoint can be enabled with `LIFEOS_ALLOW_PRIVATE_AI_ENDPOINTS=true`; use this only on a server whose users are trusted because it permits requests to private network addresses.
 
 Set `LIFEOS_SESSION_SECRET` to a long random value for deployed or multi-instance environments (see `.env.example`). Without it, LifeOS creates an in-memory key suitable for local development; AI connection cookies become unreadable after a server restart and the person reconnects. HTTPS sets the cookie's Secure flag.
 
-The person selects which categories to send: My direction and Daily steps are initially selected; Reset answers and Journal reflections are initially off. Empty categories are omitted. Pressing Analyze sends only the selected snapshot and optional focus prompt. LifeOS requests `store: false` from OpenAI, asks compatible providers for JSON, and does not persist analysis. Provider data controls and API charges still apply. Disconnect deletes the session cookie.
+The person selects which categories to send: My direction and Daily steps are initially selected; Reset answers and Journal reflections are initially off. Empty categories are omitted. Pressing Analyze sends only the selected snapshot and optional focus prompt. After analysis, the person can continue a page-session-only conversation about that selection. LifeOS requests `store: false` from OpenAI, asks compatible providers for JSON, and does not persist analysis or chat history. Provider data controls, free-tier credits, rate limits, and API charges still apply. Disconnect deletes the session cookie.
 
 ## Data and recovery
 

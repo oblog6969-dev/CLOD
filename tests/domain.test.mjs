@@ -126,6 +126,9 @@ test("AI configuration and structured responses are validated", () => {
   assert.equal(isAiModel("deepseek-v4-pro"), true);
   assert.equal(isAiModel("bad model with spaces"), false);
   assert.equal(isAiProvider("nvidia"), true);
+  assert.equal(isAiProvider("groq"), true);
+  assert.equal(isAiProvider("huggingface"), true);
+  assert.equal(isAiProvider("openrouter"), true);
   assert.equal(isAiProvider("unknown"), false);
   assert.equal(
     isAiAnalysis({

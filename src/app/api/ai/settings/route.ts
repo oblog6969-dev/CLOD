@@ -11,6 +11,7 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+const SLOW_CONNECTION_MS = 3000;
 
 function isSecure(request: NextRequest) {
   return (
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
   const label = AI_PROVIDER_INFO[provider].label;
   try {
     const baseUrl = await safeBaseUrl(provider, value.baseUrl);
+    const startedAt = Date.now();
     const check = await fetch(`${baseUrl}/models`, {
       headers: { Authorization: `Bearer ${value.apiKey.trim()}` },
       cache: "no-store",
@@ -74,7 +76,14 @@ export async function POST(request: NextRequest) {
         { status },
       );
     }
-    const response = NextResponse.json({ connected: true, model, provider });
+    const latencyMs = Date.now() - startedAt;
+    const response = NextResponse.json({
+      connected: true,
+      model,
+      provider,
+      health: latencyMs >= SLOW_CONNECTION_MS ? "slow" : "working",
+      latencyMs,
+    });
     response.cookies.set(
       sessionCookie(
         seal({ key: value.apiKey.trim(), model, provider, baseUrl }),

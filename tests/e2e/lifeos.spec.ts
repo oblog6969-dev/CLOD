@@ -204,6 +204,7 @@ test("AI guide shares selected context and lets the user accept one suggestion",
   await page.getByRole("button", { name: "Save step", exact: true }).click();
   await page.getByRole("button", { name: "AI guide" }).click();
   await expect(page.getByText("Connected · OpenAI · gpt-5-mini")).toBeVisible();
+  await expect(page.getByRole("status", { name: "AI connection: Working" })).toBeVisible();
   await expect(
     page.getByRole("checkbox", { name: /Reset answers/ }),
   ).not.toBeChecked();
@@ -250,6 +251,78 @@ test("AI key form stays masked and reports connection errors", async ({
   await expect(
     page.getByRole("button", { name: "Connect securely" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("status", { name: "AI connection: Connection down" }),
+  ).toBeVisible();
+});
+
+test("AI guide shows a yellow indicator for a sluggish provider", async ({
+  page,
+}) => {
+  await page.route("**/api/ai/settings", async (route) => {
+    if (route.request().method() === "GET")
+      return route.fulfill({
+        json: { connected: false, model: null, provider: null },
+      });
+    await route.fulfill({
+      json: {
+        connected: true,
+        model: "gpt-5-mini",
+        provider: "openai",
+        health: "slow",
+        latencyMs: 4200,
+      },
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "AI guide" }).click();
+  await page.getByLabel("API key", { exact: true }).fill("sk-slow-test-key");
+  await page.getByRole("button", { name: "Connect securely" }).click();
+  await expect(
+    page.getByRole("status", { name: "AI connection: Slow response" }),
+  ).toContainText("4.2s");
+});
+
+test("AI guide can continue a private follow-up conversation", async ({ page }) => {
+  let chatBody: { messages?: { role: string; content: string }[] } = {};
+  await page.route("**/api/ai/settings", (route) =>
+    route.fulfill({
+      json: { connected: true, model: "gpt-5-mini", provider: "openai" },
+    }),
+  );
+  await page.route("**/api/ai/analyze", (route) =>
+    route.fulfill({
+      json: {
+        analysis: {
+          summary: "A small step could help.",
+          patterns: [],
+          recommendations: [
+            {
+              title: "Start gently",
+              reason: "It lowers friction.",
+              nextStep: "Walk for five minutes",
+              area: "wellbeing",
+            },
+          ],
+          question: "What feels easy?",
+        },
+      },
+    }),
+  );
+  await page.route("**/api/ai/chat", async (route) => {
+    chatBody = route.request().postDataJSON();
+    await route.fulfill({ json: { reply: "Try putting your shoes by the door." } });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Add a small step" }).click();
+  await page.getByLabel("What will you do?").fill("Take a walk");
+  await page.getByRole("button", { name: "Save step", exact: true }).click();
+  await page.getByRole("button", { name: "AI guide" }).click();
+  await page.getByRole("button", { name: "Analyze selected context" }).click();
+  await page.getByLabel("Your follow-up").fill("How can I start?");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByText("Try putting your shoes by the door.")).toBeVisible();
+  expect(chatBody.messages?.at(-1)).toEqual({ role: "user", content: "How can I start?" });
 });
 
 test("AI settings endpoint rejects malformed keys before any upstream request", async ({
@@ -275,6 +348,12 @@ test("AI guide exposes DeepSeek, NVIDIA, and compatible providers", async ({
   await expect(page.getByLabel("Model")).toHaveValue("deepseek-flash");
   await provider.selectOption("nvidia");
   await expect(page.getByLabel("Model")).toHaveValue("openai/gpt-oss-120b");
+  await provider.selectOption("groq");
+  await expect(page.getByLabel("Model")).toHaveValue("openai/gpt-oss-20b");
+  await provider.selectOption("huggingface");
+  await expect(page.getByLabel("Model")).toHaveValue("openai/gpt-oss-120b:fastest");
+  await provider.selectOption("openrouter");
+  await expect(page.getByLabel("Model")).toHaveValue("openrouter/free");
   await provider.selectOption("custom");
   await expect(page.getByLabel("API base URL")).toBeVisible();
 });

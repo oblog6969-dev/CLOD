@@ -41,6 +41,13 @@
 - Explain each reset phase and all six plan fields where they are used. Give direct controls to open the relevant form or focus the next section; restore main-content focus on section navigation.
 - Keep guidance optional to expand for returning users. These are authored app-use recommendations, not automatic AI analysis or psychological screening. The multiple-choice questionnaire remains a separately documented, unimplemented feature.
 
+## 2026-09-20: expanded AI providers and conversation
+
+- Add Groq, Hugging Face Inference Providers, and OpenRouter presets alongside OpenAI, DeepSeek, and NVIDIA NIM. They use fixed public HTTPS endpoints and the existing provider-neutral Chat Completions adapter; custom endpoints remain available for other compatible services.
+- Treat free access as provider-controlled rather than guaranteed by LifeOS. Free credits, free model routing, quotas, pricing, model availability, and data retention can change and must be disclosed in the UI/documentation.
+- Report provider connection health after the server-side `/models` validation: green/working for responsive checks, yellow/slow at 3 seconds or more, and red/down for validation or reachability errors.
+- Add a user-triggered follow-up chat after analysis. Send only selected context and bounded recent messages, keep the transcript in component memory for the page session, apply the existing server-side session-key protection and rate limits, and never persist chat content in LifeOS data.
+
 ## Remaining constraints
 
 Browser storage offers no cross-device sync or transactional multi-tab edits. Reflection-day calendar reminders require calendar import. V1 logs used human-readable timestamps, so missing timestamps cannot be recovered accurately. Keep original exports for archival access.
