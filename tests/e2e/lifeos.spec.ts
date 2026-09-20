@@ -91,6 +91,29 @@ test("bad import is rejected and reset can recover existing data", async ({
   await page.reload();
   await expect(page.getByText("Sam", { exact: true })).toBeVisible();
 });
+test("Google Translate translates chosen writing without changing the source", async ({
+  page,
+}) => {
+  let requestBody: { text?: string; target?: string } = {};
+  await page.route("**/api/translate", async (route) => {
+    requestBody = route.request().postDataJSON();
+    await route.fulfill({
+      json: {
+        translation: "مرحبا بالعالم",
+        detectedSourceLanguage: "en",
+      },
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Settings & data" }).click();
+  const source = page.getByLabel("Text to translate");
+  await source.fill("Hello world");
+  await page.getByLabel("Translate to").selectOption("ar");
+  await page.getByRole("button", { name: "Translate with Google" }).click();
+  await expect(page.getByText("مرحبا بالعالم")).toBeVisible();
+  await expect(source).toHaveValue("Hello world");
+  expect(requestBody).toEqual({ text: "Hello world", target: "ar" });
+});
 test("phone layout fits the viewport and dialog remains usable", async ({
   page,
 }) => {

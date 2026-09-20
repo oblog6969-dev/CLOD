@@ -48,6 +48,11 @@
 - Report provider connection health after the server-side `/models` validation: green/working for responsive checks, yellow/slow at 3 seconds or more, and red/down for validation or reachability errors.
 - Add a user-triggered follow-up chat after analysis. Send only selected context and bounded recent messages, keep the transcript in component memory for the page session, apply the existing server-side session-key protection and rate limits, and never persist chat content in LifeOS data.
 
+## 2026-09-21: optional Google Translate
+
+- Add an on-demand Settings tool using Cloud Translation Basic (v2). It translates only text that the user types or explicitly selects from their LifeOS writing, leaves source data unchanged, and does not persist translations.
+- Keep `GOOGLE_TRANSLATE_API_KEY` server-only. Require the user/operator to enable Google Cloud Translation and billing, disclose Google’s own usage controls, bound requests to 5,000 characters, validate target languages, apply a rate limit, and never expose the key to the browser.
+
 ## 2026-09-20: human development frameworks & AI MSQ reflection
 
 - The product owner instructed to utilize the clinical and consciousness frameworks from the MatchWise project (`D:\AI\MatchWise`) to eliminate manual essay writing in morning and evening reflections.

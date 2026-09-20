@@ -32,6 +32,10 @@ Set `LIFEOS_SESSION_SECRET` to a long random value for deployed or multi-instanc
 
 The person selects which categories to send: My direction and Daily steps are initially selected; Reset answers and Journal reflections are initially off. Empty categories are omitted. Pressing Analyze sends only the selected snapshot and optional focus prompt. After analysis, the person can continue a page-session-only conversation about that selection. LifeOS requests `store: false` from OpenAI, asks compatible providers for JSON, and does not persist analysis or chat history. Provider data controls, free-tier credits, rate limits, and API charges still apply. Disconnect deletes the session cookie.
 
+## Optional Google Translate
+
+Settings includes an on-demand **Translate your writing** tool. It can translate text you type or explicitly choose from your direction, active steps, or latest reflection; it never modifies the source writing or stores the translation in LifeOS. To enable it, create a restricted Google Cloud Translation Basic (v2) API key, enable Cloud Translation and billing for its project, then set `GOOGLE_TRANSLATE_API_KEY` on the server. The key is never sent to the browser. Google Cloud usage, billing, and data controls apply.
+
 ## Data and recovery
 
 `src/lib/domain.ts` contains pure, tested state transitions, derived progress, validation, and v1 migration. `src/lib/store.ts` supplies the external React store. It checks the local date on focus and every 30 seconds, subscribes to changes from other tabs, and reads the latest persisted state before applying changes.

@@ -16,7 +16,7 @@ import {
   Sparkles,
   Zap,
   Award,
-  Pencil,
+  Languages,
 } from "lucide-react";
 import {
   update,
@@ -497,8 +497,19 @@ function AnswerForm({
 }) {
   const msqDef = getPromptMsq(question[0], profile);
   const [selected, setSelected] = useState<string[]>(selectedOptionIds);
-  const [customText, setCustomText] = useState("");
-  const [showCustom, setShowCustom] = useState(false);
+  const [customText, setCustomText] = useState(() => {
+    if (selectedOptionIds.length === 0) return answer || "";
+    if (msqDef) {
+      const match = answer.match(/Note:\s*([\s\S]*)$/);
+      if (match) return match[1].trim();
+      const optionLabels = msqDef.options
+        .filter((o) => selectedOptionIds.includes(o.id))
+        .map((o) => o.label)
+        .join("; ");
+      if (answer !== optionLabels) return answer || "";
+    }
+    return "";
+  });
   const [aiOptions, setAiOptions] = useState<MsqOption[] | null>(null);
   const [generatingAi, setGeneratingAi] = useState(false);
   const [aiNotice, setAiNotice] = useState("");
@@ -515,14 +526,6 @@ function AnswerForm({
       next = selected.includes(optId) ? [] : [optId];
     }
     setSelected(next);
-    if (msqDef) {
-      const synthesized = formatMsqAnswer(
-        { ...msqDef, options: activeOptions },
-        next,
-        customText,
-      );
-      onSave(synthesized, next);
-    }
   };
 
   const handleGenerateAi = async () => {
@@ -551,14 +554,31 @@ function AnswerForm({
     }
   };
 
+  const computeSynthesized = (sel: string[], text: string) => {
+    if (msqDef && (sel.length > 0 || activeOptions.length > 0)) {
+      return formatMsqAnswer(
+        { ...msqDef, options: activeOptions },
+        sel,
+        text,
+      );
+    }
+    return text.trim();
+  };
+
+  const handleSubmit = (e?: FormEvent) => {
+    if (e) e.preventDefault();
+    const synthesized = computeSynthesized(selected, customText);
+    onSave(synthesized, selected);
+  };
+
   return (
-    <div className="msq-form">
+    <form className="msq-form" onSubmit={handleSubmit}>
       <div className="msq-prompt-header">
         <h2>{question[1]}</h2>
         <p>{question[2]}</p>
       </div>
 
-      {activeOptions.length > 0 ? (
+      {activeOptions.length > 0 && (
         <div className="msq-options-container">
           <div className="msq-badge-row">
             <span className="msq-mode-tag">
@@ -596,94 +616,68 @@ function AnswerForm({
               );
             })}
           </div>
+
+          <div className="msq-toolbar">
+            <button
+              type="button"
+              className="text-button"
+              disabled={generatingAi}
+              onClick={handleGenerateAi}
+            >
+              <Sparkles size={14} />
+              {generatingAi ? "Generating options with AI…" : "Generate AI-tailored choices"}
+            </button>
+          </div>
         </div>
-      ) : (
-        <textarea
-          id="reset-answer"
-          name="answer"
-          defaultValue={answer}
-          rows={5}
-          placeholder="Reflect on this prompt in your own words…"
-          onBlur={(e) => {
-            const val = e.target.value.trim();
-            if (val !== answer) onSave(val, []);
-          }}
-        />
       )}
-
-      <div className="msq-toolbar">
-        <button
-          type="button"
-          className="text-button"
-          disabled={generatingAi}
-          onClick={handleGenerateAi}
-        >
-          <Sparkles size={14} />
-          {generatingAi ? "Generating options with AI…" : "Generate AI-tailored choices"}
-        </button>
-
-        <button
-          type="button"
-          className="text-button"
-          onClick={() => setShowCustom(!showCustom)}
-        >
-          <Pencil size={14} />
-          {showCustom ? "Hide notes" : "Add personal nuance / notes"}
-        </button>
-      </div>
 
       {aiNotice && <p className="msq-notice">{aiNotice}</p>}
 
-      {showCustom && (
-        <div className="msq-custom-box">
-          <label htmlFor="custom-notes">Personal nuance or additional thoughts (optional)</label>
-          <textarea
-            id="custom-notes"
-            rows={3}
-            placeholder="Type any specific details or nuance here…"
-            value={customText}
-            onChange={(e) => {
-              const nextText = e.target.value;
-              setCustomText(nextText);
-              if (msqDef) {
-                const synthesized = formatMsqAnswer(
-                  { ...msqDef, options: activeOptions },
-                  selected,
-                  nextText,
-                );
-                onSave(synthesized, selected);
-              }
-            }}
-          />
-        </div>
-      )}
+      <div className="msq-custom-box">
+        <label
+          htmlFor="reset-answer"
+          className={activeOptions.length > 0 ? "msq-custom-label" : "sr-only"}
+        >
+          Your answer
+        </label>
+        <textarea
+          id="reset-answer"
+          name="answer"
+          rows={activeOptions.length > 0 ? 3 : 5}
+          placeholder={
+            activeOptions.length > 0
+              ? "Or reflect in your own words / add personal nuance…"
+              : "Take your time. Start wherever you are…"
+          }
+          value={customText}
+          onChange={(e) => setCustomText(e.target.value)}
+          onBlur={() => {
+            const synthesized = computeSynthesized(selected, customText);
+            if (synthesized !== answer) {
+              update((s) => ({
+                ...s,
+                answers: { ...s.answers, [question[0]]: synthesized },
+                selectedOptions: {
+                  ...(s.selectedOptions || {}),
+                  [question[0]]: selected,
+                },
+              }));
+            }
+          }}
+        />
+      </div>
 
       <div className="answer-actions">
         <small>
           {selected.length > 0
-            ? `${selected.length} chosen. Your selection is automatically saved.`
-            : "Tap an option to select, or skip to move forward."}
+            ? `${selected.length} chosen. Press continue when ready.`
+            : "Saved when you leave this field or continue."}
         </small>
-        <button
-          type="button"
-          className="button primary"
-          onClick={() => {
-            if (msqDef) {
-              const synthesized = formatMsqAnswer(
-                { ...msqDef, options: activeOptions },
-                selected,
-                customText,
-              );
-              onSave(synthesized, selected);
-            } else {
-              onSave(answer, []);
-            }
-          }}
-        >
+        <button type="submit" className="button primary">
           Save & continue <ArrowRight size={16} />
         </button>
       </div>
-    </div>
+    </form>
   );
 }
 function exportCalendar(state: State) {
@@ -727,6 +721,127 @@ function exportCalendar(state: State) {
     "text/calendar",
   );
 }
+
+const translationLanguages = [
+  ["ar", "Arabic"],
+  ["en", "English"],
+  ["fr", "French"],
+  ["de", "German"],
+  ["hi", "Hindi"],
+  ["id", "Indonesian"],
+  ["it", "Italian"],
+  ["ja", "Japanese"],
+  ["ko", "Korean"],
+  ["pt", "Portuguese"],
+  ["es", "Spanish"],
+  ["tr", "Turkish"],
+  ["ur", "Urdu"],
+  ["zh-CN", "Chinese (Simplified)"],
+] as const;
+
+function GoogleTranslateCard({ state }: { state: State }) {
+  const [text, setText] = useState("");
+  const [target, setTarget] = useState("ar");
+  const [translation, setTranslation] = useState("");
+  const [detectedLanguage, setDetectedLanguage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const fill = (value: string) => {
+    setText(value.slice(0, 5_000));
+    setTranslation("");
+    setDetectedLanguage("");
+    setError("");
+  };
+  const direction = Object.values(state.plan).filter(Boolean).join("\n\n");
+  const steps = state.tasks
+    .filter((task) => !task.archived)
+    .map((task) => task.title)
+    .join("\n");
+  const latestReflection = state.reflections.at(-1)?.note ?? "";
+  const translate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, target }),
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        translation?: string;
+        detectedSourceLanguage?: string | null;
+        error?: string;
+      };
+      if (!response.ok) throw new Error(result.error || "Translation failed.");
+      setTranslation(result.translation ?? "");
+      setDetectedLanguage(result.detectedSourceLanguage ?? "");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Translation failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="card settings-card translate-card">
+      <div className="section-heading">
+        <div>
+          <h2>Translate your writing</h2>
+          <p>
+            Translate only the text you choose. Your original LifeOS writing is
+            never changed or saved to Google Translate.
+          </p>
+        </div>
+        <Languages size={22} />
+      </div>
+      <div className="translation-shortcuts" aria-label="Choose LifeOS content">
+        <button type="button" className="text-button" onClick={() => fill(direction)} disabled={!direction}>
+          Use my direction
+        </button>
+        <button type="button" className="text-button" onClick={() => fill(steps)} disabled={!steps}>
+          Use active steps
+        </button>
+        <button type="button" className="text-button" onClick={() => fill(latestReflection)} disabled={!latestReflection}>
+          Use latest reflection
+        </button>
+      </div>
+      <form className="translation-form" onSubmit={translate}>
+        <label htmlFor="translation-source">Text to translate</label>
+        <textarea
+          id="translation-source"
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          maxLength={5_000}
+          rows={5}
+          required
+          placeholder="Write or choose something from your LifeOS workspace…"
+        />
+        <div className="translation-actions">
+          <label htmlFor="translation-target">Translate to</label>
+          <select id="translation-target" value={target} onChange={(event) => setTarget(event.target.value)}>
+            {translationLanguages.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+          </select>
+          <button className="button primary" disabled={busy || !text.trim()}>
+            {busy ? "Translating…" : "Translate with Google"}
+          </button>
+        </div>
+      </form>
+      {error && <p className="translation-error" role="alert">{error}</p>}
+      {translation && (
+        <div className="translation-result" aria-live="polite">
+          <span className="tiny-label">
+            Translation{detectedLanguage ? ` · detected ${detectedLanguage}` : ""}
+          </span>
+          <p>{translation}</p>
+        </div>
+      )}
+      <p className="key-note">
+        Google Cloud Translation must be enabled and <code>GOOGLE_TRANSLATE_API_KEY</code> configured on the LifeOS server. Translation use is subject to your Google Cloud billing and data controls.
+      </p>
+    </section>
+  );
+}
+
 export function SettingsView({
   state,
   onModal,
@@ -778,6 +893,7 @@ export function SettingsView({
           <button className="button primary">Save name</button>
         </form>
       </section>
+      <GoogleTranslateCard state={state} />
       <section className="card settings-card">
         <div className="section-heading">
           <div>

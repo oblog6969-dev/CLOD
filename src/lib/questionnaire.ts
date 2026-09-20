@@ -700,7 +700,11 @@ export function formatMsqAnswer(
     parts.push(chosenTexts.join("; "));
   }
   if (customText?.trim()) {
-    parts.push(`Note: ${customText.trim()}`);
+    if (chosenTexts.length > 0) {
+      parts.push(`Note: ${customText.trim()}`);
+    } else {
+      parts.push(customText.trim());
+    }
   }
   return parts.join("\n\n");
 }
