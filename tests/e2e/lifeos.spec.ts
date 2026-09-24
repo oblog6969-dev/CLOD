@@ -7,6 +7,16 @@ test("page opts in to browser translation and identifies its source language", a
   await expect(page.locator("html")).toHaveAttribute("translate", "yes");
   expect(response?.headers()["content-language"]).toBe("en");
 });
+test("Arabic language selection uses RTL and stays selected", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Switch to Arabic" }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByRole("button", { name: "اليوم", exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+  await expect(page.getByRole("button", { name: "التبديل إلى الإنجليزية" })).toBeVisible();
+});
 test("daily step, undo, persistence, archive, and keyboard dialog", async ({
   page,
 }) => {

@@ -293,6 +293,22 @@ p {
   color: var(--ink);
   background: var(--soft);
 }
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 600;
+}
+.language-toggle:hover {
+  color: var(--ink);
+  background: var(--soft);
+}
 .theme-icon-light {
   display: none;
 }
@@ -328,6 +344,67 @@ main {
 }
 .heading-dot {
   color: #8b9e67;
+}
+
+/* Native Arabic layout. User-entered writing is preserved as entered. */
+:root[dir="rtl"] body {
+  font-family: Tahoma, Arial, sans-serif;
+}
+:root[dir="rtl"] .sidebar {
+  inset: 0 0 0 auto;
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+:root[dir="rtl"] .main-shell {
+  margin-left: 0;
+  margin-right: 238px;
+}
+:root[dir="rtl"] .nav-item,
+:root[dir="rtl"] .msq-card {
+  text-align: right;
+}
+:root[dir="rtl"] .nav-badge,
+:root[dir="rtl"] .online-dot {
+  margin-left: 0;
+  margin-right: auto;
+}
+:root[dir="rtl"] .brand-icon {
+  margin-right: 0;
+  margin-left: 9px;
+}
+:root[dir="rtl"] .brand-dot {
+  margin-left: 0;
+  margin-right: 3px;
+}
+:root[dir="rtl"] .little-sprout {
+  text-align: left;
+}
+:root[dir="rtl"] .date {
+  margin-left: 0;
+  margin-right: auto;
+}
+:root[dir="rtl"] .theme-toggle {
+  margin-left: 0;
+  margin-right: 12px;
+}
+:root[dir="rtl"] .language-toggle {
+  margin-left: 0;
+  margin-right: 8px;
+}
+:root[dir="rtl"] .journey-next .button svg,
+:root[dir="rtl"] .text-button svg,
+:root[dir="rtl"] .button svg {
+  transform: scaleX(-1);
+}
+
+@media (max-width: 700px) {
+  :root[dir="rtl"] .main-shell {
+    margin-right: 0;
+  }
+  :root[dir="rtl"] .sidebar {
+    inset: auto 0 0 0;
+    border-left: 0;
+  }
 }
 .button {
   display: inline-flex;

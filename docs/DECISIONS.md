@@ -53,6 +53,13 @@
 - Add an on-demand Settings tool using Cloud Translation Basic (v2). It translates only text that the user types or explicitly selects from their LifeOS writing, leaves source data unchanged, and does not persist translations.
 - Keep `GOOGLE_TRANSLATE_API_KEY` server-only. Require the user/operator to enable Google Cloud Translation and billing, disclose Google’s own usage controls, bound requests to 5,000 characters, validate target languages, apply a rate limit, and never expose the key to the browser.
 
+## 2026-09-25: native Arabic workspace and browser translation compatibility
+
+- Add a user-controlled English/Arabic switch in the workspace header. Persist only the locale preference in browser storage; never translate, modify, or send the person's saved writing when they change interface language.
+- Apply `lang="ar"` and `dir="rtl"` for Arabic, including an RTL sidebar and controls layout plus Arabic date formatting. Keep English as the default when there is no saved preference, while using an Arabic browser preference as the initial fallback.
+- Keep browser translation separate from the optional Cloud Translation writing tool. Declare the page's English source language and explicitly opt it into browser translation so Chrome can translate into other languages without a Google Cloud key.
+- Verify locale selection, RTL document attributes, and persistence with end-to-end coverage alongside the existing full browser suite.
+
 ## 2026-09-20: human development frameworks & AI MSQ reflection
 
 - The product owner instructed to utilize the clinical and consciousness frameworks from the MatchWise project (`D:\AI\MatchWise`) to eliminate manual essay writing in morning and evening reflections.

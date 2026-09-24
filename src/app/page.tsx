@@ -43,24 +43,46 @@ import {
   type Plan,
 } from "@/lib/domain";
 import { synthesizePlanFromAnswers } from "@/lib/questionnaire";
+import { LanguageProvider, useLanguage } from "@/lib/language";
 
 const navigation = [
-  { id: "today", label: "Today", icon: Sun },
-  { id: "reset", label: "Your reset", icon: Compass },
-  { id: "direction", label: "My direction", icon: Sprout },
-  { id: "journal", label: "Reflections", icon: BookOpen },
-  { id: "assistant", label: "AI guide", icon: Bot },
+  { id: "today", icon: Sun },
+  { id: "reset", icon: Compass },
+  { id: "direction", icon: Sprout },
+  { id: "journal", icon: BookOpen },
+  { id: "assistant", icon: Bot },
 ] as const;
-const planLabels: Record<keyof Plan, string> = {
-  vision: "The life I’m moving toward",
-  antiVision: "What I want to leave behind",
-  identity: "The person I’m practicing becoming",
-  year: "One meaningful outcome this year",
-  month: "My project for this month",
-  constraints: "What I will protect (one per line)",
-};
 
 export default function Home() {
+  return <LanguageProvider><LifeOSApp /></LanguageProvider>;
+}
+
+function LifeOSApp() {
+  const { locale, setLocale, tr, dateLocale } = useLanguage();
+  const navigationLabels: Record<View, string> = {
+    today: tr("Today", "اليوم"),
+    reset: tr("Your reset", "مساحتك للتغيير"),
+    direction: tr("My direction", "اتجاهي"),
+    journal: tr("Reflections", "تأملات"),
+    assistant: tr("AI guide", "دليل الذكاء الاصطناعي"),
+    settings: tr("Settings & data", "الإعدادات والبيانات"),
+  };
+  const planLabels: Record<keyof Plan, string> = {
+    vision: tr("The life I’m moving toward", "الحياة التي أتجه إليها"),
+    antiVision: tr("What I want to leave behind", "ما أريد تركه خلفي"),
+    identity: tr("The person I’m practicing becoming", "الشخص الذي أتدرّب على أن أكونه"),
+    year: tr("One meaningful outcome this year", "نتيجة ذات معنى هذا العام"),
+    month: tr("My project for this month", "مشروعي لهذا الشهر"),
+    constraints: tr("What I will protect (one per line)", "ما سأحافظ عليه (واحد في كل سطر)"),
+  };
+  const planGuidanceArabic: Record<keyof Plan, string> = {
+    vision: "الرؤية هي الحياة اليومية التي تريد التوجه إليها. صف ما قد يتضمنه يوم جيد.",
+    antiVision: "الرؤية المضادة هي المستقبل الذي تود تجنبه. سمِّ نمطاً تريد تغييره من دون الحكم على نفسك.",
+    identity: "اختر صفة تريد ممارستها من خلال أفعالك. يمكنك تجربتها وتغيير رأيك.",
+    year: "اختر نتيجة واحدة تستطيع تمييزها بعد عام. يمكن أن تكون مؤقتة.",
+    month: "اختر مشروعاً قابلاً للإنهاء يدعم تلك النتيجة. أضف خطواته العملية أسفل خطتك.",
+    constraints: "هذه الحدود هي ما ستحافظ عليه أثناء إحراز التقدم، مثل الراحة أو الوقت مع الآخرين.",
+  };
   const snapshot = useLifeOS();
   const [view, setView] = useState<View>("today");
   const [modal, setModal] = useState<Modal>(null);
@@ -82,7 +104,7 @@ export default function Home() {
     return (
       <main className="loading">
         <Leaf size={32} />
-        <p>Making room for a better day…</p>
+        <p>{tr("Making room for a better day…", "نهيّئ مساحة ليوم أفضل…")}</p>
       </main>
     );
   const { state, date, error, blocked } = snapshot;
@@ -150,7 +172,7 @@ export default function Home() {
       onAction={guideAction}
     />
   );
-  const saved = (ok: boolean, message = "Saved. One small step forward.") => {
+  const saved = (ok: boolean, message = tr("Saved. One small step forward.", "تم الحفظ. خطوة صغيرة إلى الأمام.")) => {
     if (ok) {
       setNotice(message);
       close();
@@ -158,14 +180,14 @@ export default function Home() {
   };
   const greeting =
     new Date().getHours() < 12
-      ? "Good morning"
+      ? tr("Good morning", "صباح الخير")
       : new Date().getHours() < 18
-        ? "Good afternoon"
-        : "Good evening";
+        ? tr("Good afternoon", "مساء الخير")
+        : tr("Good evening", "مساء الخير");
   return (
     <div className="app-shell">
       <a href="#main" className="skip-link">
-        Skip to content
+        {tr("Skip to content", "انتقل إلى المحتوى")}
       </a>
       <aside className="sidebar">
         <a
@@ -182,9 +204,9 @@ export default function Home() {
           life<span className="brand-light">os</span>
           <span className="brand-dot">·</span>
         </a>
-        <div className="workspace-label">A LITTLE MORE INTENTIONAL</div>
-        <nav aria-label="Main navigation">
-          {navigation.map(({ id, label, icon: Icon }) => (
+        <div className="workspace-label">{tr("A LITTLE MORE INTENTIONAL", "بمزيد من القصد")}</div>
+        <nav aria-label={tr("Main navigation", "التنقل الرئيسي")}>
+          {navigation.map(({ id, icon: Icon }) => (
             <button
               key={id}
               aria-current={view === id ? "page" : undefined}
@@ -192,10 +214,10 @@ export default function Home() {
               onClick={() => setView(id)}
             >
               <Icon size={19} />
-              <span>{label}</span>
+              <span>{navigationLabels[id]}</span>
               {id === "reset" && answered < prompts.length && (
                 <span className="nav-badge">
-                  {answered ? `${answered}/${prompts.length}` : "Start"}
+                  {answered ? `${answered}/${prompts.length}` : tr("Start", "ابدأ")}
                 </span>
               )}
             </button>
@@ -203,10 +225,10 @@ export default function Home() {
         </nav>
         <div className="sidebar-bottom">
           <div className="sidebar-note">
-            <span className="tiny-label">YOUR OWN PACE</span>
+            <span className="tiny-label">{tr("YOUR OWN PACE", "وفق إيقاعك الخاص")}</span>
             <p>
-              Small steps.
-              <br />A life that feels like yours.
+              {tr("Small steps.", "خطوات صغيرة.")}
+              <br />{tr("A life that feels like yours.", "وحياة تشبهك.")}
             </p>
             <div className="little-sprout">
               <Sprout size={32} />
@@ -217,15 +239,15 @@ export default function Home() {
             onClick={() => setView("settings")}
           >
             <Settings size={18} />
-            Settings & data
+            {navigationLabels.settings}
           </button>
           <div className="profile">
             <span className="avatar">
               {state.name.trim().slice(0, 1).toUpperCase() || "Y"}
             </span>
             <div>
-              <strong>{state.name || "Your space"}</strong>
-              <small>Saved on this device</small>
+              <strong>{state.name || tr("Your space", "مساحتك")}</strong>
+              <small>{tr("Saved on this device", "محفوظ على هذا الجهاز")}</small>
             </div>
             <span className="online-dot" />
           </div>
@@ -234,17 +256,15 @@ export default function Home() {
       <div className="main-shell">
         <header className="topbar">
           <div>
-            <span className="breadcrumb">Your space</span>
+            <span className="breadcrumb">{tr("Your space", "مساحتك")}</span>
             <span className="crumb-divider">/</span>
             <strong>
-              {view === "settings"
-                ? "Settings & data"
-                : navigation.find((n) => n.id === view)?.label}
+              {navigationLabels[view]}
             </strong>
           </div>
           <span className="date">
             <CalendarDays size={15} />
-            {new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+            {new Date(`${date}T12:00:00`).toLocaleDateString(dateLocale, {
               month: "short",
               day: "numeric",
               year: "numeric",
@@ -254,12 +274,21 @@ export default function Home() {
             className="theme-toggle"
             type="button"
             onClick={toggleTheme}
-            aria-label="Toggle color theme"
-            title="Toggle color theme"
+            aria-label={tr("Toggle color theme", "تبديل سمة الألوان")}
+            title={tr("Toggle color theme", "تبديل سمة الألوان")}
           >
             <Sun className="theme-icon-light" size={16} />
             <Moon className="theme-icon-dark" size={16} />
-            <span>Theme</span>
+            <span>{tr("Theme", "السمة")}</span>
+          </button>
+          <button
+            className="language-toggle"
+            type="button"
+            onClick={() => setLocale(locale === "en" ? "ar" : "en")}
+            aria-label={locale === "en" ? "Switch to Arabic" : "التبديل إلى الإنجليزية"}
+            title={locale === "en" ? "Switch to Arabic" : "التبديل إلى الإنجليزية"}
+          >
+            {locale === "en" ? "العربية" : "English"}
           </button>
         </header>
         <main id="main" tabIndex={-1}>
@@ -267,7 +296,7 @@ export default function Home() {
             <div role="alert" className="alert">
               {error}{" "}
               <button onClick={() => setView("settings")}>
-                Open data settings <ArrowRight size={14} />
+                {tr("Open data settings", "فتح إعدادات البيانات")} <ArrowRight size={14} />
               </button>
             </div>
           )}
@@ -278,7 +307,7 @@ export default function Home() {
               <button
                 className="icon-button"
                 onClick={() => setNotice("")}
-                aria-label="Dismiss message"
+                aria-label={tr("Dismiss message", "إغلاق الرسالة")}
               >
                 <X size={16} />
               </button>
@@ -289,15 +318,14 @@ export default function Home() {
             <>
               <div className="page-heading">
                 <div>
-                  <span className="eyebrow">MAKE SPACE FOR WHAT MATTERS</span>
+                  <span className="eyebrow">{tr("MAKE SPACE FOR WHAT MATTERS", "أفسح مساحة لما يهم")}</span>
                   <h1>
                     {greeting}
                     {state.name ? `, ${state.name}` : ""}
                     <span className="heading-dot">.</span>
                   </h1>
                   <p>
-                    You don’t need to change everything. Just choose your next
-                    step.
+                    {tr("You don’t need to change everything. Just choose your next step.", "لا تحتاج إلى تغيير كل شيء. اختر فقط خطوتك التالية.")}
                   </p>
                 </div>
                 <button
@@ -305,7 +333,7 @@ export default function Home() {
                   onClick={() => setModal({ type: "checkin" })}
                 >
                   <Coffee size={17} />
-                  Take a mindful pause
+                  {tr("Take a mindful pause", "خذ استراحة واعية")}
                 </button>
               </div>
               {guide}
@@ -319,7 +347,7 @@ export default function Home() {
                       {completed}
                       <em> / {tasks.length}</em>
                     </strong>
-                    <small>Priorities completed</small>
+                    <small>{tr("Priorities completed", "الأولويات المُنجزة")}</small>
                   </div>
                 </div>
                 <div>
@@ -329,9 +357,9 @@ export default function Home() {
                   <div>
                     <strong>
                       {stats.streak}
-                      <em> {stats.streak === 1 ? "day" : "days"}</em>
+                      <em> {stats.streak === 1 ? tr("day", "يوم") : tr("days", "أيام")}</em>
                     </strong>
-                    <small>Showing up for yourself</small>
+                    <small>{tr("Showing up for yourself", "المواظبة لأجل نفسك")}</small>
                   </div>
                 </div>
                 <div>
@@ -343,7 +371,7 @@ export default function Home() {
                       {answered}
                       <em> / {prompts.length}</em>
                     </strong>
-                    <small>Reflections explored</small>
+                    <small>{tr("Reflections explored", "التأملات المُستكشفة")}</small>
                   </div>
                 </div>
               </div>
@@ -355,8 +383,8 @@ export default function Home() {
                 >
                   <div className="section-heading">
                     <div>
-                      <h2>Today’s small steps</h2>
-                      <p>Focus on a few things that move you forward.</p>
+                      <h2>{tr("Today’s small steps", "خطوات اليوم الصغيرة")}</h2>
+                      <p>{tr("Focus on a few things that move you forward.", "ركّز على بضعة أمور تدفعك إلى الأمام.")}</p>
                     </div>
                     <span className="count-label">
                       {completed}/{tasks.length}
@@ -374,10 +402,9 @@ export default function Home() {
                       <span className="empty-icon">
                         <Sun size={27} />
                       </span>
-                      <h3>What would make today feel worthwhile?</h3>
+                      <h3>{tr("What would make today feel worthwhile?", "ما الذي سيجعل يومك ذا قيمة؟")}</h3>
                       <p>
-                        Start with one manageable action. Two or three is
-                        plenty.
+                        {tr("Start with one manageable action. Two or three is plenty.", "ابدأ بفعل واحد يمكن إنجازه. خطوتان أو ثلاث كافية.")}
                       </p>
                     </div>
                   )}
@@ -388,7 +415,7 @@ export default function Home() {
                         key={task.id}
                       >
                         <button
-                          aria-label={`${day.completed.includes(task.id) ? "Undo" : "Complete"} ${task.title}`}
+                          aria-label={`${day.completed.includes(task.id) ? tr("Undo", "تراجع") : tr("Complete", "إكمال")} ${task.title}`}
                           aria-pressed={day.completed.includes(task.id)}
                           className="task-toggle"
                           onClick={() => update((s) => toggleTask(s, task.id))}
@@ -401,14 +428,14 @@ export default function Home() {
                         </button>
                         <div className="task-content">
                           <span className="tiny-label">
-                            {index === 0 ? "YOUR MAIN FOCUS" : "A SMALL STEP"}
+                            {index === 0 ? tr("YOUR MAIN FOCUS", "تركيزك الرئيسي") : tr("A SMALL STEP", "خطوة صغيرة")}
                             {task.time ? ` · ${task.time}` : ""}
                           </span>
                           <strong>{task.title}</strong>
                         </div>
                         <button
                           className="icon-button"
-                          aria-label={`Edit ${task.title}`}
+                          aria-label={`${tr("Edit", "تعديل")} ${task.title}`}
                           onClick={() => setModal({ type: "task", task })}
                         >
                           <Pencil size={15} />
@@ -421,36 +448,36 @@ export default function Home() {
                     onClick={() => setModal({ type: "task" })}
                   >
                     <Plus size={17} />
-                    Add a small step
+                    {tr("Add a small step", "أضف خطوة صغيرة")}
                   </button>
                   {completed > 0 && completed === tasks.length && (
                     <p className="success-line">
                       <Check size={16} />
-                      You made room for what matters today. Enjoy some rest.
+                      {tr("You made room for what matters today. Enjoy some rest.", "أفسحت مساحة لما يهم اليوم. استمتع ببعض الراحة.")}
                     </p>
                   )}
                 </section>
                 <section className="card direction-card">
-                  <span className="eyebrow">YOUR NORTH STAR</span>
+                  <span className="eyebrow">{tr("YOUR NORTH STAR", "بوصلتك")}</span>
                   <span className="north-star" aria-hidden="true">
                     ✳
                   </span>
                   <h2>
-                    A little reminder
-                    <br /> of your why.
+                    {tr("A little reminder", "تذكير بسيط")}
+                    <br /> {tr("of your why.", "بسبب انطلاقتك.")}
                   </h2>
                   <p>
                     {state.plan.identity ||
-                      "You get to decide what a meaningful life looks like for you."}
+                      tr("You get to decide what a meaningful life looks like for you.", "أنت من يقرر كيف تبدو الحياة ذات المعنى بالنسبة لك.")}
                   </p>
                   <div className="divider" />
-                  <span className="tiny-label">THIS MONTH, I’M WORKING ON</span>
-                  <h3>{state.plan.month || "Something that matters to me."}</h3>
+                  <span className="tiny-label">{tr("THIS MONTH, I’M WORKING ON", "أعمل هذا الشهر على")}</span>
+                  <h3>{state.plan.month || tr("Something that matters to me.", "شيء يهمني.")}</h3>
                   <button
                     className="text-button"
                     onClick={() => setView("direction")}
                   >
-                    See my direction <ArrowRight size={16} />
+                    {tr("See my direction", "اطّلع على اتجاهي")} <ArrowRight size={16} />
                   </button>
                 </section>
               </div>
@@ -458,8 +485,8 @@ export default function Home() {
                 <section className="card">
                   <div className="section-heading">
                     <div>
-                      <span className="eyebrow">A MOMENT TO NOTICE</span>
-                      <h2>How are you arriving today?</h2>
+                      <span className="eyebrow">{tr("A MOMENT TO NOTICE", "لحظة للملاحظة")}</span>
+                      <h2>{tr("How are you arriving today?", "كيف تشعر اليوم؟")}</h2>
                     </div>
                     <Coffee size={21} className="muted" />
                   </div>
@@ -490,7 +517,7 @@ export default function Home() {
                         <span aria-hidden="true">
                           {["☁", "〰", "◒", "☀"][i]}
                         </span>
-                        {m}
+                        {({ "Low energy": tr("Low energy", "طاقة منخفضة"), "A little scattered": tr("A little scattered", "شيء من التشتت"), Steady: tr("Steady", "متوازن"), "Feeling good": tr("Feeling good", "أشعر أنني بخير") } as Record<string, string>)[m]}
                       </button>
                     ))}
                   </div>
@@ -498,7 +525,7 @@ export default function Home() {
                     className="text-button"
                     onClick={() => setModal({ type: "checkin" })}
                   >
-                    Leave yourself a note <ArrowRight size={15} />
+                    {tr("Leave yourself a note", "اترك لنفسك ملاحظة")} <ArrowRight size={15} />
                   </button>
                 </section>
                 <section className="gentle-note">
@@ -506,13 +533,13 @@ export default function Home() {
                     ✳
                   </span>
                   <div>
-                    <span className="tiny-label">A GENTLE REMINDER</span>
+                    <span className="tiny-label">{tr("A GENTLE REMINDER", "تذكير لطيف")}</span>
                     <p>
-                      Consistency is coming back.
+                      {tr("Consistency is coming back.", "المواظبة هي العودة.")}
                       <br />
-                      Even after a difficult day.
+                      {tr("Even after a difficult day.", "حتى بعد يوم صعب.")}
                     </p>
-                    <span>Your progress is still yours.</span>
+                    <span>{tr("Your progress is still yours.", "تقدمك ما زال ملكك.")}</span>
                   </div>
                 </section>
               </div>
@@ -522,10 +549,8 @@ export default function Home() {
             <section className="card boundaries">
               <div className="section-heading">
                 <div>
-                  <h2>What I’m protecting today</h2>
-                  <p>
-                    Success includes keeping space for the things you value.
-                  </p>
+                  <h2>{tr("What I’m protecting today", "ما أحافظ عليه اليوم")}</h2>
+                  <p>{tr("Success includes keeping space for the things you value.", "النجاح يشمل الحفاظ على مساحة للأشياء التي تقدّرها.")}</p>
                 </div>
                 <Leaf size={20} />
               </div>
@@ -578,12 +603,12 @@ export default function Home() {
             <>
               <div className="page-heading">
                 <div>
-                  <span className="eyebrow">A COMPASS, NOT A FINISH LINE</span>
+                  <span className="eyebrow">{tr("A COMPASS, NOT A FINISH LINE", "بوصلة لا خط نهاية")}</span>
                   <h1>
-                    My direction<span className="heading-dot">.</span>
+                    {tr("My direction", "اتجاهي")}<span className="heading-dot">.</span>
                   </h1>
                   <p>
-                    A living plan. Adjust it as you learn more about yourself.
+                    {tr("A living plan. Adjust it as you learn more about yourself.", "خطة حية. عدّلها كلما تعرّفت إلى نفسك أكثر.")}
                   </p>
                 </div>
                 <button
@@ -591,7 +616,7 @@ export default function Home() {
                   onClick={() => setModal({ type: "plan" })}
                 >
                   <Pencil size={16} />
-                  Edit my plan
+                  {tr("Edit my plan", "تعديل خطتي")}
                 </button>
               </div>
               <div className="plan-grid">
@@ -603,10 +628,10 @@ export default function Home() {
                     <span className="eyebrow">
                       0{i + 1} / {planLabels[key]}
                     </span>
-                    <small className="plan-hint">{planGuidance[key]}</small>
+                    <small className="plan-hint">{locale === "ar" ? planGuidanceArabic[key] : planGuidance[key]}</small>
                     <p>
                       {state.plan[key] ||
-                        "Still taking shape. Make room to explore this in your reset."}
+                        tr("Still taking shape. Make room to explore this in your reset.", "ما زال يتشكل. خصص مساحة لاستكشافه في رحلتك للتغيير.")}
                     </p>
                   </section>
                 ))}
@@ -614,10 +639,10 @@ export default function Home() {
               <section className="card project-card">
                 <div className="section-heading">
                   <div>
-                    <h2>This month, one step at a time</h2>
+                    <h2>{tr("This month, one step at a time", "هذا الشهر، خطوة في كل مرة")}</h2>
                     <p>
                       {state.plan.month ||
-                        "Choose a small project in your plan, then break it down here."}
+                        tr("Choose a small project in your plan, then break it down here.", "اختر مشروعاً صغيراً من خطتك ثم قسّمه هنا.")}
                     </p>
                   </div>
                   <strong className="project-percent">{stats.project}%</strong>
@@ -629,7 +654,7 @@ export default function Home() {
                   <div className="task-row" key={step.id}>
                     <button
                       className="task-toggle"
-                      aria-label={`${step.done ? "Undo" : "Complete"} ${step.title}`}
+                      aria-label={`${step.done ? tr("Undo", "تراجع") : tr("Complete", "إكمال")} ${step.title}`}
                       aria-pressed={step.done}
                       onClick={() =>
                         update((s) => ({
@@ -651,11 +676,11 @@ export default function Home() {
                     </span>
                     <button
                       className="icon-button"
-                      aria-label={`Remove ${step.title}`}
+                      aria-label={`${tr("Remove", "إزالة")} ${step.title}`}
                       onClick={() => {
                         if (
                           window.confirm(
-                            "Remove this project step? Its progress points will also be removed.",
+                            tr("Remove this project step? Its progress points will also be removed.", "هل تريد إزالة خطوة المشروع هذه؟ ستُزال نقاط تقدمها أيضاً."),
                           )
                         )
                           update((s) => ({
@@ -690,18 +715,18 @@ export default function Home() {
                   }}
                 >
                   <label className="sr-only" htmlFor="project-step">
-                    New project step
+                    {tr("New project step", "خطوة مشروع جديدة")}
                   </label>
                   <input
                     id="project-step"
                     name="step"
                     required
                     maxLength={240}
-                    placeholder="One concrete step toward this project…"
+                    placeholder={tr("One concrete step toward this project…", "خطوة عملية واحدة نحو هذا المشروع…")}
                   />
                   <button className="button secondary">
                     <Plus size={16} />
-                    Add step
+                    {tr("Add step", "أضف خطوة")}
                   </button>
                 </form>
               </section>
@@ -711,12 +736,12 @@ export default function Home() {
             <>
               <div className="page-heading">
                 <div>
-                  <span className="eyebrow">NOTICE. LEARN. BEGIN AGAIN.</span>
+                  <span className="eyebrow">{tr("NOTICE. LEARN. BEGIN AGAIN.", "لاحظ. تعلّم. ابدأ من جديد.")}</span>
                   <h1>
-                    Room to reflect<span className="heading-dot">.</span>
+                    {tr("Room to reflect", "مساحة للتأمل")}<span className="heading-dot">.</span>
                   </h1>
                   <p>
-                    Your progress includes the things you notice along the way.
+                    {tr("Your progress includes the things you notice along the way.", "يشمل تقدمك الأشياء التي تلاحظها في الطريق.")}
                   </p>
                 </div>
                 <button
@@ -724,16 +749,15 @@ export default function Home() {
                   onClick={() => setModal({ type: "checkin" })}
                 >
                   <Plus size={17} />
-                  New reflection
+                  {tr("New reflection", "تأمل جديد")}
                 </button>
               </div>
               <section className="card week-card">
                 <div className="section-heading">
                   <div>
-                    <h2>Your last seven days</h2>
+                    <h2>{tr("Your last seven days", "أيامك السبعة الماضية")}</h2>
                     <p>
-                      Every completed step counts. Empty days are room to begin
-                      again.
+                      {tr("Every completed step counts. Empty days are room to begin again.", "كل خطوة مكتملة مهمة. الأيام الفارغة مساحة للبدء من جديد.")}
                     </p>
                   </div>
                   <ChartNoAxesColumnIncreasing size={23} />
@@ -756,7 +780,7 @@ export default function Home() {
                           />
                         </div>
                         <small>
-                          {d.toLocaleDateString(undefined, {
+                          {d.toLocaleDateString(dateLocale, {
                             weekday: "short",
                           })}
                         </small>
@@ -765,15 +789,15 @@ export default function Home() {
                   })}
                 </div>
                 <p className="chart-caption">
-                  {stats.total} progress points · Level {stats.level} ·{" "}
-                  {stats.xp}/{stats.next} to your next level
+                  {stats.total} {tr("progress points", "نقطة تقدم")} · {tr("Level", "المستوى")} {stats.level} ·{" "}
+                  {stats.xp}/{stats.next} {tr("to your next level", "للوصول إلى مستواك التالي")}
                 </p>
               </section>
               {!state.reflections.length && (
                 <section className="card empty-state">
                   <BookOpen size={30} />
-                  <h2>Nothing to catch up on.</h2>
-                  <p>Start with one thing you noticed today.</p>
+                  <h2>{tr("Nothing to catch up on.", "لا شيء يلزم تعويضه.")}</h2>
+                  <p>{tr("Start with one thing you noticed today.", "ابدأ بشيء واحد لاحظته اليوم.")}</p>
                 </section>
               )}
               <div className="journal-list">
@@ -784,12 +808,12 @@ export default function Home() {
                     <article className="card" key={r.id}>
                       <div className="section-heading">
                         <span className="tiny-label">
-                          {new Date(r.timestamp).toLocaleString(undefined, {
+                          {new Date(r.timestamp).toLocaleString(dateLocale, {
                             dateStyle: "medium",
                             timeStyle: "short",
                           })}
                         </span>
-                        <span className="tag">{r.mood || "Reflection"}</span>
+                        <span className="tag">{r.mood ? ({ "Low energy": tr("Low energy", "طاقة منخفضة"), "A little scattered": tr("A little scattered", "شيء من التشتت"), Steady: tr("Steady", "متوازن"), "Feeling good": tr("Feeling good", "أشعر أنني بخير") } as Record<string, string>)[r.mood] || r.mood : tr("Reflection", "تأمل")}</span>
                       </div>
                       <p className="preserve-lines">{r.note}</p>
                     </article>
@@ -812,30 +836,30 @@ export default function Home() {
           )}
           <footer>
             <Leaf size={13} />
-            <span>A little more intention, every day.</span>
+            <span>{tr("A little more intention, every day.", "مزيد من القصد، كل يوم.")}</span>
             <a
               href="https://letters.thedankoe.com/p/how-to-fix-your-entire-life-in-1"
               target="_blank"
               rel="noreferrer"
             >
-              Inspired by Dan Koe <ArrowUpRight size={12} />
+              {tr("Inspired by Dan Koe", "مستوحى من دان كو")} <ArrowUpRight size={12} />
             </a>
           </footer>
         </main>
       </div>
       {modal?.type === "task" && (
         <Dialog
-          title={modal.task ? "Make this step your own" : "One small step"}
+          title={modal.task ? tr("Make this step your own", "اجعل هذه الخطوة بطريقتك") : tr("One small step", "خطوة صغيرة واحدة")}
           onClose={close}
         >
           <TaskForm task={modal.task} onSave={saved} />
         </Dialog>
       )}
       {modal?.type === "checkin" && (
-        <Dialog title="A moment to come back to yourself" onClose={close}>
+        <Dialog title={tr("A moment to come back to yourself", "لحظة للعودة إلى نفسك")} onClose={close}>
           <p>
             {modal.prompt ||
-              "What are you noticing? What would help you take your next small step?"}
+              tr("What are you noticing? What would help you take your next small step?", "ما الذي تلاحظه؟ ما الذي سيساعدك على اتخاذ خطوتك الصغيرة التالية؟")}
           </p>
           <form
             onSubmit={(e) => {
@@ -856,11 +880,11 @@ export default function Home() {
                       },
                     ],
                   })),
-                  "Reflection saved. Thank you for showing up.",
+                  tr("Reflection saved. Thank you for showing up.", "تم حفظ التأمل. شكراً لحضورك.") ,
                 );
             }}
           >
-            <label htmlFor="reflection-note">Your reflection</label>
+            <label htmlFor="reflection-note">{tr("Your reflection", "تأملك")}</label>
             <textarea
               autoFocus
               id="reflection-note"
@@ -868,21 +892,16 @@ export default function Home() {
               required
               maxLength={10000}
               rows={5}
-              placeholder="There’s no right answer…"
+              placeholder={tr("There’s no right answer…", "لا توجد إجابة صحيحة واحدة…")}
             />
-            <label htmlFor="reflection-mood">How does this moment feel?</label>
+            <label htmlFor="reflection-mood">{tr("How does this moment feel?", "كيف تشعر في هذه اللحظة؟")}</label>
             <select
               id="reflection-mood"
               name="mood"
               defaultValue={day.mood || "Steady"}
             >
-              {[
-                "Low energy",
-                "A little scattered",
-                "Steady",
-                "Feeling good",
-              ].map((m) => (
-                <option key={m}>{m}</option>
+              {["Low energy", "A little scattered", "Steady", "Feeling good"].map((m) => (
+                <option key={m} value={m}>{({ "Low energy": tr("Low energy", "طاقة منخفضة"), "A little scattered": tr("A little scattered", "شيء من التشتت"), Steady: tr("Steady", "متوازن"), "Feeling good": tr("Feeling good", "أشعر أنني بخير") } as Record<string, string>)[m]}</option>
               ))}
             </select>
             <div className="dialog-actions">
@@ -891,10 +910,10 @@ export default function Home() {
                 className="button secondary"
                 onClick={close}
               >
-                Come back later
+                {tr("Come back later", "العودة لاحقاً")}
               </button>
               <button className="button primary">
-                Save reflection <Check size={16} />
+                {tr("Save reflection", "حفظ التأمل")} <Check size={16} />
               </button>
             </div>
           </form>
@@ -903,14 +922,13 @@ export default function Home() {
       {modal?.type === "plan" && (
         <Dialog
           title={
-            modal.draft ? "Review your direction" : "Your plan, in your words"
+            modal.draft ? tr("Review your direction", "راجع اتجاهك") : tr("Your plan, in your words", "خطتك، بكلماتك")
           }
           onClose={close}
         >
           {modal.draft && (
             <p>
-              This draft uses your own answers. Edit anything before saving.
-              Your daily actions can be added from Today.
+              {tr("This draft uses your own answers. Edit anything before saving. Your daily actions can be added from Today.", "تستخدم هذه المسودة إجاباتك الخاصة. عدّل أي شيء قبل الحفظ. يمكنك إضافة أفعالك اليومية من صفحة اليوم.")}
             </p>
           )}
           <form
@@ -925,7 +943,7 @@ export default function Home() {
               ) as Plan;
               saved(
                 update((s) => ({ ...s, plan })),
-                "Your direction is saved. Keep it flexible.",
+                tr("Your direction is saved. Keep it flexible.", "تم حفظ اتجاهك. أبقه مرناً.") ,
               );
             }}
           >
@@ -933,7 +951,7 @@ export default function Home() {
               <div key={key}>
                 <label htmlFor={`plan-${key}`}>{planLabels[key]}</label>
                 <p className="field-hint" id={`plan-${key}-help`}>
-                  {planGuidance[key]}
+                  {locale === "ar" ? planGuidanceArabic[key] : planGuidance[key]}
                 </p>
                 <textarea
                   id={`plan-${key}`}
@@ -951,21 +969,19 @@ export default function Home() {
                 className="button secondary"
                 onClick={close}
               >
-                Cancel
+                {tr("Cancel", "إلغاء")}
               </button>
               <button className="button primary">
-                Save my direction <Check size={16} />
+                {tr("Save my direction", "حفظ اتجاهي")} <Check size={16} />
               </button>
             </div>
           </form>
         </Dialog>
       )}
       {modal?.type === "reset" && (
-        <Dialog title="Start a fresh chapter?" onClose={close}>
+        <Dialog title={tr("Start a fresh chapter?", "بدء فصل جديد؟")} onClose={close}>
           <p>
-            This clears your current plan, tasks, and reflections. A local
-            recovery copy is saved first. Download a backup to keep a permanent
-            copy.
+            {tr("This clears your current plan, tasks, and reflections. A local recovery copy is saved first. Download a backup to keep a permanent copy.", "سيؤدي ذلك إلى مسح خطتك ومهامك وتأملاتك الحالية. يُحفظ أولاً نسخة استرداد محلية. نزّل نسخة احتياطية للاحتفاظ بنسخة دائمة.")}
           </p>
           <div className="dialog-actions">
             <button
@@ -975,35 +991,32 @@ export default function Home() {
               }
             >
               <Download size={16} />
-              Download backup
+              {tr("Download backup", "تنزيل نسخة احتياطية")}
             </button>
             <button
               className="button danger"
               onClick={() =>
-                saved(restore(freshState()), "A fresh chapter is ready.")
+                saved(restore(freshState()), tr("A fresh chapter is ready.", "الفصل الجديد جاهز."))
               }
             >
-              Save recovery copy & reset
+              {tr("Save recovery copy & reset", "حفظ نسخة استرداد وإعادة ضبط")}
             </button>
           </div>
         </Dialog>
       )}
       {modal?.type === "import" && (
-        <Dialog title="Restore this backup?" onClose={close}>
+        <Dialog title={tr("Restore this backup?", "استعادة هذه النسخة الاحتياطية؟")} onClose={close}>
           <p>
-            This backup contains {modal.data.tasks.length} steps and{" "}
-            {modal.data.reflections.length} reflections. It will replace the
-            current workspace. A recovery copy of your current data is saved
-            first.
+            {tr("This backup contains", "تحتوي هذه النسخة الاحتياطية على")} {modal.data.tasks.length} {tr("steps and", "خطوات و")} {modal.data.reflections.length} {tr("reflections. It will replace the current workspace. A recovery copy of your current data is saved first.", "تأملات. وستستبدل مساحة العمل الحالية. تُحفظ أولاً نسخة استرداد لبياناتك الحالية.")}
           </p>
           <div className="dialog-actions">
             <button className="button secondary" onClick={close}>
-              Cancel
+              {tr("Cancel", "إلغاء")}
             </button>
             <button
               className="button primary"
               onClick={() =>
-                saved(restore(modal.data), "Backup restored successfully.")
+                saved(restore(modal.data), tr("Backup restored successfully.", "تمت استعادة النسخة الاحتياطية بنجاح."))
               }
             >
               Restore backup
@@ -1017,7 +1030,7 @@ export default function Home() {
           onClose={close}
           onComplete={(profile) => {
             setNotice(
-              `Calibrated as ${profile.archetypeName}. Daily MSQ reflections are ready!`,
+              `${tr("Calibrated as", "تمت المعايرة بوصف") } ${profile.archetypeName}. ${tr("Daily MSQ reflections are ready!", "تأملات اليوم جاهزة!")}`,
             );
           }}
         />
