@@ -1,4 +1,12 @@
 import { test, expect } from "@playwright/test";
+test("page opts in to browser translation and identifies its source language", async ({
+  page,
+}) => {
+  const response = await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("html")).toHaveAttribute("translate", "yes");
+  expect(response?.headers()["content-language"]).toBe("en");
+});
 test("daily step, undo, persistence, archive, and keyboard dialog", async ({
   page,
 }) => {
