@@ -12,7 +12,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 LifeOS helps people reflect for a day and practice small actions afterward. The person writes their own answers; never invent achievements, identities, or personal goals. Keep the interface calm, plain-spoken, accessible, and usable on phones.
 
-Read `README.md`, `docs/DECISIONS.md`, and `LifeOS-Vault/Frameworks/Dan Koe Principles.md` before changing the product flow. The vault is a human-readable project index, not a runtime database.
+Read `README.md`, `LifeOS-Vault/Decisions/Decisions Log.md`, and `LifeOS-Vault/Frameworks/Dan Koe Principles.md` before changing the product flow. The vault is a human-readable project index, not a runtime database.
 
 ### Vault as project memory (mandatory for all agents)
 
@@ -22,7 +22,7 @@ The `LifeOS-Vault/AI-Memory/` folder is the **shared project memory** for every 
 1. Read `LifeOS-Vault/AI-Memory/Agent Handoff.md` to understand the current project state, environment constraints, and suggested next tasks.
 2. Read `LifeOS-Vault/AI-Memory/Bugs & Issues.md` to check for open or in-progress bugs before writing code.
 3. Check `LifeOS-Vault/AI-Memory/Future Tasks.md` for your task's context and priority level.
-4. If touching design decisions or framework boundaries, also read `docs/DECISIONS.md` and `LifeOS-Vault/Docs/Project Documentation Index.md` for relevant context.
+4. If touching design decisions or framework boundaries, also read `LifeOS-Vault/Decisions/Decisions Log.md` and `LifeOS-Vault/Decisions/Decisions Log.md` for relevant context.
 
 **During a session:**
 - If you discover a bug (even one you immediately fix), add it to `LifeOS-Vault/AI-Memory/Bugs & Issues.md` with status `resolved`.
@@ -32,7 +32,7 @@ The `LifeOS-Vault/AI-Memory/` folder is the **shared project memory** for every 
 1. Add a new `## Session YYYY-MM-DD — Agent Name` entry (newest first) to `LifeOS-Vault/AI-Memory/Sessions/Session Log.md` documenting: what was done, files changed, test results (actual counts), git commit hash, and any open items.
 2. Rewrite `LifeOS-Vault/AI-Memory/Agent Handoff.md` with the current project state, updated suggestions, and any new environment gotchas discovered.
 3. Update `LifeOS-Vault/Progress/00 - Dashboard.md` to add completed items to the Implemented checklist and update verification counts.
-4. Update `docs/DECISIONS.md` with any architectural or product decisions made.
+4. Update `LifeOS-Vault/Decisions/Decisions Log.md` with any architectural or product decisions made.
 
 **Windows environment constraint (this machine only):**
 PowerShell blocks `npm.ps1` due to execution policy. Always invoke npm through cmd:
@@ -48,7 +48,7 @@ cmd.exe /c npx playwright test
 - Roles may include product/protocol review, domain and storage engineering, interface/accessibility work, and independent verification. Roles are development responsibilities, not AI personas shown to users.
 - Handoffs must state the objective, files changed, data/schema implications, commands run with their results, and remaining limitations. Never claim testing that was not performed.
 - Preserve existing user changes. Do not commit, publish, reset history, or send user reflections to a model/service unless explicitly authorized.
-- Record consequential decisions in `docs/DECISIONS.md`. Keep vault status aligned with actual verification.
+- Record consequential decisions in `LifeOS-Vault/Decisions/Decisions Log.md`. Keep vault status aligned with actual verification.
 
 ### Invariants and verification
 

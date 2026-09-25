@@ -1,7 +1,7 @@
 ---
 title: "Progress Dashboard"
 updated: 2026-09-25
-session: docs/SESSION-2026-09-25.md
+session: LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md
 type: dashboard
 status: verified
 tags: [project/lifeos, status/verified]
@@ -38,7 +38,7 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 - [x] Native English/Arabic workspace switch with RTL layout, Arabic date formatting, and non-destructive locale persistence
 - [x] Arabic reset MSQ prompts, option labels, and subtexts; full baseline assessment in Arabic; AI guide and daytime check-ins localized
 - [x] Maslow need-tier heuristic (MatchWise v3.0-aligned) on assessment profile; MSQ source metadata and plan draft field review
-- [x] `docs/FRAMEWORK-MODELS.md` — framework concepts vs LifeOS-authored questions; `docs/SESSION-2026-09-25.md` session log
+- [x] `LifeOS-Vault/Frameworks/Human Development Frameworks.md#Framework Policy` — framework concepts vs LifeOS-authored questions; `LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md` session log
 - [x] Full Arabic localization of Settings Data & Backup cards, Google Translate tool, Journey Guide (all 6 views), MSQ motive badges, plan field labels
 - [x] RTL typography: system Arabic font stack, cursive ligature fix, directional `.rtl-flip` icon class, stat-strip and form control RTL alignment
 - [x] LifeOS-Vault `AI-Memory/` hub: Agent Handoff, Bugs & Issues, Future Tasks, Session Log — project memory for all agents
@@ -77,9 +77,9 @@ Cloud accounts/sync, autonomous AI actions, push notification delivery, and prov
 
 - `README.md`: setup, product behavior, data recovery, limitations
 - `AGENTS.md`: agent collaboration and acceptance requirements
-- `docs/DECISIONS.md`: product and architecture decisions
-- `docs/FRAMEWORK-MODELS.md`: MatchWise models vs LifeOS-owned copy
-- `docs/SESSION-2026-09-25.md`: this session’s changes
+- `LifeOS-Vault/Decisions/Decisions Log.md`: product and architecture decisions
+- `LifeOS-Vault/Frameworks/Human Development Frameworks.md#Framework Policy`: MatchWise models vs LifeOS-owned copy
+- `LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md`: this session’s changes
 - `src/lib/domain.ts`: data invariants and migration
 - `src/lib/store.ts`: persistence and subscriptions
 - `tests`: regression coverage

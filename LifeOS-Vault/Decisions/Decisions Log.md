@@ -1,11 +1,27 @@
-<!--
-  Vault cross-reference: LifeOS-Vault/Docs/Project Documentation Index.md
-  Agent memory hub:      LifeOS-Vault/AI-Memory/00 - AI Agent Memory Index.md
-  Read Agent Handoff before editing:  LifeOS-Vault/AI-Memory/Agent Handoff.md
-  Record new decisions here AND update LifeOS-Vault/Progress/00 - Dashboard.md
--->
+---
+title: "Decisions Log"
+created: 2026-09-16
+updated: 2026-09-25
+type: decisions
+status: active
+priority: high
+tags:
+  - project/lifeos
+  - type/decisions
+aliases:
+  - Decisions
+  - DecisionsLog
+  - DECISIONS
+---
 
-# Product and engineering decisions
+# 📋 Product & Engineering Decisions
+
+> [!important] All agents: record decisions here
+> Every consequential product or engineering decision **must** be added here **before committing**. Format: `## YYYY-MM-DD: short description` followed by bullet rationale.
+
+- **Back to:** [[00 - Start Here]] | [[AI-Memory/00 - AI Agent Memory Index|AI Memory]] | [[AI-Memory/Agent Handoff|Agent Handoff]]
+
+---
 
 ## 2026-09-16: daily-use redesign
 
@@ -19,6 +35,8 @@
 - Keep the original v1 key unchanged. Before destructive workspace replacement, create one local recovery copy. Provide portable JSON exports and explicit import validation.
 - Development agents coordinate through repository instructions, bounded file ownership, documented decisions, and verifiable handoffs. Runtime AI coaching remains a separate future feature, not an implied capability.
 
+---
+
 ## 2026-09-19: optional AI guide
 
 - Add an OpenAI Responses API guide as an explicit, user-triggered feature. It analyzes a snapshot and returns structured observations, recommendations, and one question. It does not run in the background.
@@ -27,6 +45,8 @@
 - Send Responses API requests with `store: false`, a strict JSON schema, bounded input sizes, a timeout, and a per-session rate limit. OpenAI organization controls still apply.
 - Keep results in component memory only. Suggestions require explicit acceptance before creating a daily step and never overwrite the plan.
 
+---
+
 ## 2026-09-19: provider-neutral AI connections
 
 - Support OpenAI Responses plus DeepSeek, NVIDIA NIM, and custom OpenAI-compatible Chat Completions. User-entered model IDs allow newly released provider models without an application release.
@@ -34,19 +54,25 @@
 - Validate through the provider models endpoint, disable redirects, retain credentials only in the encrypted scoped cookie, and re-check custom endpoint safety before analysis.
 - Use strict JSON Schema output for OpenAI. Compatible providers receive the same schema in the prompt; DeepSeek also receives JSON-object formatting. Every result passes shared runtime validation.
 
+---
+
 ## 2026-09-20: article-led questionnaire direction (design decision)
 
 - The product owner selected Dan Koe's article at https://x.com/thedankoe/article/2010751592346030461 as the foundation for the questionnaire and AI assistance. Use the author's newsletter already referenced by this repository as the accessible working reference; exact X text equivalence remains unverified because direct access returned HTTP 403.
 - Replace the proposed psychological screening roadmap with source-mapped, tap-based reflection. WHO-5, COM-B, and PHQ-4 are outside the current scope. Later modifications should follow user feedback and an explicit product decision.
 - Preserve the source's reflection-to-action structure and the person's authorship of their plan. Multiple-choice wording and AI follow-ups are app adaptations, not validated psychological measurements.
-- At this decision point, questionnaire implementation remained pending and no runtime behavior changed. It was implemented later the same day; see **human development frameworks & AI MSQ reflection** below and `docs/QUESTIONNAIRE-DESIGN.md`.
+- At this decision point, questionnaire implementation remained pending. It was implemented later the same day; see **human development frameworks & AI MSQ reflection** below and [[Frameworks/Dan Koe Principles#Questionnaire Design]].
+
+---
 
 ## 2026-09-20: guidance for users new to the article
 
 - Implement a welcome and an expandable journey map across Your reset, My direction, Today, and Reflections. Explain the optional AI guide and backup settings too. No prior knowledge of the article is assumed.
 - Derive next-step suggestions and saved-item counts from the existing workspace. Counts describe actual saved content, not completion of personal growth. No new data schema or invented user goals are introduced.
 - Explain each reset phase and all six plan fields where they are used. Give direct controls to open the relevant form or focus the next section; restore main-content focus on section navigation.
-- Keep guidance optional to expand for returning users. These are authored app-use recommendations, not automatic AI analysis or psychological screening. At this milestone, the multiple-choice questionnaire was still a separately documented feature; it was implemented later the same day.
+- Keep guidance optional to expand for returning users. These are authored app-use recommendations, not automatic AI analysis or psychological screening.
+
+---
 
 ## 2026-09-20: expanded AI providers and conversation
 
@@ -54,6 +80,8 @@
 - Treat free access as provider-controlled rather than guaranteed by LifeOS. Free credits, free model routing, quotas, pricing, model availability, and data retention can change and must be disclosed in the UI/documentation.
 - Report provider connection health after the server-side `/models` validation: green/working for responsive checks, yellow/slow at 3 seconds or more, and red/down for validation or reachability errors.
 - Add a user-triggered follow-up chat after analysis. Send only selected context and bounded recent messages, keep the transcript in component memory for the page session, apply the existing server-side session-key protection and rate limits, and never persist chat content in LifeOS data.
+
+---
 
 ## 2026-09-20: human development frameworks & AI MSQ reflection
 
@@ -64,11 +92,16 @@
 - Added `/api/ai/questions` endpoint to dynamically generate 3–4 tailored contextual choices using active goals and psychometric profile when an AI provider is connected, falling back cleanly to curated framework options when offline.
 - Added automated plan drafting from MSQ answers, synthesizing selected choices into the Anti-Vision, Vision, Identity, Daily Levers, and Constraints.
 - State migration and backup validation (`domain.ts`) safely support `assessmentProfile` and `selectedOptions` while maintaining strict schema validity and full backward compatibility.
+- See [[Frameworks/Human Development Frameworks]] for the full framework breakdown.
+
+---
 
 ## 2026-09-21: optional Google Translate
 
 - Add an on-demand Settings tool using Cloud Translation Basic (v2). It translates only text that the user types or explicitly selects from their LifeOS writing, leaves source data unchanged, and does not persist translations.
-- Keep `GOOGLE_TRANSLATE_API_KEY` server-only. Require the user/operator to enable Google Cloud Translation and billing, disclose Google’s own usage controls, bound requests to 5,000 characters, validate target languages, apply a rate limit, and never expose the key to the browser.
+- Keep `GOOGLE_TRANSLATE_API_KEY` server-only. Require the user/operator to enable Google Cloud Translation and billing, disclose Google's own usage controls, bound requests to 5,000 characters, validate target languages, apply a rate limit, and never expose the key to the browser.
+
+---
 
 ## 2026-09-25: native Arabic workspace and browser translation compatibility
 
@@ -77,17 +110,25 @@
 - Keep browser translation separate from the optional Cloud Translation writing tool. Declare the page's English source language and explicitly opt it into browser translation so Chrome can translate into other languages without a Google Cloud key.
 - Verify locale selection, RTL document attributes, and persistence with end-to-end coverage alongside the existing full browser suite.
 
+---
+
 ## 2026-09-25: Arabic depth and LifeOS-owned assessment copy
 
-- Localize the full baseline assessment (8 questions, options, archetype results) via `assessment-i18n.ts` and `locale/assessment-ar.mjs`. Wording is LifeOS-authored for the one-day reset; framework names are educational labels only (see `docs/FRAMEWORK-MODELS.md`).
+- Localize the full baseline assessment (8 questions, options, archetype results) via `assessment-i18n.ts` and `locale/assessment-ar.mjs`. Wording is LifeOS-authored for the one-day reset; framework names are educational labels only (see [[Frameworks/Human Development Frameworks#Framework Policy]]).
 - Polish Arabic MSQ headings, labels, and subtexts (`locale/msq-ar-*.mjs`, generator `scripts/gen-msq-ar.mjs`).
 - Extend Arabic to daytime check-ins, reset/settings chrome, and AI guide UI (`locale/assistant.ts`, `locale/workspace.ts`).
 
+---
+
 ## 2026-09-25: high-impact product polish (i18n, Maslow, plan review)
 
-- Extend Arabic to reset MSQ flows, baseline assessment chrome, and settings psychometric copy via `src/lib/locale/*` while keeping the person’s saved writing untouched.
+- Extend Arabic to reset MSQ flows, baseline assessment chrome, and settings psychometric copy via `src/lib/locale/*` while keeping the person's saved writing untouched.
 - Add educational Maslow need-tier derivation (`src/lib/maslow.ts`) aligned with MatchWise v3.0 concepts; store `maslowCenter`, orientation, and tier shares on the assessment profile as illustrative heuristics, not clinical scores.
 - Add MSQ source traceability metadata (`src/lib/msq-meta.ts`) mapping Dan Koe newsletter prompts to plan fields.
+- Plan draft review shows per-field status vs saved direction and lets the person revert individual fields to saved text before committing.
+
+---
+
 ## 2026-09-25: comprehensive Arabic localization and RTL typography polish
 
 - Complete Arabic localization across Settings Data & Backup cards (export/import, recovery, alerts, confirmations) and the Google Cloud Translate tool (controls, descriptions, status, language labels).
@@ -96,6 +137,16 @@
 - Modernize Arabic typography with system font stack and reset negative letter spacing in RTL so cursive script connects properly.
 - Fix directional icon mirroring by scoping flips to `.rtl-flip` for navigation arrows, preventing non-directional utility icons (checkmarks, pluses, pencils, calendars) from reversing incorrectly.
 - Maintain full test coverage with 18 unit tests (parity verification) and 18 E2E Playwright tests.
+
+---
+
+## 2026-09-25: migrate docs/ into vault
+
+- Moved all standalone design documents from `docs/` (DECISIONS.md, FRAMEWORK-MODELS.md, QUESTIONNAIRE-DESIGN.md, session notes) into the Obsidian vault (`LifeOS-Vault/`) so a single source of truth exists for both human and AI agent navigation.
+- Vault notes use proper YAML frontmatter, Obsidian wikilinks, and callout syntax. The `docs/` folder is removed; all cross-references now point to vault paths.
+- Agent protocol updated in `AGENTS.md` to reference vault paths exclusively.
+
+---
 
 ## Remaining constraints
 

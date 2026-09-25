@@ -29,7 +29,7 @@ Open http://localhost:3000. For production, run `npm run build` followed by `npm
 
 ## Languages and browser translation
 
-LifeOS ships with English and Arabic for the main workspace. Locale is stored in browser local storage (`lifeos_locale`). Baseline and MSQ Arabic copy lives in `src/lib/locale/`; see `docs/FRAMEWORK-MODELS.md` for how reflection frameworks are used (educational models, LifeOS-authored questions). Regenerate MSQ Arabic options after edits with `node scripts/gen-msq-ar.mjs` from the `life-os` directory.
+LifeOS ships with English and Arabic for the main workspace. Locale is stored in browser local storage (`lifeos_locale`). Baseline and MSQ Arabic copy lives in `src/lib/locale/`; see `LifeOS-Vault/Frameworks/Human Development Frameworks.md#Framework Policy` for how reflection frameworks are used (educational models, LifeOS-authored questions). Regenerate MSQ Arabic options after edits with `node scripts/gen-msq-ar.mjs` from the `life-os` directory.
 
 The document also identifies English as its source language and explicitly permits browser translation. Chrome users can still use the browser’s Translate control for languages not provided by the native interface. Browser translation is controlled by Chrome and may need to be enabled in the browser’s language settings.
 

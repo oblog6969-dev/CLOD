@@ -26,9 +26,9 @@ Help people reflect for a day, choose their own direction, and return to meaning
 ## 📂 Vault Structure
 - [[Progress/00 - Dashboard|Progress Dashboard]]
 - [[Frameworks/Human Development Frameworks|Human Development Frameworks (MatchWise Psychometrics)]]
-- [[Frameworks/Dan Koe Principles|Dan Koe's Principles]]
+- [[Frameworks/Dan Koe Principles|Dan Koe's Principles & Questionnaire Design]]
 - [[Frameworks/Tech Stack|Technology Stack]]
-- [[Docs/Project Documentation Index|📄 Project Documentation (docs/ bridge)]]
+- [[Decisions/Decisions Log|📋 Decisions Log]]
 - [[AI-Memory/00 - AI Agent Memory Index|🤖 AI Agent Memory (Bugs, Tasks, Handoff, Session Log)]]
 
 ## 🕹️ System Architecture
@@ -43,5 +43,5 @@ This vault acts as the shared knowledge repository for AI agents working on Life
 1. **Read [[AI-Memory/00 - AI Agent Memory Index|AI Agent Memory]] first** — contains [[AI-Memory/Agent Handoff|Agent Handoff]], [[AI-Memory/Bugs & Issues|Bugs & Issues]], [[AI-Memory/Future Tasks|Future Tasks]], and [[AI-Memory/Sessions/Session Log|Session Log]].
 2. Update `Progress/00 - Dashboard.md` when introducing new features or completing milestones.
 3. Read `Frameworks/Tech Stack.md` and `Frameworks/Dan Koe Principles.md` before altering core abstractions.
-4. Follow `AGENTS.md` for file ownership, handoffs, validation, and data invariants. Record decisions in `docs/DECISIONS.md`. Paths are relative to the repository root.
+4. Follow `AGENTS.md` for file ownership, handoffs, validation, and data invariants. Record decisions in `LifeOS-Vault/Decisions/Decisions Log.md`. Paths are relative to the repository root.
 5. Multi-agent collaboration means development cooperation. The runtime includes an optional, user-triggered AI guide when a person connects a supported provider; there is no autonomous coach, background AI activity, or silent plan editing.

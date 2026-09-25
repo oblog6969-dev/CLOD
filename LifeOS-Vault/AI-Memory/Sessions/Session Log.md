@@ -43,8 +43,8 @@ aliases:
   - `tests/domain.test.mjs` — Added parity verification test for `workspaceCopy` Arabic keys and `getPromptMsq` archetype tags.
   - `tests/e2e/lifeos.spec.ts` — Fixed Playwright strict-mode locator collision on sidebar button.
 - **Documentation:**
-  - `docs/DECISIONS.md` — Added `2026-09-25: comprehensive Arabic localization and RTL typography polish`.
-  - `docs/SESSION-2026-09-25.md` — Updated session notes with final test counts and key files.
+  - `LifeOS-Vault/Decisions/Decisions Log.md` — Added `2026-09-25: comprehensive Arabic localization and RTL typography polish`.
+  - `LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md` — Updated session notes with final test counts and key files.
 - **Vault:**
   - Created `LifeOS-Vault/AI-Memory/` with full agent memory structure (this file, Agent Handoff, Bugs & Issues, Future Tasks).
 

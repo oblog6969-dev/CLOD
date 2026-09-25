@@ -37,7 +37,7 @@ aliases:
 3. **Journey Guide** — Complete Arabic translations for all 6 workspace view guides with live progress states and next-step recommendations.
 4. **RTL Typography** — System Arabic font stack (Cairo, Tajawal fallback), reset negative letter spacing for cursive ligatures, directional `.rtl-flip` class replacing blanket SVG mirror, stat-strip divider border fixes.
 5. **Test Coverage** — 18/18 unit tests + 18/18 Playwright E2E tests passing. Added Arabic parity verification unit test.
-6. **Documentation** — Updated `docs/DECISIONS.md` and `docs/SESSION-2026-09-25.md`. Created `LifeOS-Vault/AI-Memory/` structure (this handoff).
+6. **Documentation** — Updated `LifeOS-Vault/Decisions/Decisions Log.md` and `LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md`. Created `LifeOS-Vault/AI-Memory/` structure (this handoff).
 
 ---
 
@@ -97,8 +97,8 @@ In priority order (from [[Future Tasks]]):
 | Baseline Assessment Modal | `src/components/BaselineAssessmentModal.tsx` |
 | Unit tests | `tests/domain.test.mjs` |
 | E2E tests | `tests/e2e/lifeos.spec.ts`, `tests/e2e/journey.spec.ts` |
-| Decisions log | `docs/DECISIONS.md` |
-| Session log | `docs/SESSION-2026-09-25.md` |
+| Decisions log | `LifeOS-Vault/Decisions/Decisions Log.md` |
+| Session log | `LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md` |
 | Agent rules | `AGENTS.md` |
 
 ---
