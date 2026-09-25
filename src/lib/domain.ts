@@ -1,3 +1,5 @@
+import type { MaslowOrientation, MaslowTier } from "./maslow";
+
 export type Task = {
   id: string;
   title: string;
@@ -28,6 +30,10 @@ export type AssessmentProfile = {
   topValues: string[];
   archetypeName: string;
   motiveDescription: string;
+  /** Educational Maslow tier emphasis (MatchWise-inspired heuristic). */
+  maslowCenter?: MaslowTier;
+  maslowOrientation?: MaslowOrientation;
+  maslowTiers?: Partial<Record<MaslowTier, number>>;
 };
 export type State = {
   version: 2;

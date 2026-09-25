@@ -44,6 +44,10 @@ import {
 } from "@/lib/domain";
 import { synthesizePlanFromAnswers } from "@/lib/questionnaire";
 import { LanguageProvider, useLanguage } from "@/lib/language";
+import {
+  summarizePlanDraft,
+  type PlanFieldStatus,
+} from "@/lib/plan-draft";
 
 const navigation = [
   { id: "today", icon: Sun },
@@ -86,6 +90,7 @@ function LifeOSApp() {
   const snapshot = useLifeOS();
   const [view, setView] = useState<View>("today");
   const [modal, setModal] = useState<Modal>(null);
+  const [planEdit, setPlanEdit] = useState<Plan | null>(null);
   const [notice, setNotice] = useState("");
   const previousView = useRef(view);
   useEffect(() => {
@@ -113,16 +118,22 @@ function LifeOSApp() {
   const tasks = state.tasks.filter((t) => !t.archived);
   const completed = tasks.filter((t) => day.completed.includes(t.id)).length;
   const answered = prompts.filter(([id]) => state.answers[id]?.trim()).length;
-  const close = () => setModal(null);
+  const close = () => {
+    setModal(null);
+    setPlanEdit(null);
+  };
+  const openPlanModal = (draft?: Plan) => {
+    setPlanEdit({ ...(draft ?? state.plan) });
+    setModal(draft ? { type: "plan", draft } : { type: "plan" });
+  };
   const openDraft = () =>
-    setModal({
-      type: "plan",
-      draft: synthesizePlanFromAnswers(
+    openPlanModal(
+      synthesizePlanFromAnswers(
         state.answers,
         state.plan,
         state.assessmentProfile,
       ),
-    });
+    );
   const guideAction = (action: GuideAction) => {
     const focus = (id: string) => {
       const target = document.getElementById(id);
@@ -137,7 +148,7 @@ function LifeOSApp() {
         openDraft();
         break;
       case "plan":
-        setModal({ type: "plan" });
+        openPlanModal();
         break;
       case "task":
         setModal({ type: "task" });
@@ -613,7 +624,7 @@ function LifeOSApp() {
                 </div>
                 <button
                   className="button primary"
-                  onClick={() => setModal({ type: "plan" })}
+                  onClick={() => openPlanModal()}
                 >
                   <Pencil size={16} />
                   {tr("Edit my plan", "تعديل خطتي")}
@@ -919,7 +930,7 @@ function LifeOSApp() {
           </form>
         </Dialog>
       )}
-      {modal?.type === "plan" && (
+      {modal?.type === "plan" && planEdit && (
         <Dialog
           title={
             modal.draft ? tr("Review your direction", "راجع اتجاهك") : tr("Your plan, in your words", "خطتك، بكلماتك")
@@ -934,22 +945,35 @@ function LifeOSApp() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              const form = new FormData(e.currentTarget);
-              const plan = Object.fromEntries(
-                Object.keys(planLabels).map((key) => [
-                  key,
-                  String(form.get(key)).trim(),
-                ]),
-              ) as Plan;
               saved(
-                update((s) => ({ ...s, plan })),
+                update((s) => ({ ...s, plan: planEdit })),
                 tr("Your direction is saved. Keep it flexible.", "تم حفظ اتجاهك. أبقه مرناً.") ,
               );
             }}
           >
-            {(Object.keys(planLabels) as (keyof Plan)[]).map((key) => (
-              <div key={key}>
-                <label htmlFor={`plan-${key}`}>{planLabels[key]}</label>
+            {(Object.keys(planLabels) as (keyof Plan)[]).map((key) => {
+              const statuses = modal.draft
+                ? summarizePlanDraft(state.plan, modal.draft)
+                : null;
+              const status = statuses?.[key];
+              const statusLabel = (
+                {
+                  empty: tr("Empty in draft", "فارغ في المسودة"),
+                  unchanged: tr("Same as saved", "مطابق للمحفوظ"),
+                  updated: tr("Changed from saved", "يختلف عن المحفوظ"),
+                  new: tr("New in draft", "جديد في المسودة"),
+                } satisfies Record<PlanFieldStatus, string>
+              )[status ?? "unchanged"];
+              return (
+              <div key={key} className="plan-field-block">
+                <div className="plan-field-head">
+                  <label htmlFor={`plan-${key}`}>{planLabels[key]}</label>
+                  {modal.draft && status && status !== "unchanged" && (
+                    <span className={`plan-field-status ${status}`}>
+                      {statusLabel}
+                    </span>
+                  )}
+                </div>
                 <p className="field-hint" id={`plan-${key}-help`}>
                   {locale === "ar" ? planGuidanceArabic[key] : planGuidance[key]}
                 </p>
@@ -957,12 +981,33 @@ function LifeOSApp() {
                   id={`plan-${key}`}
                   aria-describedby={`plan-${key}-help`}
                   name={key}
-                  defaultValue={(modal.draft || state.plan)[key]}
+                  value={planEdit[key]}
+                  onChange={(e) =>
+                    setPlanEdit((p) =>
+                      p ? { ...p, [key]: e.target.value } : p,
+                    )
+                  }
                   rows={2}
                   maxLength={5000}
                 />
+                {modal.draft &&
+                  status === "updated" &&
+                  state.plan[key].trim() && (
+                    <button
+                      type="button"
+                      className="text-button plan-revert-field"
+                      onClick={() =>
+                        setPlanEdit((p) =>
+                          p ? { ...p, [key]: state.plan[key] } : p,
+                        )
+                      }
+                    >
+                      {tr("Keep saved version", "الإبقاء على النص المحفوظ")}
+                    </button>
+                  )}
               </div>
-            ))}
+            );
+            })}
             <div className="dialog-actions">
               <button
                 type="button"

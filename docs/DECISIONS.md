@@ -70,6 +70,19 @@
 - Keep browser translation separate from the optional Cloud Translation writing tool. Declare the page's English source language and explicitly opt it into browser translation so Chrome can translate into other languages without a Google Cloud key.
 - Verify locale selection, RTL document attributes, and persistence with end-to-end coverage alongside the existing full browser suite.
 
+## 2026-09-25: Arabic depth and LifeOS-owned assessment copy
+
+- Localize the full baseline assessment (8 questions, options, archetype results) via `assessment-i18n.ts` and `locale/assessment-ar.mjs`. Wording is LifeOS-authored for the one-day reset; framework names are educational labels only (see `docs/FRAMEWORK-MODELS.md`).
+- Polish Arabic MSQ headings, labels, and subtexts (`locale/msq-ar-*.mjs`, generator `scripts/gen-msq-ar.mjs`).
+- Extend Arabic to daytime check-ins, reset/settings chrome, and AI guide UI (`locale/assistant.ts`, `locale/workspace.ts`).
+
+## 2026-09-25: high-impact product polish (i18n, Maslow, plan review)
+
+- Extend Arabic to reset MSQ flows, baseline assessment chrome, and settings psychometric copy via `src/lib/locale/*` while keeping the person’s saved writing untouched.
+- Add educational Maslow need-tier derivation (`src/lib/maslow.ts`) aligned with MatchWise v3.0 concepts; store `maslowCenter`, orientation, and tier shares on the assessment profile as illustrative heuristics, not clinical scores.
+- Add MSQ source traceability metadata (`src/lib/msq-meta.ts`) mapping Dan Koe newsletter prompts to plan fields.
+- Plan draft review shows per-field status vs saved direction and lets the person revert individual fields to saved text before committing.
+
 ## Remaining constraints
 
 Browser storage offers no cross-device sync or transactional multi-tab edits. Reflection-day calendar reminders require calendar import. V1 logs used human-readable timestamps, so missing timestamps cannot be recovered accurately. Keep original exports for archival access.

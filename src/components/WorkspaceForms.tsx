@@ -26,7 +26,6 @@ import {
   recoverBackup,
 } from "@/lib/store";
 import {
-  checkInPrompts,
   decode,
   localDate,
   prompts,
@@ -40,6 +39,12 @@ import {
   formatMsqAnswer,
   type MsqOption,
 } from "@/lib/questionnaire";
+import { useLanguage } from "@/lib/language";
+import { workspaceCopy } from "@/lib/locale/workspace";
+import { msqMetaFor } from "@/lib/msq-meta";
+import { MASLOW_TIER_LABELS } from "@/lib/maslow";
+import { getCheckInPrompts } from "@/lib/locale/prompts";
+import { displayArchetype } from "@/lib/assessment";
 export type Modal =
   | { type: "task"; task?: Task }
   | { type: "checkin"; prompt?: string }
@@ -56,6 +61,8 @@ export function TaskForm({
   task?: Task;
   onSave: (ok: boolean, message?: string) => void;
 }) {
+  const { locale } = useLanguage();
+  const copy = workspaceCopy(locale);
   return (
     <form
       onSubmit={(e: FormEvent<HTMLFormElement>) => {
@@ -76,15 +83,12 @@ export function TaskForm({
               ? s.tasks.map((t) => (t.id === task.id ? next : t))
               : [...s.tasks, next],
           })),
-          "Your step is ready for today.",
+          copy.stepReady,
         );
       }}
     >
-      <p>
-        Make it specific, kind, and small enough to start. This step repeats
-        daily until you archive it.
-      </p>
-      <label htmlFor="task-title">What will you do?</label>
+      <p>{copy.taskIntro}</p>
+      <label htmlFor="task-title">{copy.taskLabel}</label>
       <input
         id="task-title"
         name="title"
@@ -92,10 +96,11 @@ export function TaskForm({
         required
         maxLength={240}
         defaultValue={task?.title || ""}
-        placeholder="e.g. Take a 15-minute walk after lunch"
+        placeholder={copy.taskPlaceholder}
       />
       <label htmlFor="task-time">
-        Make time for it <span className="muted">(optional)</span>
+        {copy.taskTimeLabel}{" "}
+        <span className="muted">{copy.taskTimeOptional}</span>
       </label>
       <input
         type="time"
@@ -116,16 +121,16 @@ export function TaskForm({
                     t.id === task.id ? { ...t, archived: true } : t,
                   ),
                 })),
-                "Step archived. Your past progress is kept.",
+                copy.stepArchived,
               )
             }
           >
             <Archive size={16} />
-            Archive step
+            {copy.archiveStep}
           </button>
         )}
         <button className="button primary">
-          Save step <Check size={16} />
+          {copy.saveStep} <Check size={16} />
         </button>
       </div>
     </form>
@@ -147,6 +152,9 @@ export function ResetJourney({
   onDirection: () => void;
   onOpenAssessment?: () => void;
 }) {
+  const { locale } = useLanguage();
+  const copy = workspaceCopy(locale);
+  const checkIns = getCheckInPrompts(locale);
   const [phase, setPhase] = useState<"morning" | "daytime" | "evening">(
     "morning",
   );
@@ -157,43 +165,35 @@ export function ResetJourney({
   const question = questions[Math.min(index, questions.length - 1)];
   const phaseGuide = {
     morning: {
-      title: "1. Explore what you want to change",
-      explanation:
-        "Begin by noticing your current patterns and what you want your future to look like. You are gathering ideas; you do not need a finished plan.",
-      recommendation:
-        "Start with a recent everyday moment. A phrase or a few words is enough to begin.",
+      title: copy.phaseMorningTitle,
+      explanation: copy.phaseMorningExplain,
+      recommendation: copy.phaseMorningRec,
     },
     daytime: {
-      title: "2. Notice your day as it happens",
-      explanation:
-        "Pause during ordinary activities and compare where your attention went with where you wanted it to go. These observations can inform your evening answers.",
-      recommendation:
-        "Choose reminder times that fit your day. Export and import them into your calendar, or use the reflection buttons here when you pause.",
+      title: copy.phaseDayTitle,
+      explanation: copy.phaseDayExplain,
+      recommendation: copy.phaseDayRec,
     },
     evening: {
-      title: "3. Turn what you noticed into a direction",
-      explanation:
-        "Look for what you want to leave behind, what you want to move toward, and a small next step. You can review an editable plan draft after these questions.",
-      recommendation:
-        "Use something you actually noticed today. Your first direction is allowed to be provisional.",
+      title: copy.phaseEveningTitle,
+      explanation: copy.phaseEveningExplain,
+      recommendation: copy.phaseEveningRec,
     },
   }[phase];
   return (
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">ONE DAY. A CLEARER DIRECTION.</span>
+          <span className="eyebrow">{copy.resetEyebrow}</span>
           <h1>
-            Your reset<span className="heading-dot">.</span>
+            {copy.resetTitle}
+            <span className="heading-dot">.</span>
           </h1>
-          <p>
-            Reflection today. Small changes over time. Pause and return whenever
-            you need.
-          </p>
+          <p>{copy.resetLead}</p>
         </div>
         <span className="tag">
           <Check size={14} />
-          Each answer saved separately
+          {copy.resetTag}
         </span>
       </div>
       <div className="phase-nav" role="tablist" aria-label="Reset phases">
@@ -201,20 +201,20 @@ export function ResetJourney({
           [
             {
               id: "morning",
-              title: "Morning",
-              subtitle: "Make space · 15–30 min",
+              title: copy.phaseMorning,
+              subtitle: copy.phaseMorningSub,
               icon: Sun,
             },
             {
               id: "daytime",
-              title: "Throughout the day",
-              subtitle: "Notice your patterns",
+              title: copy.phaseDay,
+              subtitle: copy.phaseDaySub,
               icon: Coffee,
             },
             {
               id: "evening",
-              title: "Evening",
-              subtitle: "Find your next direction",
+              title: copy.phaseEvening,
+              subtitle: copy.phaseEveningSub,
               icon: Moon,
             },
           ] as const
@@ -250,7 +250,7 @@ export function ResetJourney({
         <h2>{phaseGuide.title}</h2>
         <p>{phaseGuide.explanation}</p>
         <p>
-          <strong>Try this:</strong> {phaseGuide.recommendation}
+          <strong>{copy.tryThis}</strong> {phaseGuide.recommendation}
         </p>
       </section>
       {phase !== "daytime" ? (
@@ -260,7 +260,13 @@ export function ResetJourney({
               <div className="banner-left">
                 <Sparkles size={16} />
                 <span>
-                  Attuned to <strong>{state.assessmentProfile.archetypeName}</strong> ({state.assessmentProfile.coreMotive.toUpperCase()} motive) • Quick-tap MSQs active
+                  {copy.attunedTo}{" "}
+                  <strong>
+                    {
+                      displayArchetype(state.assessmentProfile, locale).name
+                    }
+                  </strong>{" "}
+                  • {copy.msqActive}
                 </span>
               </div>
               {onOpenAssessment && (
@@ -269,7 +275,7 @@ export function ResetJourney({
                   className="text-button"
                   onClick={onOpenAssessment}
                 >
-                  Recalibrate
+                  {copy.recalibrate}
                 </button>
               )}
             </div>
@@ -278,7 +284,7 @@ export function ResetJourney({
               <div className="banner-left">
                 <Zap size={16} />
                 <span>
-                  <strong>Tired of typing essays?</strong> Complete the 2-min baseline assessment to unlock personalized multiple-choice reflections.
+                  <strong>{copy.tiredTyping}</strong> {copy.assessmentInvite}
                 </span>
               </div>
               {onOpenAssessment && (
@@ -287,7 +293,7 @@ export function ResetJourney({
                   className="button secondary sm"
                   onClick={onOpenAssessment}
                 >
-                  Take Assessment <ArrowRight size={14} />
+                  {copy.takeAssessment} <ArrowRight size={14} />
                 </button>
               )}
             </div>
@@ -295,11 +301,11 @@ export function ResetJourney({
           <section className="card question-card">
             <div className="section-heading">
               <span className="eyebrow">
-                {phase} / QUESTION {index + 1} OF {questions.length}
+                {phase} / {copy.questionOf(index + 1, questions.length)}
               </span>
               <span className="tag">
                 {questions.filter(([id]) => state.answers[id]?.trim()).length}{" "}
-                explored
+                {copy.explored}
               </span>
             </div>
             <div className="question-dots">
@@ -331,7 +337,7 @@ export function ResetJourney({
                     },
                   }))
                 ) {
-                  onNotice("Answer saved.");
+                  onNotice(copy.answerSaved);
                   if (index < questions.length - 1) setIndex(index + 1);
                   else if (phase === "morning") {
                     setPhase("daytime");
@@ -347,7 +353,7 @@ export function ResetJourney({
               onClick={() => setIndex(index - 1)}
             >
               <ArrowLeft size={16} />
-              Previous
+              {copy.previous}
             </button>
             <button
               className="text-button"
@@ -359,13 +365,11 @@ export function ResetJourney({
                 } else onDraft();
               }}
             >
-              Skip for now <ArrowRight size={16} />
+              {copy.skipForNow} <ArrowRight size={16} />
             </button>
           </div>
-          <p className="privacy-note">
-            These answers are for you. Use your own words; you don’t have to
-            answer everything.
-          </p>
+          <p className="privacy-note">{copy.privacyReset}</p>
+          <p className="privacy-note">{copy.msqEducationalNote}</p>
         </section>
       </>
     ) : (
@@ -373,14 +377,11 @@ export function ResetJourney({
           <section className="card">
             <div className="section-heading">
               <div>
-                <h2>A few pauses can change the shape of a day.</h2>
-                <p>
-                  Adjust these times to your schedule. Export reminders to your
-                  calendar so they work when this app is closed.
-                </p>
+                <h2>{copy.dayPauseTitle}</h2>
+                <p>{copy.dayPauseLead}</p>
               </div>
             </div>
-            <label htmlFor="reset-date">Your reflection day</label>
+            <label htmlFor="reset-date">{copy.reflectionDayLabel}</label>
             <input
               id="reset-date"
               type="date"
@@ -391,7 +392,7 @@ export function ResetJourney({
               }}
             />
             <div className="reminder-list">
-              {checkInPrompts.map((prompt, i) => (
+              {checkIns.map((prompt, i) => (
                 <div className="reminder-row" key={prompt}>
                   <label className="sr-only" htmlFor={`reminder-${i}`}>
                     Time for reflection {i + 1}
@@ -426,14 +427,12 @@ export function ResetJourney({
               <button
                 className="button secondary"
                 onClick={() => {
-                  exportCalendar(state);
-                  onNotice(
-                    "Calendar file downloaded. Import it in your calendar to enable reminders.",
-                  );
+                  exportCalendar(state, checkIns);
+                  onNotice(copy.calendarExported);
                 }}
               >
                 <CalendarDays size={17} />
-                Export reminders
+                {copy.exportReminders}
               </button>
               <button
                 className="button primary"
@@ -442,7 +441,7 @@ export function ResetJourney({
                   setIndex(0);
                 }}
               >
-                Continue to evening <ArrowRight size={17} />
+                {copy.enterEvening} <ArrowRight size={17} />
               </button>
             </div>
           </section>
@@ -450,32 +449,35 @@ export function ResetJourney({
       )}
       <div className="journey-handoff">
         <div>
-          <strong>Ready to connect your answers?</strong>
-          <p>
-            My direction brings your ideas into a plan you can revise. You can
-            go there before answering everything.
-          </p>
+          <strong>{copy.handoffTitle}</strong>
+          <p>{copy.handoffLead}</p>
         </div>
         <button
           type="button"
           className="button secondary"
-          aria-label="Continue to your plan"
+          aria-label={copy.continuePlan}
           onClick={onDirection}
         >
-          Continue to your plan <ArrowRight size={16} />
+          {copy.continuePlan} <ArrowRight size={16} />
         </button>
       </div>
       <p className="source-note">
-        An original guided adaptation of{" "}
-        <a
-          href="https://letters.thedankoe.com/p/how-to-fix-your-entire-life-in-1"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Dan Koe’s one-day protocol
-        </a>
-        . A tool for reflection, not a promise to transform everything
-        overnight.
+        {locale === "ar" ? (
+          copy.sourceAdaptation
+        ) : (
+          <>
+            An original guided adaptation of{" "}
+            <a
+              href="https://letters.thedankoe.com/p/how-to-fix-your-entire-life-in-1"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Dan Koe’s one-day protocol
+            </a>
+            . A tool for reflection, not a promise to transform everything
+            overnight.
+          </>
+        )}
       </p>
     </>
   );
@@ -495,7 +497,10 @@ function AnswerForm({
   plan?: Plan;
   onSave: (v: string, optionIds: string[]) => void;
 }) {
-  const msqDef = getPromptMsq(question[0], profile);
+  const { locale } = useLanguage();
+  const copy = workspaceCopy(locale);
+  const msqDef = getPromptMsq(question[0], profile, locale);
+  const meta = msqMetaFor(question[0]);
   const [selected, setSelected] = useState<string[]>(selectedOptionIds);
   const [customText, setCustomText] = useState(() => {
     if (selectedOptionIds.length === 0) return answer || "";
@@ -545,10 +550,14 @@ function AnswerForm({
       const data = await res.json();
       if (Array.isArray(data.options) && data.options.length > 0) {
         setAiOptions(data.options);
-        setAiNotice("Generated fresh choices tailored to your current goals!");
+        setAiNotice(
+          locale === "ar"
+            ? "تم توليد خيارات جديدة وفق أهدافك الحالية!"
+            : "Generated fresh choices tailored to your current goals!",
+        );
       }
     } catch {
-      setAiNotice("Could not reach AI provider. Showing calibrated archetype options.");
+      setAiNotice(copy.msqAiFallback);
     } finally {
       setGeneratingAi(false);
     }
@@ -574,8 +583,15 @@ function AnswerForm({
   return (
     <form className="msq-form" onSubmit={handleSubmit}>
       <div className="msq-prompt-header">
-        <h2>{question[1]}</h2>
-        <p>{question[2]}</p>
+        <h2>{msqDef?.title ?? question[1]}</h2>
+        <p>{msqDef?.subtitle ?? question[2]}</p>
+        {meta?.planFields?.length ? (
+          <p className="msq-meta-hint">
+            {locale === "ar"
+              ? `قد يساعد في: ${meta.planFields.join("، ")}`
+              : `May inform: ${meta.planFields.join(", ")}`}
+          </p>
+        ) : null}
       </div>
 
       {activeOptions.length > 0 && (
@@ -583,10 +599,10 @@ function AnswerForm({
           <div className="msq-badge-row">
             <span className="msq-mode-tag">
               <Sparkles size={13} />
-              {profile ? `${profile.archetypeName}` : "Framework MSQ Mode"}
+              {profile ? `${profile.archetypeName}` : copy.msqFrameworkMode}
             </span>
             <small className="muted">
-              {msqDef?.multiSelect ? "Select all that resonate" : "Choose the closest match"}
+              {msqDef?.multiSelect ? copy.msqSelectAll : copy.msqSelectOne}
             </small>
           </div>
 
@@ -625,7 +641,7 @@ function AnswerForm({
               onClick={handleGenerateAi}
             >
               <Sparkles size={14} />
-              {generatingAi ? "Generating options with AI…" : "Generate AI-tailored choices"}
+              {generatingAi ? copy.msqGenerating : copy.msqGenerateAi}
             </button>
           </div>
         </div>
@@ -638,7 +654,7 @@ function AnswerForm({
           htmlFor="reset-answer"
           className={activeOptions.length > 0 ? "msq-custom-label" : "sr-only"}
         >
-          Your answer
+          {copy.msqYourAnswer}
         </label>
         <textarea
           id="reset-answer"
@@ -646,8 +662,8 @@ function AnswerForm({
           rows={activeOptions.length > 0 ? 3 : 5}
           placeholder={
             activeOptions.length > 0
-              ? "Or reflect in your own words / add personal nuance…"
-              : "Take your time. Start wherever you are…"
+              ? copy.msqPlaceholderNuance
+              : copy.msqPlaceholderOpen
           }
           value={customText}
           onChange={(e) => setCustomText(e.target.value)}
@@ -670,24 +686,24 @@ function AnswerForm({
       <div className="answer-actions">
         <small>
           {selected.length > 0
-            ? `${selected.length} chosen. Press continue when ready.`
-            : "Saved when you leave this field or continue."}
+            ? copy.msqChosenCount(selected.length)
+            : copy.msqSavedHint}
         </small>
         <button type="submit" className="button primary">
-          Save & continue <ArrowRight size={16} />
+          {copy.msqSaveContinue} <ArrowRight size={16} />
         </button>
       </div>
     </form>
   );
 }
-function exportCalendar(state: State) {
+function exportCalendar(state: State, checkInTexts: readonly string[]) {
   const esc = (s: string) =>
     s
       .replace(/\\/g, "\\\\")
       .replace(/\n/g, "\\n")
       .replace(/,/g, "\\,")
       .replace(/;/g, "\\;");
-  const events = checkInPrompts.map((p, i) =>
+  const events = checkInTexts.map((p, i) =>
     [
       "BEGIN:VEVENT",
       `UID:${state.resetDate}-${i}@lifeos.local`,
@@ -851,22 +867,22 @@ export function SettingsView({
   onModal: (m: Modal) => void;
   onNotice: (s: string) => void;
 }) {
+  const { locale } = useLanguage();
+  const copy = workspaceCopy(locale);
   return (
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">YOUR SPACE, YOUR CHOICE</span>
+          <span className="eyebrow">{copy.settingsEyebrow}</span>
           <h1>
-            Make yourself at home<span className="heading-dot">.</span>
+            {copy.settingsTitle}
+            <span className="heading-dot">.</span>
           </h1>
-          <p>
-            Your reflections stay in this browser. Back them up when they matter
-            to you.
-          </p>
+          <p>{copy.settingsLead}</p>
         </div>
       </div>
       <section className="card settings-card">
-        <h2>A personal touch</h2>
+        <h2>{copy.personalTouch}</h2>
         <form
           className="inline-form"
           onSubmit={(e) => {
@@ -879,38 +895,40 @@ export function SettingsView({
                 ).trim(),
               }))
             )
-              onNotice("Your name is saved.");
+              onNotice(copy.nameSaved);
           }}
         >
-          <label htmlFor="name">What should we call you?</label>
+          <label htmlFor="name">{copy.nameLabel}</label>
           <input
             id="name"
             name="name"
             defaultValue={state.name}
             maxLength={50}
-            placeholder="Your first name"
+            placeholder={copy.namePlaceholder}
           />
-          <button className="button primary">Save name</button>
+          <button className="button primary">{copy.saveName}</button>
         </form>
       </section>
       <GoogleTranslateCard state={state} />
       <section className="card settings-card">
         <div className="section-heading">
           <div>
-            <h2>Human Development & Psychometrics</h2>
-            <p>
-              Calibrated baseline frameworks from MatchWise powering your quick-tap
-              reflection MSQs.
-            </p>
+            <h2>{copy.devSectionTitle}</h2>
+            <p>{copy.devSectionLead}</p>
           </div>
           <Award size={22} />
         </div>
+        <p className="assessment-disclaimer">{copy.settingsPsychDisclaimer}</p>
         {state.assessmentProfile ? (
           <div>
             <div className="settings-profile-summary">
-              <span className="eyebrow">YOUR CALIBRATED ARCHETYPE</span>
-              <h3>{state.assessmentProfile.archetypeName}</h3>
-              <p>{state.assessmentProfile.motiveDescription}</p>
+              <span className="eyebrow">{copy.yourArchetype}</span>
+              <h3>
+                {displayArchetype(state.assessmentProfile, locale).name}
+              </h3>
+              <p>
+                {displayArchetype(state.assessmentProfile, locale).description}
+              </p>
             </div>
             <div className="profile-tags-row">
               <span className="tag">
@@ -925,6 +943,16 @@ export function SettingsView({
               <span className="tag">
                 Consciousness: {state.assessmentProfile.consciousnessLevel}+
               </span>
+              {state.assessmentProfile.maslowCenter && (
+                <span className="tag">
+                  Maslow:{" "}
+                  {
+                    MASLOW_TIER_LABELS[state.assessmentProfile.maslowCenter][
+                      locale
+                    ]
+                  }
+                </span>
+              )}
             </div>
             <div className="settings-buttons" style={{ marginTop: "1rem" }}>
               <button
@@ -933,24 +961,20 @@ export function SettingsView({
                 onClick={() => onModal({ type: "assessment" })}
               >
                 <RotateCcw size={16} />
-                Retake Baseline Assessment
+                {copy.retakeAssessment}
               </button>
             </div>
           </div>
         ) : (
           <div>
-            <p>
-              Take our 2-minute baseline assessment to discover your core motive,
-              stress triggers, and execution style, and eliminate daily typing
-              friction.
-            </p>
+            <p>{copy.assessmentInvite}</p>
             <button
               type="button"
               className="button primary"
               onClick={() => onModal({ type: "assessment" })}
             >
               <Sparkles size={16} />
-              Take Baseline Assessment
+              {copy.takeAssessment}
             </button>
           </div>
         )}

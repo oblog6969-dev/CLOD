@@ -177,6 +177,37 @@ test("assessment calculation derives correct human development archetype", async
   assert.equal(profile.primaryNeed, "freedom");
   assert.equal(profile.archetypeName, "The Sovereign Commander");
   assert.equal(profile.consciousnessLevel >= 250, true);
+  assert.equal(profile.maslowCenter, "actualization");
+  assert.ok(profile.maslowTiers);
+});
+
+test("baseline assessment localizes to Arabic for LifeOS copy", async () => {
+  const { getAssessmentQuestions } = await import("../src/lib/assessment.ts");
+  const ar = getAssessmentQuestions("ar");
+  assert.equal(ar.length, 8);
+  assert.match(ar[0].title, /بعد يوم/);
+  assert.match(ar[0].options[0].text, /./);
+});
+
+test("MSQ source metadata covers all reset prompts", async () => {
+  const { MSQ_META } = await import("../src/lib/msq-meta.ts");
+  for (let i = 1; i <= 14; i++) assert.ok(MSQ_META[`m${i}`]);
+  for (let i = 1; i <= 7; i++) assert.ok(MSQ_META[`e${i}`]);
+});
+
+test("plan draft status distinguishes saved vs updated fields", async () => {
+  const { planFieldStatus, summarizePlanDraft } = await import(
+    "../src/lib/plan-draft.ts"
+  );
+  assert.equal(planFieldStatus("old", "old"), "unchanged");
+  assert.equal(planFieldStatus("", "new"), "new");
+  assert.equal(planFieldStatus("a", "b"), "updated");
+  const summary = summarizePlanDraft(
+    { vision: "stay", antiVision: "", identity: "", year: "", month: "", constraints: "" },
+    { vision: "stay", antiVision: "go", identity: "", year: "", month: "", constraints: "" },
+  );
+  assert.equal(summary.antiVision, "new");
+  assert.equal(summary.vision, "unchanged");
 });
 
 test("MSQ catalog covers all 14 morning and 7 evening prompts", async () => {

@@ -1,7 +1,7 @@
 ---
 title: "Human Development Frameworks"
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-25
 type: framework
 status: complete
 priority: high
@@ -35,7 +35,8 @@ flowchart LR
     B --> D[Hawkins & Hicks Consciousness]
     B --> E[Birkman Needs & Stress]
     B --> F[DISC Pace]
-    B --> G[Adaptive MSQ Reflection Engine]
+    B --> M[Maslow Need Tiers (educational heuristic)]
+    M --> G[Adaptive MSQ Reflection Engine]
     G --> H[Morning Reset MSQ]
     G --> I[Evening Direction MSQ]
     H --> J[Auto-Synthesized Direction Draft]

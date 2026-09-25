@@ -10,11 +10,18 @@ import {
 } from "lucide-react";
 import { Dialog } from "./Dialog";
 import {
-  assessmentQuestions,
   calculateAssessment,
+  displayArchetype,
+  getAssessmentQuestions,
 } from "@/lib/assessment";
 import { update } from "@/lib/store";
 import type { AssessmentProfile } from "@/lib/domain";
+import { useLanguage } from "@/lib/language";
+import { workspaceCopy } from "@/lib/locale/workspace";
+import {
+  MASLOW_TIER_LABELS,
+  maslowOrientationLabel,
+} from "@/lib/maslow";
 
 export function BaselineAssessmentModal({
   currentProfile,
@@ -25,17 +32,20 @@ export function BaselineAssessmentModal({
   onClose: () => void;
   onComplete: (profile: AssessmentProfile) => void;
 }) {
+  const { locale } = useLanguage();
+  const copy = workspaceCopy(locale);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<AssessmentProfile | null>(
     currentProfile || null,
   );
 
-  const question = assessmentQuestions[index];
-  const isLast = index === assessmentQuestions.length - 1;
-  const progressPercent = Math.round(
-    ((index + 1) / assessmentQuestions.length) * 100,
-  );
+  const questions = getAssessmentQuestions(locale);
+  const question = questions[index];
+  const isLast = index === questions.length - 1;
+  const progressPercent = Math.round(((index + 1) / questions.length) * 100);
+  const display =
+    result ? displayArchetype(result, locale) : null;
 
   const selectOption = (optId: string) => {
     const nextAnswers = { ...answers, [question.id]: optId };
@@ -50,21 +60,29 @@ export function BaselineAssessmentModal({
     }
   };
 
+  const title = result
+    ? locale === "ar"
+      ? "اكتمل خط الأساس"
+      : "Baseline complete"
+    : locale === "ar"
+      ? "تقييم خط الأساس"
+      : "Baseline assessment";
+
   return (
-    <Dialog
-      title={result ? "Psychometric Calibration Complete" : "Baseline Assessment"}
-      onClose={onClose}
-    >
+    <Dialog title={title} onClose={onClose}>
       {result ? (
         <div className="assessment-results">
+          <p className="assessment-disclaimer">{copy.assessmentDisclaimer}</p>
           <div className="archetype-banner">
             <div className="archetype-icon">
               <Award size={36} />
             </div>
             <div>
-              <span className="eyebrow">YOUR HUMAN DEVELOPMENT ARCHETYPE</span>
-              <h3>{result.archetypeName}</h3>
-              <p>{result.motiveDescription}</p>
+              <span className="eyebrow">
+                {locale === "ar" ? "نمطك التعليمي" : "YOUR REFLECTION PROFILE"}
+              </span>
+              <h3>{display?.name ?? result.archetypeName}</h3>
+              <p>{display?.description ?? result.motiveDescription}</p>
             </div>
           </div>
 
@@ -74,45 +92,53 @@ export function BaselineAssessmentModal({
               <strong className={`motive-tag motive-${result.coreMotive}`}>
                 {result.coreMotive.toUpperCase()}
               </strong>
-              <small>
-                {result.coreMotive === "red" && "Power & Results"}
-                {result.coreMotive === "blue" && "Intimacy & Purpose"}
-                {result.coreMotive === "white" && "Peace & Clarity"}
-                {result.coreMotive === "yellow" && "Fun & Vitality"}
-              </small>
             </div>
 
             <div className="metric-chip">
               <span className="metric-label">DISC Execution Pace</span>
               <strong>Style {result.discStyle}</strong>
-              <small>
-                {result.discStyle === "D" && "Fast & Decisive"}
-                {result.discStyle === "I" && "Dynamic & Inspiring"}
-                {result.discStyle === "S" && "Grounded & Steady"}
-                {result.discStyle === "C" && "Methodical & Analytical"}
-              </small>
             </div>
 
             <div className="metric-chip">
               <span className="metric-label">Birkman Primary Need</span>
               <strong>{result.primaryNeed.toUpperCase()}</strong>
-              <small>Guards against burnout</small>
             </div>
 
             <div className="metric-chip">
               <span className="metric-label">Consciousness Baseline</span>
               <strong>Level {result.consciousnessLevel}+</strong>
-              <small>Hawkins Generative Power</small>
             </div>
+
+            {result.maslowCenter && (
+              <div className="metric-chip">
+                <span className="metric-label">{copy.maslowCenterLabel}</span>
+                <strong>
+                  {MASLOW_TIER_LABELS[result.maslowCenter][locale]}
+                </strong>
+                {result.maslowOrientation && (
+                  <small>
+                    {maslowOrientationLabel(result.maslowOrientation, locale)}
+                  </small>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="assessment-benefit-callout">
             <Zap size={18} />
             <p>
-              <strong>Daily Reflection Supercharged:</strong> Your morning & evening
-              prompts will now offer instant, psychologically calibrated choices
-              attuned to this archetype. No more typing out manual essays every
-              day!
+              {locale === "ar" ? (
+                <>
+                  <strong>تأمل أسرع:</strong> أسئلة الصباح والمساء تعرض خيارات
+                  قابلة للنقر مُعايرة لنمطك. كتابتك الشخصية تبقى اختيارية.
+                </>
+              ) : (
+                <>
+                  <strong>Faster reflection:</strong> Morning and evening prompts
+                  offer tap choices aligned with your profile. Personal writing
+                  stays optional.
+                </>
+              )}
             </p>
           </div>
 
@@ -127,7 +153,7 @@ export function BaselineAssessmentModal({
               }}
             >
               <RotateCcw size={16} />
-              Retake
+              {locale === "ar" ? "إعادة" : "Retake"}
             </button>
             <button
               type="button"
@@ -137,17 +163,21 @@ export function BaselineAssessmentModal({
                 onClose();
               }}
             >
-              Begin Tailored Reflection <ArrowRight size={16} />
+              {locale === "ar" ? "بدء التأمل" : "Begin tailored reflection"}{" "}
+              <ArrowRight size={16} />
             </button>
           </div>
         </div>
       ) : (
         <div className="assessment-flow">
+          <p className="assessment-disclaimer">{copy.assessmentDisclaimer}</p>
           <div className="assessment-meta-bar">
             <div>
               <span className="eyebrow">{question.framework}</span>
               <span className="tag">
-                Step {index + 1} of {assessmentQuestions.length}
+                {locale === "ar"
+                  ? `خطوة ${index + 1} من ${questions.length}`
+                  : `Step ${index + 1} of ${questions.length}`}
               </span>
             </div>
             <span className="progress-fraction">{progressPercent}%</span>
@@ -190,7 +220,7 @@ export function BaselineAssessmentModal({
               disabled={index === 0}
               onClick={() => setIndex((i) => Math.max(0, i - 1))}
             >
-              <ArrowLeft size={16} /> Previous
+              <ArrowLeft size={16} /> {locale === "ar" ? "السابق" : "Previous"}
             </button>
             <button
               type="button"
@@ -205,7 +235,8 @@ export function BaselineAssessmentModal({
                 }
               }}
             >
-              Skip question <ArrowRight size={16} />
+              {locale === "ar" ? "تخطّ السؤال" : "Skip question"}{" "}
+              <ArrowRight size={16} />
             </button>
           </div>
         </div>

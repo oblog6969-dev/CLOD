@@ -1,4 +1,32 @@
 import type { AssessmentProfile, Plan } from "./domain";
+import type { Locale } from "./language";
+import type { MaslowTier } from "./maslow";
+import { MSQ_HEADINGS_AR } from "./locale/msq-ar-headings.mjs";
+import { MSQ_OPTIONS_AR } from "./locale/msq-ar-options.mjs";
+
+function localizeMsq(def: MsqPromptDefinition, locale: Locale): MsqPromptDefinition {
+  if (locale !== "ar") return def;
+  const headings = (MSQ_HEADINGS_AR as Record<string, { title: string; subtitle: string }>)[
+    def.id
+  ];
+  const optionsAr = MSQ_OPTIONS_AR as Record<
+    string,
+    { label: string; subtext?: string }
+  >;
+  return {
+    ...def,
+    title: headings?.title ?? def.title,
+    subtitle: headings?.subtitle ?? def.subtitle,
+    options: def.options.map((opt) => {
+      const tr = optionsAr[opt.id];
+      return {
+        ...opt,
+        label: tr?.label ?? opt.label,
+        subtext: tr?.subtext ?? opt.subtext,
+      };
+    }),
+  };
+}
 
 export type MsqOption = {
   id: string;
@@ -665,26 +693,40 @@ export const MSQ_CATALOG: Record<string, MsqPromptDefinition> = {
   },
 };
 
+const MASLOW_MOTIVE: Partial<Record<MaslowTier, AssessmentProfile["coreMotive"]>> =
+  {
+    somatic: "white",
+    safety: "white",
+    belonging: "blue",
+    esteem: "red",
+    actualization: "yellow",
+    transcendence: "yellow",
+  };
+
 export function getPromptMsq(
   promptId: string,
   profile?: AssessmentProfile | null,
+  locale: Locale = "en",
 ): MsqPromptDefinition | null {
   const def = MSQ_CATALOG[promptId];
   if (!def) return null;
 
-  if (!profile) return def;
+  let working = def;
+  if (profile) {
+    const motiveBoost =
+      (profile.maslowCenter && MASLOW_MOTIVE[profile.maslowCenter]) ||
+      profile.coreMotive;
+    const sortedOptions = [...def.options].sort((a, b) => {
+      if (a.motiveAffinity === motiveBoost) return -1;
+      if (b.motiveAffinity === motiveBoost) return 1;
+      if (a.motiveAffinity === profile.coreMotive) return -1;
+      if (b.motiveAffinity === profile.coreMotive) return 1;
+      return 0;
+    });
+    working = { ...def, options: sortedOptions };
+  }
 
-  // Sort options to surface the user's core motive first if applicable
-  const sortedOptions = [...def.options].sort((a, b) => {
-    if (a.motiveAffinity === profile.coreMotive) return -1;
-    if (b.motiveAffinity === profile.coreMotive) return 1;
-    return 0;
-  });
-
-  return {
-    ...def,
-    options: sortedOptions,
-  };
+  return localizeMsq(working, locale);
 }
 
 export function formatMsqAnswer(

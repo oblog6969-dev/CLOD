@@ -1,6 +1,7 @@
 ---
 title: "Progress Dashboard"
 updated: 2026-09-25
+session: docs/SESSION-2026-09-25.md
 type: dashboard
 status: verified
 tags: [project/lifeos, status/verified]
@@ -35,6 +36,9 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 - [x] Dynamic AI-generated reflection choices via `/api/ai/questions` with offline psychometric fallback
 - [x] Auto-synthesis of MSQ choices into living Direction Draft (Anti-Vision, Vision, Identity, Levers, Constraints)
 - [x] Native English/Arabic workspace switch with RTL layout, Arabic date formatting, and non-destructive locale persistence
+- [x] Arabic reset MSQ prompts, option labels, and subtexts; full baseline assessment in Arabic; AI guide and daytime check-ins localized
+- [x] Maslow need-tier heuristic (MatchWise v3.0-aligned) on assessment profile; MSQ source metadata and plan draft field review
+- [x] `docs/FRAMEWORK-MODELS.md` — framework concepts vs LifeOS-authored questions; `docs/SESSION-2026-09-25.md` session log
 
 ## 2026-09-20 Human development frameworks & AI-generated MSQ milestone
 
@@ -57,9 +61,9 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 ## Verification
 
 - `npm run lint`: passed with 0 errors and 0 warnings.
-- `npm test`: 14 unit tests passed, including domain rules, provider/model validation, assessment calculation, MSQ catalog coverage, and backup decode.
+- `npm test`: 17 unit tests passed, including Arabic baseline localization, Maslow derivation, MSQ metadata, plan draft status, assessment calculation, and MSQ catalog coverage.
 - `npm run build`: production build passed with Turbopack, including `/api/translate` and `/api/ai/*` server endpoints.
-- `npm run test:e2e`: 18 Chromium tests passed, including native Arabic selection, RTL and locale persistence, Google Translate with server-only key and non-destructive output, newcomer journey, guided reflection, backup recovery, and provider presets.
+- `npm run test:e2e`: 18+ Chromium tests (includes Arabic reset MSQ, baseline modal in Arabic, RTL persistence). Run `npm run test:e2e` after changes.
 - Desktop (1440 px) and mobile (390 px) responsive layouts verified.
 
 ## Deliberately outside this version
@@ -71,6 +75,8 @@ Cloud accounts/sync, autonomous AI actions, push notification delivery, and prov
 - `README.md`: setup, product behavior, data recovery, limitations
 - `AGENTS.md`: agent collaboration and acceptance requirements
 - `docs/DECISIONS.md`: product and architecture decisions
+- `docs/FRAMEWORK-MODELS.md`: MatchWise models vs LifeOS-owned copy
+- `docs/SESSION-2026-09-25.md`: this session’s changes
 - `src/lib/domain.ts`: data invariants and migration
 - `src/lib/store.ts`: persistence and subscriptions
 - `tests`: regression coverage

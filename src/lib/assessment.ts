@@ -1,4 +1,11 @@
 import type { AssessmentProfile } from "./domain";
+import type { Locale } from "./language";
+import { deriveMaslowProfile } from "./maslow.mjs";
+import {
+  ASSESSMENT_QUESTIONS_AR,
+  ASSESSMENT_OPTIONS_AR,
+  ARCHETYPE_AR,
+} from "./locale/assessment-ar.mjs";
 
 export type AssessmentQuestion = {
   id: string;
@@ -456,6 +463,14 @@ export function calculateAssessment(
     description: "Balancing personal vision, core needs, and daily deliberate practice.",
   };
 
+  const maslow = deriveMaslowProfile({
+    coreMotive,
+    primaryNeed,
+    stressTrigger,
+    consciousnessLevel,
+    topValues: Array.from(valuesSet),
+  });
+
   return {
     completedAt: new Date().toISOString(),
     coreMotive,
@@ -466,5 +481,61 @@ export function calculateAssessment(
     topValues: Array.from(valuesSet),
     archetypeName: archetype.title,
     motiveDescription: archetype.description,
+    maslowCenter: maslow.centerOfGravity,
+    maslowOrientation: maslow.orientation,
+    maslowTiers: maslow.tiers,
+  };
+}
+
+export function getAssessmentQuestions(locale: Locale): AssessmentQuestion[] {
+  if (locale !== "ar") return assessmentQuestions;
+  return assessmentQuestions.map((q) => {
+    const meta = (ASSESSMENT_QUESTIONS_AR as Record<
+      string,
+      { category: string; framework: string; title: string; subtitle: string }
+    >)[q.id];
+    return {
+      ...q,
+      category: meta?.category ?? q.category,
+      framework: meta?.framework ?? q.framework,
+      title: meta?.title ?? q.title,
+      subtitle: meta?.subtitle ?? q.subtitle,
+      options: q.options.map((opt) => {
+        const tr = (ASSESSMENT_OPTIONS_AR as Record<
+          string,
+          { text: string; description: string; tag: string }
+        >)[opt.id];
+        return tr
+          ? {
+              ...opt,
+              text: tr.text,
+              description: tr.description,
+              tag: tr.tag,
+            }
+          : opt;
+      }),
+    };
+  });
+}
+
+export function displayArchetype(
+  profile: AssessmentProfile,
+  locale: Locale,
+): { name: string; description: string } {
+  if (locale !== "ar") {
+    return {
+      name: profile.archetypeName,
+      description: profile.motiveDescription,
+    };
+  }
+  const key = `${profile.coreMotive}-${profile.discStyle}`;
+  const ar = (ARCHETYPE_AR as Record<
+    string,
+    { title: string; description: string }
+  >)[key];
+  if (ar) return { name: ar.title, description: ar.description };
+  return {
+    name: profile.archetypeName,
+    description: profile.motiveDescription,
   };
 }

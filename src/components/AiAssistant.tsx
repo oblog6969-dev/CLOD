@@ -23,6 +23,8 @@ import {
 } from "@/lib/ai";
 import { emptyDay, prompts, type State } from "@/lib/domain";
 import { update } from "@/lib/store";
+import { useLanguage } from "@/lib/language";
+import { assistantCopy } from "@/lib/locale/assistant";
 
 type ConnectionHealth = "working" | "slow" | "down";
 type Status = {
@@ -36,16 +38,18 @@ type Status = {
 function ConnectionIndicator({
   health,
   latencyMs,
+  labels,
 }: {
   health: ConnectionHealth;
   latencyMs?: number;
+  labels: { working: string; slow: string; down: string };
 }) {
   const label =
     health === "working"
-      ? "Working"
+      ? labels.working
       : health === "slow"
-        ? "Slow response"
-        : "Connection down";
+        ? labels.slow
+        : labels.down;
   return (
     <span
       className={`ai-connection-status ${health}`}
@@ -70,6 +74,8 @@ async function jsonRequest<T>(url: string, init?: RequestInit): Promise<T> {
   return body;
 }
 export function AiAssistant({ state, date }: { state: State; date: string }) {
+  const { locale } = useLanguage();
+  const ac = assistantCopy(locale);
   const [status, setStatus] = useState<Status | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -241,13 +247,11 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">OPTIONAL GUIDANCE, ON YOUR TERMS</span>
+          <span className="eyebrow">{ac.eyebrow}</span>
           <h1>
-            AI guide<span className="heading-dot">.</span>
+            {ac.title}<span className="heading-dot">.</span>
           </h1>
-          <p>
-            Look for patterns and turn them into small, reviewable suggestions.
-          </p>
+          <p>{ac.lead}</p>
         </div>
         {status?.connected && (
           <div className="ai-heading-status">
@@ -258,6 +262,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
             <ConnectionIndicator
               health={connectionHealth ?? status.health ?? "working"}
               latencyMs={status.latencyMs}
+              labels={{ working: ac.working, slow: ac.slow, down: ac.down }}
             />
           </div>
         )}
@@ -270,7 +275,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
       {!status ? (
         <section className="card ai-empty">
           <RefreshCw className="spin" size={24} />
-          <p>Checking your AI connection…</p>
+          <p>{ac.checking}</p>
         </section>
       ) : !status.connected ? (
         <div className="ai-onboarding">
@@ -278,38 +283,34 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
             <span className="ai-orb">
               <Sparkles size={26} />
             </span>
-            <span className="eyebrow">A SECOND SET OF EYES</span>
-            <h2>Thoughtful suggestions, only when you ask.</h2>
-            <p>
-              The guide can compare your direction, daily actions, and any
-              reflections you choose to share. Its output is a draft. You decide
-              what belongs in your life.
-            </p>
+            <span className="eyebrow">{ac.introEyebrow}</span>
+            <h2>{ac.introTitle}</h2>
+            <p>{ac.introLead}</p>
             <div className="privacy-points">
               <span>
                 <Check size={16} />
-                Nothing is sent automatically
+                {ac.privacy1}
               </span>
               <span>
                 <Check size={16} />
-                You choose each category
+                {ac.privacy2}
               </span>
               <span>
                 <Check size={16} />
-                Suggestions never change your plan
+                {ac.privacy3}
               </span>
             </div>
           </section>
           <section className="card ai-connect">
             <div className="section-heading">
               <div>
-                <h2>Connect your AI provider</h2>
-                <p>OpenAI, DeepSeek, NVIDIA, Groq, Hugging Face, OpenRouter, or another compatible API.</p>
+                <h2>{ac.connectTitle}</h2>
+                <p>{ac.connectLead}</p>
               </div>
               <KeyRound size={22} />
             </div>
             <form onSubmit={connect} autoComplete="off">
-              <label htmlFor="ai-provider">Provider</label>
+              <label htmlFor="ai-provider">{ac.provider}</label>
               <select
                 id="ai-provider"
                 name="provider"
@@ -322,11 +323,11 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
               </select>
               {provider === "custom" && (
                 <>
-                  <label htmlFor="ai-base-url">API base URL</label>
+                  <label htmlFor="ai-base-url">{ac.baseUrl}</label>
                   <input id="ai-base-url" name="baseUrl" type="url" required placeholder="https://api.example.com/v1" />
                 </>
               )}
-              <label htmlFor="ai-key">API key</label>
+              <label htmlFor="ai-key">{ac.apiKey}</label>
               <input
                 id="ai-key"
                 name="apiKey"
@@ -337,7 +338,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                 placeholder={provider === "nvidia" ? "nvapi-…" : "Paste your provider key"}
                 autoComplete="new-password"
               />
-              <label htmlFor="ai-model">Model</label>
+              <label htmlFor="ai-model">{ac.model}</label>
               <input
                 id="ai-model"
                 name="model"
@@ -356,25 +357,26 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
               )}
               <p className="key-note">
                 <LockKeyhole size={15} />
-                The key is validated server-side and placed in an encrypted,
-                HttpOnly session cookie. It is excluded from browser storage and
-                backups. Reconnect after the server restarts.
+                {ac.keyNote}
               </p>
               <button className="button primary" disabled={busy}>
                 {busy ? (
                   <>
                     <RefreshCw className="spin" size={16} />
-                    Checking…
+                    {ac.checkingBtn}
                   </>
                 ) : (
                   <>
                     <KeyRound size={16} />
-                    Connect securely
+                    {ac.connectBtn}
                   </>
                 )}
               </button>
               {connectionHealth === "down" && (
-                <ConnectionIndicator health="down" />
+                <ConnectionIndicator
+                  health="down"
+                  labels={{ working: ac.working, slow: ac.slow, down: ac.down }}
+                />
               )}
             </form>
           </section>
@@ -384,32 +386,22 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
           <section className="card ai-controls">
             <div className="section-heading">
               <div>
-                <h2>Choose what to share</h2>
-                <p>Only selected content is sent when you press Analyze.</p>
+                <h2>{ac.chooseShare}</h2>
+                <p>{ac.chooseShareLead}</p>
               </div>
               <Bot size={23} />
             </div>
             <div className="context-options">
               {(
                 [
-                  ["plan", "My direction", counts.plan, "Your six plan fields"],
-                  [
-                    "tasks",
-                    "Daily steps",
-                    counts.tasks,
-                    "Active tasks and today’s completion",
-                  ],
-                  [
-                    "answers",
-                    "Reset answers",
-                    counts.answers,
-                    "Your private guided-reflection answers",
-                  ],
+                  ["plan", ac.ctxPlan, counts.plan, ac.ctxPlanDesc],
+                  ["tasks", ac.ctxTasks, counts.tasks, ac.ctxTasksDesc],
+                  ["answers", ac.ctxAnswers, counts.answers, ac.ctxAnswersDesc],
                   [
                     "reflections",
-                    "Journal reflections",
+                    ac.ctxJournal,
                     counts.reflections,
-                    "Up to the 20 most recent notes",
+                    ac.ctxJournalDesc,
                   ],
                 ] as const
               ).map(([key, label, count, description]) => (
@@ -424,7 +416,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   <span>
                     <strong>{label}</strong>
                     <small>
-                      {description} · {count} available
+                      {description} · {ac.available(count)}
                     </small>
                   </span>
                 </label>
@@ -432,21 +424,18 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
             </div>
             <form onSubmit={analyze}>
               <label htmlFor="ai-focus">
-                What would you like help with?{" "}
-                <span className="muted">(optional)</span>
+                {ac.focusLabel}{" "}
+                <span className="muted">{ac.focusOptional}</span>
               </label>
               <textarea
                 id="ai-focus"
                 name="focus"
                 rows={3}
                 maxLength={1000}
-                placeholder="For example: Help me make this month realistic, or spot where my actions don’t match my direction."
+                placeholder={ac.focusPlaceholder}
               />
               {!hasShareable && (
-                <p className="privacy-note">
-                  Add a daily step, direction, reset answer, or reflection
-                  before requesting analysis.
-                </p>
+                <p className="privacy-note">{ac.needContent}</p>
               )}
               <div className="ai-actions">
                 <button
@@ -456,7 +445,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   disabled={busy}
                 >
                   <Link2Off size={16} />
-                  Disconnect key
+                  {ac.disconnect}
                 </button>
                 <button
                   className="button primary"
@@ -465,12 +454,12 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   {busy ? (
                     <>
                       <RefreshCw className="spin" size={16} />
-                      Thinking…
+                      {ac.thinking}
                     </>
                   ) : (
                     <>
                       <Send size={16} />
-                      Analyze selected context
+                      {ac.analyze}
                     </>
                   )}
                 </button>
@@ -478,13 +467,13 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
             </form>
             <p className="key-note">
               <LockKeyhole size={15} />
-              Selected text is sent to {status.provider ? AI_PROVIDER_INFO[status.provider].label : "your provider"} for this request. LifeOS does not save the analysis. Your provider’s data controls and charges apply.
+              {ac.sendNote}
             </p>
           </section>
           {analysis ? (
             <section className="ai-results" aria-live="polite">
               <article className="card ai-summary">
-                <span className="eyebrow">A TENTATIVE READ</span>
+                <span className="eyebrow">{ac.tentativeRead}</span>
                 <h2>{analysis.summary}</h2>
                 {analysis.patterns.length > 0 && (
                   <ul>
@@ -494,8 +483,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   </ul>
                 )}
                 <small>
-                  Based on: {sent.join(", ")}. Review this against your own
-                  experience.
+                  {ac.basedOn} {sent.join(", ")}.
                 </small>
               </article>
               <div className="recommendation-grid">
@@ -513,7 +501,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                     <h3>{recommendation.title}</h3>
                     <p>{recommendation.reason}</p>
                     <div className="suggested-step">
-                      <span className="tiny-label">A SMALL NEXT STEP</span>
+                      <span className="tiny-label">{ac.smallStep}</span>
                       <strong>{recommendation.nextStep}</strong>
                     </div>
                     <button
@@ -521,7 +509,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                       onClick={() => addStep(recommendation.nextStep)}
                     >
                       <Plus size={16} />
-                      Add to Today
+                      {ac.addToday}
                     </button>
                   </article>
                 ))}
@@ -531,15 +519,15 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   ?
                 </span>
                 <div>
-                  <span className="tiny-label">ONE QUESTION TO KEEP</span>
+                  <span className="tiny-label">{ac.oneQuestion}</span>
                   <p>{analysis.question}</p>
                 </div>
               </article>
               <section className="card ai-chat" aria-label="Continue the conversation">
                 <div className="section-heading">
                   <div>
-                    <h2>Talk it through</h2>
-                    <p>Ask a follow-up about the context you selected. This conversation is kept only in this page session.</p>
+                    <h2>{ac.talkTitle}</h2>
+                    <p>{ac.talkLead}</p>
                   </div>
                   <Bot size={22} />
                 </div>
@@ -547,24 +535,24 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   <div className="ai-chat-messages" aria-live="polite">
                     {chat.map((message, index) => (
                       <p className={`ai-chat-message ${message.role}`} key={`${message.role}-${index}`}>
-                        <strong>{message.role === "user" ? "You" : "AI"}</strong>
+                        <strong>{message.role === "user" ? ac.you : ac.ai}</strong>
                         {message.content}
                       </p>
                     ))}
                   </div>
                 )}
                 <form onSubmit={continueConversation} className="ai-chat-form">
-                  <label htmlFor="ai-message">Your follow-up</label>
+                  <label htmlFor="ai-message">{ac.followUp}</label>
                   <textarea
                     id="ai-message"
                     name="message"
                     rows={3}
                     maxLength={2000}
-                    placeholder="What would be a realistic first step this week?"
+                    placeholder={ac.followUpPlaceholder}
                     disabled={busy}
                   />
                   <button className="button primary" disabled={busy}>
-                    {busy ? <><RefreshCw className="spin" size={16} /> Thinking…</> : <><Send size={16} /> Send message</>}
+                    {busy ? <><RefreshCw className="spin" size={16} /> {ac.thinking}</> : <><Send size={16} /> {ac.sendMessage}</>}
                   </button>
                 </form>
               </section>
@@ -574,11 +562,8 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
               <span className="ai-orb">
                 <Sparkles size={24} />
               </span>
-              <h2>Your words come first.</h2>
-              <p>
-                Select the context you’re comfortable sharing, then ask for a
-                fresh perspective.
-              </p>
+              <h2>{ac.emptyTitle}</h2>
+              <p>{ac.emptyLead}</p>
             </section>
           )}
         </div>

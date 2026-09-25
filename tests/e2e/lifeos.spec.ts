@@ -16,6 +16,11 @@ test("Arabic language selection uses RTL and stays selected", async ({ page }) =
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.getByRole("button", { name: "التبديل إلى الإنجليزية" })).toBeVisible();
+  await page.getByRole("button", { name: "مساحتك للتغيير", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "ما الذي يبدو خارج التوازن بهدوء؟" })).toBeVisible();
+  await page.getByRole("button", { name: "الإعدادات والبيانات", exact: true }).click();
+  await page.getByRole("button", { name: "ابدأ خط الأساس" }).click();
+  await expect(page.getByRole("heading", { level: 3, name: "بعد يومٍ مرهق، كيف تعيد توازنك وإيقاعك؟" })).toBeVisible();
 });
 test("daily step, undo, persistence, archive, and keyboard dialog", async ({
   page,

@@ -25,11 +25,11 @@ Open http://localhost:3000. For production, run `npm run build` followed by `npm
 - **Reflections:** timestamped notes and seven days of completion history. Points and levels are secondary, derived metrics.
 - **AI guide:** optional provider-neutral pattern analysis with category-by-category consent. OpenAI, DeepSeek, NVIDIA NIM, Groq, Hugging Face, OpenRouter, and public OpenAI-compatible APIs are supported. Suggestions only change Today after explicit acceptance.
 - **Settings:** name, psychometric baseline review & recalibration, validated JSON import/export, archived-step recovery, reset with backup, and restoration of the previous workspace.
-- **Arabic interface:** use the `العربية` / `English` control in the top bar to switch the primary workspace interface. The preference is saved in the browser, Arabic uses a right-to-left layout and Arabic date formatting, and personal writing is never altered.
+- **Arabic interface:** use the `العربية` / `English` control in the top bar. Arabic includes RTL layout, Arabic dates, localized reset MSQs (titles, option labels, and subtexts), the full baseline assessment flow, daytime check-in prompts, settings/reset chrome, and the AI guide UI. Your own saved writing is never auto-translated or overwritten.
 
 ## Languages and browser translation
 
-LifeOS ships with English and Arabic for the main workspace interface. The selected language is stored only in browser local storage (`lifeos_locale`), so it remains selected after a refresh on the same device.
+LifeOS ships with English and Arabic for the main workspace. Locale is stored in browser local storage (`lifeos_locale`). Baseline and MSQ Arabic copy lives in `src/lib/locale/`; see `docs/FRAMEWORK-MODELS.md` for how reflection frameworks are used (educational models, LifeOS-authored questions). Regenerate MSQ Arabic options after edits with `node scripts/gen-msq-ar.mjs` from the `life-os` directory.
 
 The document also identifies English as its source language and explicitly permits browser translation. Chrome users can still use the browser’s Translate control for languages not provided by the native interface. Browser translation is controlled by Chrome and may need to be enabled in the browser’s language settings.
 
