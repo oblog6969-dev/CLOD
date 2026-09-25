@@ -14,6 +14,33 @@ LifeOS helps people reflect for a day and practice small actions afterward. The 
 
 Read `README.md`, `docs/DECISIONS.md`, and `LifeOS-Vault/Frameworks/Dan Koe Principles.md` before changing the product flow. The vault is a human-readable project index, not a runtime database.
 
+### Vault as project memory (mandatory for all agents)
+
+The `LifeOS-Vault/AI-Memory/` folder is the **shared project memory** for every agent (Claude, Cursor, Codex, Gemini, Antigravity, or any future tool). Follow this protocol on every session without exception.
+
+**At the start of every session:**
+1. Read `LifeOS-Vault/AI-Memory/Agent Handoff.md` to understand the current project state, environment constraints, and suggested next tasks.
+2. Read `LifeOS-Vault/AI-Memory/Bugs & Issues.md` to check for open or in-progress bugs before writing code.
+3. Check `LifeOS-Vault/AI-Memory/Future Tasks.md` for your task's context and priority level.
+
+**During a session:**
+- If you discover a bug (even one you immediately fix), add it to `LifeOS-Vault/AI-Memory/Bugs & Issues.md` with status `resolved`.
+- If you find something that should be done later, add it to `LifeOS-Vault/AI-Memory/Future Tasks.md` in the appropriate priority section.
+
+**At the end of every session:**
+1. Add a new `## Session YYYY-MM-DD — Agent Name` entry (newest first) to `LifeOS-Vault/AI-Memory/Sessions/Session Log.md` documenting: what was done, files changed, test results (actual counts), git commit hash, and any open items.
+2. Rewrite `LifeOS-Vault/AI-Memory/Agent Handoff.md` with the current project state, updated suggestions, and any new environment gotchas discovered.
+3. Update `LifeOS-Vault/Progress/00 - Dashboard.md` to add completed items to the Implemented checklist and update verification counts.
+4. Update `docs/DECISIONS.md` with any architectural or product decisions made.
+
+**Windows environment constraint (this machine only):**
+PowerShell blocks `npm.ps1` due to execution policy. Always invoke npm through cmd:
+```
+cmd.exe /c npm test
+cmd.exe /c npm run build
+cmd.exe /c npx playwright test
+```
+
 ### Collaboration between development agents
 
 - Establish a bounded task and file ownership before parallel editing. Use isolated worktrees when multiple agents would touch the same files.
@@ -29,5 +56,5 @@ Read `README.md`, `docs/DECISIONS.md`, and `LifeOS-Vault/Frameworks/Dan Koe Prin
 - Validate imported/persisted data at runtime. Keep legacy storage untouched and back up the current workspace before replacement.
 - Failed saves must remain visible. Never overwrite corrupt storage with a default state automatically.
 - Use semantic buttons, associated labels, native modal dialogs, visible focus, and reduced-motion support.
-- Before handoff: `npm run lint`, `npm test`, `npm run build`, and `npm run test:e2e` for affected interactive flows. Report failures or environment blockers accurately.
+- Before handoff: `cmd.exe /c npm run lint`, `cmd.exe /c npm test`, `cmd.exe /c npm run build`, and `cmd.exe /c npx playwright test` for affected interactive flows. Report failures or environment blockers accurately.
 - Completion means the implementation exists, relevant checks pass, and limitations are documented. A checkbox alone is not evidence.

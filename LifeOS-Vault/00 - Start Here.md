@@ -28,6 +28,7 @@ Help people reflect for a day, choose their own direction, and return to meaning
 - [[Frameworks/Human Development Frameworks|Human Development Frameworks (MatchWise Psychometrics)]]
 - [[Frameworks/Dan Koe Principles|Dan Koe's Principles]]
 - [[Frameworks/Tech Stack|Technology Stack]]
+- [[AI-Memory/00 - AI Agent Memory Index|🤖 AI Agent Memory (Bugs, Tasks, Handoff, Session Log)]]
 
 ## 🕹️ System Architecture
 1. **Today:** recurring priorities, local-date progress, mood, boundaries, and quick reflection.
@@ -38,7 +39,8 @@ Help people reflect for a day, choose their own direction, and return to meaning
 
 ## 🤖 AI Collaboration Guide
 This vault acts as the shared knowledge repository for AI agents working on LifeOS:
-1. Update `Progress/00 - Dashboard.md` when introducing new features or completing milestones.
-2. Read `Frameworks/Tech Stack.md` and `Frameworks/Dan Koe Principles.md` before altering core abstractions.
-3. Follow `AGENTS.md` for file ownership, handoffs, validation, and data invariants. Record decisions in `docs/DECISIONS.md`. Paths are relative to the repository root.
-4. Multi-agent collaboration means development cooperation. The runtime includes an optional, user-triggered AI guide when a person connects a supported provider; there is no autonomous coach, background AI activity, or silent plan editing.
+1. **Read [[AI-Memory/00 - AI Agent Memory Index|AI Agent Memory]] first** — contains [[AI-Memory/Agent Handoff|Agent Handoff]], [[AI-Memory/Bugs & Issues|Bugs & Issues]], [[AI-Memory/Future Tasks|Future Tasks]], and [[AI-Memory/Sessions/Session Log|Session Log]].
+2. Update `Progress/00 - Dashboard.md` when introducing new features or completing milestones.
+3. Read `Frameworks/Tech Stack.md` and `Frameworks/Dan Koe Principles.md` before altering core abstractions.
+4. Follow `AGENTS.md` for file ownership, handoffs, validation, and data invariants. Record decisions in `docs/DECISIONS.md`. Paths are relative to the repository root.
+5. Multi-agent collaboration means development cooperation. The runtime includes an optional, user-triggered AI guide when a person connects a supported provider; there is no autonomous coach, background AI activity, or silent plan editing.
