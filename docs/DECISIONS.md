@@ -1,3 +1,10 @@
+<!--
+  Vault cross-reference: LifeOS-Vault/Docs/Project Documentation Index.md
+  Agent memory hub:      LifeOS-Vault/AI-Memory/00 - AI Agent Memory Index.md
+  Read Agent Handoff before editing:  LifeOS-Vault/AI-Memory/Agent Handoff.md
+  Record new decisions here AND update LifeOS-Vault/Progress/00 - Dashboard.md
+-->
+
 # Product and engineering decisions
 
 ## 2026-09-16: daily-use redesign

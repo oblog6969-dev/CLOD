@@ -30,6 +30,7 @@ aliases:
 | **Bugs & Issues** | Open bugs, resolved bugs, and known limitations | [[AI-Memory/Bugs & Issues\|Bugs & Issues]] |
 | **Future Tasks** | Planned features, backlog, and ideas | [[AI-Memory/Future Tasks\|Future Tasks]] |
 | **Agent Handoff** | Structured handoff notes between sessions | [[AI-Memory/Agent Handoff\|Agent Handoff]] |
+| **docs/ files** | Design docs, decision log, session notes — repo root `docs/` | [[Docs/Project Documentation Index\|Project Documentation Index]] |
 
 ---
 

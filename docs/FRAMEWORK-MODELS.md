@@ -1,3 +1,9 @@
+<!--
+  Vault cross-reference: LifeOS-Vault/Docs/Project Documentation Index.md
+  Related vault note:    LifeOS-Vault/Frameworks/Human Development Frameworks.md
+  Do NOT port MatchWise instruments. See vault note for boundary policy.
+-->
+
 # Human development models in LifeOS
 
 LifeOS uses **conceptual models** from personal-development literature (and ideas aligned with the MatchWise vault) to shape reflection—not to replicate MatchWise questionnaires, scoring, or dyadic reports.

@@ -28,6 +28,7 @@ Help people reflect for a day, choose their own direction, and return to meaning
 - [[Frameworks/Human Development Frameworks|Human Development Frameworks (MatchWise Psychometrics)]]
 - [[Frameworks/Dan Koe Principles|Dan Koe's Principles]]
 - [[Frameworks/Tech Stack|Technology Stack]]
+- [[Docs/Project Documentation Index|📄 Project Documentation (docs/ bridge)]]
 - [[AI-Memory/00 - AI Agent Memory Index|🤖 AI Agent Memory (Bugs, Tasks, Handoff, Session Log)]]
 
 ## 🕹️ System Architecture

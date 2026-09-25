@@ -22,6 +22,7 @@ The `LifeOS-Vault/AI-Memory/` folder is the **shared project memory** for every 
 1. Read `LifeOS-Vault/AI-Memory/Agent Handoff.md` to understand the current project state, environment constraints, and suggested next tasks.
 2. Read `LifeOS-Vault/AI-Memory/Bugs & Issues.md` to check for open or in-progress bugs before writing code.
 3. Check `LifeOS-Vault/AI-Memory/Future Tasks.md` for your task's context and priority level.
+4. If touching design decisions or framework boundaries, also read `docs/DECISIONS.md` and `LifeOS-Vault/Docs/Project Documentation Index.md` for relevant context.
 
 **During a session:**
 - If you discover a bug (even one you immediately fix), add it to `LifeOS-Vault/AI-Memory/Bugs & Issues.md` with status `resolved`.

@@ -1,3 +1,9 @@
+<!--
+  Vault cross-reference: LifeOS-Vault/Docs/Project Documentation Index.md
+  Related vault note:    LifeOS-Vault/Frameworks/Dan Koe Principles.md
+  Status: IMPLEMENTED (2026-09-20). This doc is now a historical design record.
+-->
+
 # LifeOS questionnaire: Dan Koe foundation
 
 Updated 2026-09-20. Status: implemented.
