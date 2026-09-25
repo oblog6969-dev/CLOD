@@ -84,6 +84,52 @@ export type WorkspaceCopy = {
   devSectionTitle: string;
   devSectionLead: string;
   yourArchetype: string;
+  dataTitle: string;
+  dataLead: string;
+  exportBackup: string;
+  importBackup: string;
+  exportRaw: string;
+  exportLegacy: string;
+  recoverWorkspace: string;
+  backupSizeError: string;
+  backupReadError: string;
+  storageUnavailable: string;
+  legacyExportError: string;
+  confirmRecover: string;
+  recoveredNotice: string;
+  recoveryFailed: string;
+  archivedStepsTitle: string;
+  bringBack: string;
+  freshChapterTitle: string;
+  freshChapterLead: string;
+  resetWorkspace: string;
+  motiveLabel: string;
+  discPaceLabel: string;
+  needLabel: string;
+  consciousnessLabel: string;
+  motives: Record<"red" | "blue" | "white" | "yellow", string>;
+  needs: Record<"freedom" | "structure" | "empathy" | "esteem", string>;
+  discStyles: Record<"D" | "I" | "S" | "C", string>;
+  translateTitle: string;
+  translateLead: string;
+  useDirection: string;
+  useSteps: string;
+  useReflection: string;
+  textToTranslate: string;
+  translatePlaceholder: string;
+  translateTo: string;
+  translateButton: string;
+  translating: string;
+  translationResult: string;
+  detectedLanguage: string;
+  translateKeyNote: string;
+  translationLanguages: Record<string, string>;
+  planFieldNames: Record<string, string>;
+  stepWord: (n: number) => string;
+  reflectionWord: (n: number) => string;
+  actionWord: (n: number) => string;
+  answerWord: (n: number) => string;
+  fieldsFilled: (filled: number, total: number) => string;
 };
 
 const en: WorkspaceCopy = {
@@ -189,6 +235,95 @@ const en: WorkspaceCopy = {
   devSectionLead:
     "Educational models (Hartman, DISC, Birkman, values, Maslow tiers) shape tap choices—not clinical scores.",
   yourArchetype: "YOUR REFLECTION PROFILE",
+  dataTitle: "Your data belongs to you",
+  dataLead:
+    "No account or cloud connection is required. Browser storage is not encrypted; use a trusted device. Clearing browser data removes your workspace.",
+  exportBackup: "Export backup",
+  importBackup: "Import backup",
+  exportRaw: "Export raw saved data",
+  exportLegacy: "Export legacy v1 data",
+  recoverWorkspace: "Recover previous workspace",
+  backupSizeError: "Please use a backup smaller than 5 MB.",
+  backupReadError: "Could not read this backup.",
+  storageUnavailable:
+    "Browser storage is unavailable. You can still export the loaded backup above.",
+  legacyExportError: "Could not export legacy data.",
+  confirmRecover:
+    "Restore the backup from before your last reset or import? This replaces your current workspace.",
+  recoveredNotice: "Previous data restored.",
+  recoveryFailed: "Recovery failed.",
+  archivedStepsTitle: "Archived steps",
+  bringBack: "Bring back",
+  freshChapterTitle: "A fresh chapter",
+  freshChapterLead:
+    "Start over with a blank plan. We’ll keep a recovery copy of your previous workspace.",
+  resetWorkspace: "Reset workspace",
+  motiveLabel: "Core Motive",
+  discPaceLabel: "DISC Pace",
+  needLabel: "Primary Need",
+  consciousnessLabel: "Consciousness",
+  motives: {
+    red: "Red: Power / Results",
+    blue: "Blue: Connection / Care",
+    white: "White: Peace / Clarity",
+    yellow: "Yellow: Fun / Vitality",
+  },
+  needs: {
+    freedom: "Freedom / Autonomy",
+    structure: "Structure / Order",
+    empathy: "Empathy / Care",
+    esteem: "Esteem / Respect",
+  },
+  discStyles: {
+    D: "D (Direct & Fast)",
+    I: "I (Inspiring & Social)",
+    S: "S (Steady & Supportive)",
+    C: "C (Conscientious & Analytical)",
+  },
+  translateTitle: "Translate your writing",
+  translateLead:
+    "Translate only the text you choose. Your original LifeOS writing is never changed or saved to Google Translate.",
+  useDirection: "Use my direction",
+  useSteps: "Use active steps",
+  useReflection: "Use latest reflection",
+  textToTranslate: "Text to translate",
+  translatePlaceholder: "Write or choose something from your LifeOS workspace…",
+  translateTo: "Translate to",
+  translateButton: "Translate with Google",
+  translating: "Translating…",
+  translationResult: "Translation",
+  detectedLanguage: "detected",
+  translateKeyNote:
+    "Google Cloud Translation must be enabled and GOOGLE_TRANSLATE_API_KEY configured on the LifeOS server. Translation use is subject to your Google Cloud billing and data controls.",
+  translationLanguages: {
+    ar: "Arabic",
+    en: "English",
+    fr: "French",
+    de: "German",
+    hi: "Hindi",
+    id: "Indonesian",
+    it: "Italian",
+    ja: "Japanese",
+    ko: "Korean",
+    pt: "Portuguese",
+    es: "Spanish",
+    tr: "Turkish",
+    ur: "Urdu",
+    "zh-CN": "Chinese (Simplified)",
+  },
+  planFieldNames: {
+    vision: "Vision",
+    antiVision: "Anti-vision",
+    identity: "Identity",
+    year: "Year outcome",
+    month: "Month project",
+    constraints: "Protected constraints",
+  },
+  stepWord: (n) => `${n} ${n === 1 ? "step" : "steps"}`,
+  reflectionWord: (n) => `${n} ${n === 1 ? "note" : "notes"}`,
+  actionWord: (n) => `${n} daily ${n === 1 ? "action" : "actions"}`,
+  answerWord: (n) => `${n} ${n === 1 ? "answer" : "answers"} saved`,
+  fieldsFilled: (filled, total) => `${filled} of ${total} fields filled`,
 };
 
 const ar: WorkspaceCopy = {
@@ -230,7 +365,7 @@ const ar: WorkspaceCopy = {
   reviewPlanDraft: "راجع مسودة الخطة من جلسة التغيير",
   checkInTitle: "وقفة وعي",
   settingsPsychDisclaimer:
-    "خط الأساس وخيارات MSQ للتأمل الشخصي والتعلم فقط. ليست تقييمات طبية أو سرية أو وظيفية.",
+    "خط الأساس وخيارات MSQ للتأمل الشخصي والتعلم فقط. ليست تقييمات طبية أو سريرية أو وظيفية.",
   assessmentDisclaimer:
     "للتأمل والتعلم الشخصي فقط. النتائج تركيبة توضيحية لإجاباتك، وليست تشخيصاً أو نتيجة اختبار رسمي.",
   maslowCenterLabel: "مركز جاذبية الاحتياجات (ماسلو)",
@@ -289,6 +424,95 @@ const ar: WorkspaceCopy = {
   devSectionLead:
     "نماذج تعليمية (Hartman، DISC، Birkman، القيم، مستويات ماسلو) توجّه الخيارات—وليست درجات سريرية.",
   yourArchetype: "ملف تأملك",
+  dataTitle: "بياناتك ملكك وحدك",
+  dataLead:
+    "لا حاجة لحساب أو اتصال سحابي. تخزين المتصفح غير مشفر؛ استخدم جهازاً موثوقاً. مسح بيانات المتصفح يحذف مساحة عملك.",
+  exportBackup: "تصدير نسخة احتياطية",
+  importBackup: "استيراد نسخة احتياطية",
+  exportRaw: "تصدير البيانات الخام المحفوظة",
+  exportLegacy: "تصدير بيانات الإصدار السابق (v1)",
+  recoverWorkspace: "استعادة مساحة العمل السابقة",
+  backupSizeError: "يرجى استخدام نسخة احتياطية أصغر من 5 ميغابايت.",
+  backupReadError: "تعذّرت قراءة هذه النسخة الاحتياطية.",
+  storageUnavailable:
+    "تخزين المتصفح غير متاح. لا يزال بإمكانك تصدير النسخة الاحتياطية المحملة أعلاه.",
+  legacyExportError: "تعذّر تصدير بيانات الإصدار السابق.",
+  confirmRecover:
+    "هل تريد استعادة النسخة الاحتياطية من قبل آخر إعادة ضبط أو استيراد؟ سيؤدي هذا إلى استبدال مساحة عملك الحالية.",
+  recoveredNotice: "تمت استعادة البيانات السابقة.",
+  recoveryFailed: "فشلت الاستعادة.",
+  archivedStepsTitle: "الخطوات المؤرشفة",
+  bringBack: "استعادة",
+  freshChapterTitle: "فصل جديد",
+  freshChapterLead:
+    "ابدأ من جديد بخطة فارغة. سنحتفظ بنسخة استرداد لمساحة عملك السابقة.",
+  resetWorkspace: "إعادة ضبط مساحة العمل",
+  motiveLabel: "الدافع الأساسي",
+  discPaceLabel: "إيقاع التنفيذ (DISC)",
+  needLabel: "الاحتياج الأساسي",
+  consciousnessLabel: "مستوى الوعي",
+  motives: {
+    red: "أحمر: إنجاز وقوة",
+    blue: "أزرق: معنى وترابط",
+    white: "أبيض: سلام ووضوح",
+    yellow: "أصفر: حيوية ومرح",
+  },
+  needs: {
+    freedom: "حرية واستقلال",
+    structure: "بنية وتنظيم",
+    empathy: "تعاطف وتفهم",
+    esteem: "تقدير واحترام",
+  },
+  discStyles: {
+    D: "D (مباشر وسريع)",
+    I: "I (مُلهم واجتماعي)",
+    S: "S (ثابت وداعم)",
+    C: "C (دقيق وتحليلي)",
+  },
+  translateTitle: "ترجمة كتابتك",
+  translateLead:
+    "ترجم فقط النص الذي تختاره من مساحة عملك. كتابتك الأصلية في LifeOS لا تتغير ولا تُحفظ في Google Translate.",
+  useDirection: "استخدام اتجاهي",
+  useSteps: "استخدام الخطوات النشطة",
+  useReflection: "استخدام آخر تأمل",
+  textToTranslate: "النص المراد ترجمته",
+  translatePlaceholder: "اكتب أو اختر نصاً من مساحة عملك في LifeOS…",
+  translateTo: "الترجمة إلى",
+  translateButton: "ترجمة عبر Google",
+  translating: "جاري الترجمة…",
+  translationResult: "الترجمة",
+  detectedLanguage: "تم التعرف على",
+  translateKeyNote:
+    "يجب تفعيل Google Cloud Translation وضبط مفتاح GOOGLE_TRANSLATE_API_KEY على خادم LifeOS. يخضع الاستخدام لفواتير وإعدادات بيانات Google Cloud الخاصة بك.",
+  translationLanguages: {
+    ar: "العربية",
+    en: "الإنجليزية",
+    fr: "الفرنسية",
+    de: "الألمانية",
+    hi: "الهندية",
+    id: "الإندونيسية",
+    it: "الإيطالية",
+    ja: "اليابانية",
+    ko: "الكورية",
+    pt: "البرتغالية",
+    es: "الإسبانية",
+    tr: "التركية",
+    ur: "الأردية",
+    "zh-CN": "الصينية (المبسطة)",
+  },
+  planFieldNames: {
+    vision: "الرؤية",
+    antiVision: "الرؤية المضادة",
+    identity: "الهوية والتدرّب",
+    year: "نتيجة العام",
+    month: "مشروع الشهر",
+    constraints: "الحدود والالتزامات",
+  },
+  stepWord: (n) => `${n} ${n === 1 ? "خطوة" : "خطوات"}`,
+  reflectionWord: (n) => `${n} ${n === 1 ? "ملاحظة" : "ملاحظات"}`,
+  actionWord: (n) => `${n} ${n === 1 ? "خطوة يومية" : "خطوات يومية"}`,
+  answerWord: (n) => `${n} ${n === 1 ? "إجابة محفوظة" : "إجابات محفوظة"}`,
+  fieldsFilled: (filled, total) => `${filled} من ${total} حقول مكتملة`,
 };
 
 export function workspaceCopy(locale: Locale): WorkspaceCopy {

@@ -81,7 +81,14 @@
 - Extend Arabic to reset MSQ flows, baseline assessment chrome, and settings psychometric copy via `src/lib/locale/*` while keeping the person’s saved writing untouched.
 - Add educational Maslow need-tier derivation (`src/lib/maslow.ts`) aligned with MatchWise v3.0 concepts; store `maslowCenter`, orientation, and tier shares on the assessment profile as illustrative heuristics, not clinical scores.
 - Add MSQ source traceability metadata (`src/lib/msq-meta.ts`) mapping Dan Koe newsletter prompts to plan fields.
-- Plan draft review shows per-field status vs saved direction and lets the person revert individual fields to saved text before committing.
+## 2026-09-25: comprehensive Arabic localization and RTL typography polish
+
+- Complete Arabic localization across Settings Data & Backup cards (export/import, recovery, alerts, confirmations) and the Google Cloud Translate tool (controls, descriptions, status, language labels).
+- Localize Hartman motive badges on MSQ cards (Red, Blue, White, Yellow in Arabic), reset phase names, and plan field references on MSQ prompt headers.
+- Localize all 6 views of the Journey Guide (`today`, `reset`, `direction`, `journal`, `assistant`, `settings`) with Arabic guidance and next-step recommendations.
+- Modernize Arabic typography with system font stack and reset negative letter spacing in RTL so cursive script connects properly.
+- Fix directional icon mirroring by scoping flips to `.rtl-flip` for navigation arrows, preventing non-directional utility icons (checkmarks, pluses, pencils, calendars) from reversing incorrectly.
+- Maintain full test coverage with 18 unit tests (parity verification) and 18 E2E Playwright tests.
 
 ## Remaining constraints
 

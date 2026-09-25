@@ -4,6 +4,13 @@ import type { MaslowTier } from "./maslow";
 import { MSQ_HEADINGS_AR } from "./locale/msq-ar-headings.mjs";
 import { MSQ_OPTIONS_AR } from "./locale/msq-ar-options.mjs";
 
+const ARCHETYPE_TAG_AR: Record<string, string> = {
+  "Red: Power / Results": "أحمر: إنجاز وقوة",
+  "Blue: Connection / Care": "أزرق: معنى وترابط",
+  "White: Peace / Clarity": "أبيض: سلام ووضوح",
+  "Yellow: Fun / Vitality": "أصفر: حيوية ومرح",
+};
+
 function localizeMsq(def: MsqPromptDefinition, locale: Locale): MsqPromptDefinition {
   if (locale !== "ar") return def;
   const headings = (MSQ_HEADINGS_AR as Record<string, { title: string; subtitle: string }>)[
@@ -23,6 +30,9 @@ function localizeMsq(def: MsqPromptDefinition, locale: Locale): MsqPromptDefinit
         ...opt,
         label: tr?.label ?? opt.label,
         subtext: tr?.subtext ?? opt.subtext,
+        archetypeTag: opt.archetypeTag
+          ? ARCHETYPE_TAG_AR[opt.archetypeTag] ?? opt.archetypeTag
+          : undefined,
       };
     }),
   };

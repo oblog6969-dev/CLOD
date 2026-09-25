@@ -257,7 +257,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
           <div className="ai-heading-status">
             <span className="tag">
               <ShieldCheck size={14} />
-              Connected · {status.provider ? AI_PROVIDER_INFO[status.provider].label : "AI"} · {status.model}
+              {ac.connected} · {status.provider ? AI_PROVIDER_INFO[status.provider].label : "AI"} · {status.model}
             </span>
             <ConnectionIndicator
               health={connectionHealth ?? status.health ?? "working"}

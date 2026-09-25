@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { useLanguage } from "@/lib/language";
 export function Dialog({
   title,
   children,
@@ -10,6 +11,7 @@ export function Dialog({
   children: ReactNode;
   onClose: () => void;
 }) {
+  const { tr } = useLanguage();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -40,7 +42,7 @@ export function Dialog({
           <h2 id="dialog-title">{title}</h2>
           <button
             className="icon-button"
-            aria-label="Close dialog"
+            aria-label={tr("Close dialog", "إغلاق النافذة")}
             onClick={onClose}
           >
             <X size={20} />

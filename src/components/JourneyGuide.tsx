@@ -24,8 +24,8 @@ export function JourneyGuide({
   onNavigate: (view: View) => void;
   onAction: (action: GuideAction) => void;
 }) {
-  const { tr } = useLanguage();
-  const guide = getJourneyGuide(view, state, date);
+  const { tr, locale } = useLanguage();
+  const guide = getJourneyGuide(view, state, date, locale);
   const [expanded, setExpanded] = useState(guide.isNew);
   const welcome = view === "today" && guide.isNew;
   return (

@@ -16,7 +16,7 @@ test("Arabic language selection uses RTL and stays selected", async ({ page }) =
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.getByRole("button", { name: "التبديل إلى الإنجليزية" })).toBeVisible();
-  await page.getByRole("button", { name: "مساحتك للتغيير", exact: true }).click();
+  await page.locator(".sidebar").getByRole("button", { name: /مساحتك للتغيير/ }).click();
   await expect(page.getByRole("heading", { level: 2, name: "ما الذي يبدو خارج التوازن بهدوء؟" })).toBeVisible();
   await page.getByRole("button", { name: "الإعدادات والبيانات", exact: true }).click();
   await page.getByRole("button", { name: "ابدأ خط الأساس" }).click();

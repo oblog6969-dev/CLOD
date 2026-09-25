@@ -269,3 +269,23 @@ test("state decode validates and preserves assessment profile and selected optio
   assert.deepEqual(decoded.assessmentProfile, state.assessmentProfile);
   assert.deepEqual(decoded.selectedOptions, state.selectedOptions);
 });
+
+test("workspaceCopy and MSQ localization support Arabic parity", async () => {
+  const { workspaceCopy } = await import("../src/lib/locale/workspace.ts");
+  const { getPromptMsq } = await import("../src/lib/questionnaire.ts");
+
+  const enCopy = workspaceCopy("en");
+  const arCopy = workspaceCopy("ar");
+
+  // Parity check for all string keys
+  for (const key of Object.keys(enCopy)) {
+    assert.ok(arCopy[key], `Missing Arabic translation for workspaceCopy key: ${key}`);
+  }
+
+  // ArchetypeTag localization check in Arabic
+  const m1Ar = getPromptMsq("m1", null, "ar");
+  const redOpt = m1Ar.options.find((o) => o.id === "m1_red");
+  assert.equal(redOpt?.archetypeTag, "أحمر: إنجاز وقوة");
+  const blueOpt = m1Ar.options.find((o) => o.id === "m1_blue");
+  assert.equal(blueOpt?.archetypeTag, "أزرق: معنى وترابط");
+});

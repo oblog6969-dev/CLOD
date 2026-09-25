@@ -88,25 +88,29 @@ export function BaselineAssessmentModal({
 
           <div className="framework-metrics-grid">
             <div className="metric-chip">
-              <span className="metric-label">Hartman Core Motive</span>
+              <span className="metric-label">{copy.motiveLabel}</span>
               <strong className={`motive-tag motive-${result.coreMotive}`}>
-                {result.coreMotive.toUpperCase()}
+                {copy.motives[result.coreMotive] ?? result.coreMotive.toUpperCase()}
               </strong>
             </div>
 
             <div className="metric-chip">
-              <span className="metric-label">DISC Execution Pace</span>
-              <strong>Style {result.discStyle}</strong>
+              <span className="metric-label">{copy.discPaceLabel}</span>
+              <strong>{copy.discStyles[result.discStyle] ?? `Style ${result.discStyle}`}</strong>
             </div>
 
             <div className="metric-chip">
-              <span className="metric-label">Birkman Primary Need</span>
-              <strong>{result.primaryNeed.toUpperCase()}</strong>
+              <span className="metric-label">{copy.needLabel}</span>
+              <strong>{copy.needs[result.primaryNeed] ?? result.primaryNeed.toUpperCase()}</strong>
             </div>
 
             <div className="metric-chip">
-              <span className="metric-label">Consciousness Baseline</span>
-              <strong>Level {result.consciousnessLevel}+</strong>
+              <span className="metric-label">{copy.consciousnessLabel}</span>
+              <strong>
+                {locale === "ar"
+                  ? `مستوى ${result.consciousnessLevel}+`
+                  : `Level ${result.consciousnessLevel}+`}
+              </strong>
             </div>
 
             {result.maslowCenter && (
@@ -164,7 +168,7 @@ export function BaselineAssessmentModal({
               }}
             >
               {locale === "ar" ? "بدء التأمل" : "Begin tailored reflection"}{" "}
-              <ArrowRight size={16} />
+              <ArrowRight size={16} className="rtl-flip" />
             </button>
           </div>
         </div>
@@ -220,7 +224,7 @@ export function BaselineAssessmentModal({
               disabled={index === 0}
               onClick={() => setIndex((i) => Math.max(0, i - 1))}
             >
-              <ArrowLeft size={16} /> {locale === "ar" ? "السابق" : "Previous"}
+              <ArrowLeft size={16} className="rtl-flip" /> {locale === "ar" ? "السابق" : "Previous"}
             </button>
             <button
               type="button"
@@ -236,7 +240,7 @@ export function BaselineAssessmentModal({
               }}
             >
               {locale === "ar" ? "تخطّ السؤال" : "Skip question"}{" "}
-              <ArrowRight size={16} />
+              <ArrowRight size={16} className="rtl-flip" />
             </button>
           </div>
         </div>

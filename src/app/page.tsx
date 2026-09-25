@@ -1064,7 +1064,7 @@ function LifeOSApp() {
                 saved(restore(modal.data), tr("Backup restored successfully.", "تمت استعادة النسخة الاحتياطية بنجاح."))
               }
             >
-              Restore backup
+              {tr("Restore backup", "استعادة النسخة الاحتياطية")}
             </button>
           </div>
         </Dialog>

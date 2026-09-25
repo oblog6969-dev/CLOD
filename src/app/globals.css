@@ -347,8 +347,20 @@ main {
 }
 
 /* Native Arabic layout. User-entered writing is preserved as entered. */
-:root[dir="rtl"] body {
-  font-family: Tahoma, Arial, sans-serif;
+:root[dir="rtl"] body,
+:root[dir="rtl"] button,
+:root[dir="rtl"] input,
+:root[dir="rtl"] textarea,
+:root[dir="rtl"] select {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", "Tajawal", Tahoma, Arial, sans-serif;
+}
+:root[dir="rtl"] h1,
+:root[dir="rtl"] h2,
+:root[dir="rtl"] h3,
+:root[dir="rtl"] .eyebrow,
+:root[dir="rtl"] .tiny-label,
+:root[dir="rtl"] .brand {
+  letter-spacing: normal;
 }
 :root[dir="rtl"] .sidebar {
   inset: 0 0 0 auto;
@@ -391,10 +403,76 @@ main {
   margin-left: 0;
   margin-right: 8px;
 }
-:root[dir="rtl"] .journey-next .button svg,
-:root[dir="rtl"] .text-button svg,
-:root[dir="rtl"] .button svg {
+:root[dir="rtl"] input[type="text"],
+:root[dir="rtl"] input[type="url"],
+:root[dir="rtl"] input[type="password"],
+:root[dir="rtl"] textarea,
+:root[dir="rtl"] select {
+  text-align: right;
+}
+:root[dir="rtl"] .stat-strip > div {
+  border-right: 0;
+  border-left: 1px solid var(--line);
+  padding: 0 24px;
+}
+:root[dir="rtl"] .stat-strip > div:first-child {
+  padding-right: 0;
+  padding-left: 24px;
+}
+:root[dir="rtl"] .stat-strip > div:last-child {
+  border-left: 0;
+  padding-left: 0;
+}
+:root[dir="rtl"] .msq-checkbox {
+  margin-left: 0;
+  margin-right: auto;
+}
+:root[dir="rtl"] .crumb-divider {
+  display: inline-block;
   transform: scaleX(-1);
+}
+:root[dir="rtl"] .sunrise-art {
+  right: auto;
+  left: 0;
+  transform: scaleX(-1);
+}
+:root[dir="rtl"] .art-caption {
+  right: auto;
+  left: 30px;
+}
+/* Only mirror directional navigation indicators in RTL, never utility or semantic icons */
+:root[dir="rtl"] .rtl-flip,
+:root[dir="rtl"] .journey-next .button svg,
+:root[dir="rtl"] .text-button svg.lucide-arrow-right,
+:root[dir="rtl"] .text-button svg.lucide-arrow-left,
+:root[dir="rtl"] .hero-card .button svg,
+:root[dir="rtl"] .direction-card .text-button svg,
+:root[dir="rtl"] .question-navigation button svg,
+:root[dir="rtl"] .alert button svg.lucide-arrow-right,
+:root[dir="rtl"] .journey-handoff .button svg.lucide-arrow-right {
+  transform: scaleX(-1);
+}
+:root[dir="rtl"] svg.lucide-check,
+:root[dir="rtl"] svg.lucide-plus,
+:root[dir="rtl"] svg.lucide-pencil,
+:root[dir="rtl"] svg.lucide-rotate-ccw,
+:root[dir="rtl"] svg.lucide-download,
+:root[dir="rtl"] svg.lucide-upload,
+:root[dir="rtl"] svg.lucide-calendar-days,
+:root[dir="rtl"] svg.lucide-coffee,
+:root[dir="rtl"] svg.lucide-leaf,
+:root[dir="rtl"] svg.lucide-sprout,
+:root[dir="rtl"] svg.lucide-sun,
+:root[dir="rtl"] svg.lucide-moon,
+:root[dir="rtl"] svg.lucide-bot,
+:root[dir="rtl"] svg.lucide-sparkles,
+:root[dir="rtl"] svg.lucide-zap,
+:root[dir="rtl"] svg.lucide-award,
+:root[dir="rtl"] svg.lucide-key-round,
+:root[dir="rtl"] svg.lucide-lock-keyhole,
+:root[dir="rtl"] svg.lucide-shield-check,
+:root[dir="rtl"] svg.lucide-link-2-off {
+  transform: none !important;
 }
 
 @media (max-width: 700px) {

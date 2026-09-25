@@ -301,7 +301,7 @@ export function ResetJourney({
           <section className="card question-card">
             <div className="section-heading">
               <span className="eyebrow">
-                {phase} / {copy.questionOf(index + 1, questions.length)}
+                {phase === "evening" ? copy.phaseEvening : copy.phaseMorning} / {copy.questionOf(index + 1, questions.length)}
               </span>
               <span className="tag">
                 {questions.filter(([id]) => state.answers[id]?.trim()).length}{" "}
@@ -352,7 +352,7 @@ export function ResetJourney({
               disabled={index === 0}
               onClick={() => setIndex(index - 1)}
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="rtl-flip" />
               {copy.previous}
             </button>
             <button
@@ -365,7 +365,7 @@ export function ResetJourney({
                 } else onDraft();
               }}
             >
-              {copy.skipForNow} <ArrowRight size={16} />
+              {copy.skipForNow} <ArrowRight size={16} className="rtl-flip" />
             </button>
           </div>
           <p className="privacy-note">{copy.privacyReset}</p>
@@ -441,7 +441,7 @@ export function ResetJourney({
                   setIndex(0);
                 }}
               >
-                {copy.enterEvening} <ArrowRight size={17} />
+                {copy.enterEvening} <ArrowRight size={17} className="rtl-flip" />
               </button>
             </div>
           </section>
@@ -458,7 +458,7 @@ export function ResetJourney({
           aria-label={copy.continuePlan}
           onClick={onDirection}
         >
-          {copy.continuePlan} <ArrowRight size={16} />
+          {copy.continuePlan} <ArrowRight size={16} className="rtl-flip" />
         </button>
       </div>
       <p className="source-note">
@@ -588,8 +588,8 @@ function AnswerForm({
         {meta?.planFields?.length ? (
           <p className="msq-meta-hint">
             {locale === "ar"
-              ? `قد يساعد في: ${meta.planFields.join("، ")}`
-              : `May inform: ${meta.planFields.join(", ")}`}
+              ? `قد يساعد في: ${meta.planFields.map((f) => copy.planFieldNames[f] ?? f).join("، ")}`
+              : `May inform: ${meta.planFields.map((f) => copy.planFieldNames[f] ?? f).join(", ")}`}
           </p>
         ) : null}
       </div>
@@ -599,7 +599,7 @@ function AnswerForm({
           <div className="msq-badge-row">
             <span className="msq-mode-tag">
               <Sparkles size={13} />
-              {profile ? `${profile.archetypeName}` : copy.msqFrameworkMode}
+              {profile ? displayArchetype(profile, locale).name : copy.msqFrameworkMode}
             </span>
             <small className="muted">
               {msqDef?.multiSelect ? copy.msqSelectAll : copy.msqSelectOne}
@@ -756,8 +756,10 @@ const translationLanguages = [
 ] as const;
 
 function GoogleTranslateCard({ state }: { state: State }) {
+  const { locale } = useLanguage();
+  const copy = workspaceCopy(locale);
   const [text, setText] = useState("");
-  const [target, setTarget] = useState("ar");
+  const [target, setTarget] = useState(locale === "ar" ? "en" : "ar");
   const [translation, setTranslation] = useState("");
   const [detectedLanguage, setDetectedLanguage] = useState("");
   const [error, setError] = useState("");
@@ -802,27 +804,24 @@ function GoogleTranslateCard({ state }: { state: State }) {
     <section className="card settings-card translate-card">
       <div className="section-heading">
         <div>
-          <h2>Translate your writing</h2>
-          <p>
-            Translate only the text you choose. Your original LifeOS writing is
-            never changed or saved to Google Translate.
-          </p>
+          <h2>{copy.translateTitle}</h2>
+          <p>{copy.translateLead}</p>
         </div>
         <Languages size={22} />
       </div>
       <div className="translation-shortcuts" aria-label="Choose LifeOS content">
         <button type="button" className="text-button" onClick={() => fill(direction)} disabled={!direction}>
-          Use my direction
+          {copy.useDirection}
         </button>
         <button type="button" className="text-button" onClick={() => fill(steps)} disabled={!steps}>
-          Use active steps
+          {copy.useSteps}
         </button>
         <button type="button" className="text-button" onClick={() => fill(latestReflection)} disabled={!latestReflection}>
-          Use latest reflection
+          {copy.useReflection}
         </button>
       </div>
       <form className="translation-form" onSubmit={translate}>
-        <label htmlFor="translation-source">Text to translate</label>
+        <label htmlFor="translation-source">{copy.textToTranslate}</label>
         <textarea
           id="translation-source"
           value={text}
@@ -830,15 +829,19 @@ function GoogleTranslateCard({ state }: { state: State }) {
           maxLength={5_000}
           rows={5}
           required
-          placeholder="Write or choose something from your LifeOS workspace…"
+          placeholder={copy.translatePlaceholder}
         />
         <div className="translation-actions">
-          <label htmlFor="translation-target">Translate to</label>
+          <label htmlFor="translation-target">{copy.translateTo}</label>
           <select id="translation-target" value={target} onChange={(event) => setTarget(event.target.value)}>
-            {translationLanguages.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+            {translationLanguages.map(([code, label]) => (
+              <option key={code} value={code}>
+                {copy.translationLanguages[code] ?? label}
+              </option>
+            ))}
           </select>
           <button className="button primary" disabled={busy || !text.trim()}>
-            {busy ? "Translating…" : "Translate with Google"}
+            {busy ? copy.translating : copy.translateButton}
           </button>
         </div>
       </form>
@@ -846,13 +849,13 @@ function GoogleTranslateCard({ state }: { state: State }) {
       {translation && (
         <div className="translation-result" aria-live="polite">
           <span className="tiny-label">
-            Translation{detectedLanguage ? ` · detected ${detectedLanguage}` : ""}
+            {copy.translationResult}{detectedLanguage ? ` · ${copy.detectedLanguage} ${detectedLanguage}` : ""}
           </span>
           <p>{translation}</p>
         </div>
       )}
       <p className="key-note">
-        Google Cloud Translation must be enabled and <code>GOOGLE_TRANSLATE_API_KEY</code> configured on the LifeOS server. Translation use is subject to your Google Cloud billing and data controls.
+        {copy.translateKeyNote}
       </p>
     </section>
   );
@@ -932,16 +935,16 @@ export function SettingsView({
             </div>
             <div className="profile-tags-row">
               <span className="tag">
-                Motive: {state.assessmentProfile.coreMotive.toUpperCase()}
+                {copy.motiveLabel}: {copy.motives[state.assessmentProfile.coreMotive] ?? state.assessmentProfile.coreMotive.toUpperCase()}
               </span>
               <span className="tag">
-                DISC Pace: {state.assessmentProfile.discStyle}
+                {copy.discPaceLabel}: {copy.discStyles[state.assessmentProfile.discStyle] ?? state.assessmentProfile.discStyle}
               </span>
               <span className="tag">
-                Need: {state.assessmentProfile.primaryNeed}
+                {copy.needLabel}: {copy.needs[state.assessmentProfile.primaryNeed] ?? state.assessmentProfile.primaryNeed}
               </span>
               <span className="tag">
-                Consciousness: {state.assessmentProfile.consciousnessLevel}+
+                {copy.consciousnessLabel}: {state.assessmentProfile.consciousnessLevel}+
               </span>
               {state.assessmentProfile.maslowCenter && (
                 <span className="tag">
@@ -980,12 +983,8 @@ export function SettingsView({
         )}
       </section>
       <section className="card settings-card">
-        <h2>Your data belongs to you</h2>
-        <p>
-          No account or cloud connection is required. Browser storage is not
-          encrypted; use a trusted device. Clearing browser data removes your
-          workspace.
-        </p>
+        <h2>{copy.dataTitle}</h2>
+        <p>{copy.dataLead}</p>
         <div className="settings-buttons">
           <button
             className="button secondary"
@@ -997,13 +996,13 @@ export function SettingsView({
             }
           >
             <Download size={17} />
-            Export backup
+            {copy.exportBackup}
           </button>
           <label className="button secondary file-button">
             <Upload size={17} />
-            Import backup
+            {copy.importBackup}
             <input
-              aria-label="Import backup"
+              aria-label={copy.importBackup}
               type="file"
               accept=".json,application/json"
               onChange={async (e) => {
@@ -1012,7 +1011,7 @@ export function SettingsView({
                 if (!file) return;
                 try {
                   if (file.size > 5_000_000)
-                    throw new Error("Please use a backup smaller than 5 MB.");
+                    throw new Error(copy.backupSizeError);
                   onModal({
                     type: "import",
                     data: decode(JSON.parse(await file.text())),
@@ -1021,7 +1020,7 @@ export function SettingsView({
                   onNotice(
                     err instanceof Error
                       ? err.message
-                      : "Could not read this backup.",
+                      : copy.backupReadError,
                   );
                 }
               }}
@@ -1033,13 +1032,11 @@ export function SettingsView({
               try {
                 exportOriginal();
               } catch {
-                onNotice(
-                  "Browser storage is unavailable. You can still export the loaded backup above.",
-                );
+                onNotice(copy.storageUnavailable);
               }
             }}
           >
-            Export raw saved data
+            {copy.exportRaw}
           </button>
           <button
             className="button secondary"
@@ -1050,39 +1047,37 @@ export function SettingsView({
                 onNotice(
                   error instanceof Error
                     ? error.message
-                    : "Could not export legacy data.",
+                    : copy.legacyExportError,
                 );
               }
             }}
           >
-            Export legacy v1 data
+            {copy.exportLegacy}
           </button>
           <button
             className="button secondary"
             onClick={() => {
               if (
-                !window.confirm(
-                  "Restore the backup from before your last reset or import? This replaces your current workspace.",
-                )
+                !window.confirm(copy.confirmRecover)
               )
                 return;
               try {
-                if (recoverBackup()) onNotice("Previous data restored.");
+                if (recoverBackup()) onNotice(copy.recoveredNotice);
               } catch (err) {
                 onNotice(
-                  err instanceof Error ? err.message : "Recovery failed.",
+                  err instanceof Error ? err.message : copy.recoveryFailed,
                 );
               }
             }}
           >
             <RotateCcw size={16} />
-            Recover previous workspace
+            {copy.recoverWorkspace}
           </button>
         </div>
       </section>
       {state.tasks.some((t) => t.archived) && (
         <section className="card settings-card">
-          <h2>Archived steps</h2>
+          <h2>{copy.archivedStepsTitle}</h2>
           {state.tasks
             .filter((t) => t.archived)
             .map((t) => (
@@ -1099,23 +1094,20 @@ export function SettingsView({
                     }))
                   }
                 >
-                  Bring back <RotateCcw size={15} />
+                  {copy.bringBack} <RotateCcw size={15} />
                 </button>
               </div>
             ))}
         </section>
       )}
       <section className="card settings-card">
-        <h2>A fresh chapter</h2>
-        <p>
-          Start over with a blank plan. We’ll keep a recovery copy of your
-          previous workspace.
-        </p>
+        <h2>{copy.freshChapterTitle}</h2>
+        <p>{copy.freshChapterLead}</p>
         <button
           className="button danger"
           onClick={() => onModal({ type: "reset" })}
         >
-          Reset workspace
+          {copy.resetWorkspace}
         </button>
       </section>
     </>
