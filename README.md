@@ -2,6 +2,8 @@
 
 A calm, local-first space for a day of reflection and the small daily actions that follow. Built with Next.js 16, React 19, TypeScript, and CSS. Inspired by [Dan Koe's one-day protocol](https://letters.thedankoe.com/p/how-to-fix-your-entire-life-in-1).
 
+The [LifeOS Vault](LifeOS-Vault/00%20-%20Start%20Here.md) lives in this repository. Open `LifeOS-Vault` as an Obsidian vault for the project index, frameworks, and progress notes.
+
 ## Run
 
 Use Node.js 24 or newer (unit tests use native TypeScript stripping).

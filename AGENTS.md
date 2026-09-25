@@ -12,7 +12,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 LifeOS helps people reflect for a day and practice small actions afterward. The person writes their own answers; never invent achievements, identities, or personal goals. Keep the interface calm, plain-spoken, accessible, and usable on phones.
 
-Read `README.md`, `docs/DECISIONS.md`, and `../LifeOS-Vault/Frameworks/Dan Koe Principles.md` before changing the product flow. The vault is a human-readable project index, not a runtime database.
+Read `README.md`, `docs/DECISIONS.md`, and `LifeOS-Vault/Frameworks/Dan Koe Principles.md` before changing the product flow. The vault is a human-readable project index, not a runtime database.
 
 ### Collaboration between development agents
 
