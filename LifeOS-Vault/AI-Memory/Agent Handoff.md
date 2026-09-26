@@ -24,8 +24,9 @@ aliases:
 
 - **Date:** 2026-09-26
 - **Agent:** Cursor
-- **Branch:** `main` — Arabic polish from this session is committed and pushed to `origin/main`.
-- **Prior HEAD:** `34b9ccb` (docs merged into the vault; `docs/` removed).
+- **Branch:** `main`
+- **Commit:** `e1e2417` — Arabic calendar export, RTL arrow, aria labels, and vault reconciliation. Pushed to `origin/main`.
+- **Previous:** `34b9ccb` (docs merged into the vault; `docs/` removed).
 
 ---
 
