@@ -68,6 +68,13 @@ export type WorkspaceCopy = {
   exportReminders: string;
   enterEvening: string;
   calendarExported: string;
+  icsSummary: string;
+  icsProdId: string;
+  ariaResetPhases: string;
+  ariaPhaseGuidance: string;
+  ariaReflectionTime: (n: number) => string;
+  ariaReflectOn: (prompt: string) => string;
+  ariaChooseContent: string;
   handoffTitle: string;
   handoffLead: string;
   continuePlan: string;
@@ -215,6 +222,13 @@ const en: WorkspaceCopy = {
   enterEvening: "Enter evening reflection",
   calendarExported:
     "Calendar file downloaded. Import it in your calendar to enable reminders.",
+  icsSummary: "LifeOS - A mindful pause",
+  icsProdId: "-//LifeOS//Reflection day//EN",
+  ariaResetPhases: "Reset phases",
+  ariaPhaseGuidance: "Guidance for this phase",
+  ariaReflectionTime: (n) => `Time for reflection ${n}`,
+  ariaReflectOn: (prompt) => `Reflect: ${prompt}`,
+  ariaChooseContent: "Choose LifeOS content",
   handoffTitle: "Ready to connect your answers?",
   handoffLead:
     "My direction brings your ideas into a plan you can revise. You can go there before answering everything.",
@@ -405,6 +419,13 @@ const ar: WorkspaceCopy = {
   enterEvening: "الانتقال لتأمل المساء",
   calendarExported:
     "تم تنزيل ملف التقويم. استورده في تقويمك لتفعيل التذكيرات.",
+  icsSummary: "لايف أو إس — وقفة واعية",
+  icsProdId: "-//LifeOS//يوم التأمل//AR",
+  ariaResetPhases: "مراحل التغيير",
+  ariaPhaseGuidance: "إرشاد هذه المرحلة",
+  ariaReflectionTime: (n) => `وقت التأمل ${n}`,
+  ariaReflectOn: (prompt) => `تأمّل: ${prompt}`,
+  ariaChooseContent: "اختر محتوى لايف أو إس",
   handoffTitle: "جاهز لربط إجاباتك؟",
   handoffLead:
     "صفحة اتجاهي تحوّل أفكارك إلى خطة يمكن مراجعتها. يمكنك الذهاب إليها قبل إنهاء كل الأسئلة.",

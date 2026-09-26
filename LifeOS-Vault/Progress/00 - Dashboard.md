@@ -1,6 +1,6 @@
 ---
 title: "Progress Dashboard"
-updated: 2026-09-25
+updated: 2026-09-26
 session: LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md
 type: dashboard
 status: verified
@@ -42,6 +42,7 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 - [x] Full Arabic localization of Settings Data & Backup cards, Google Translate tool, Journey Guide (all 6 views), MSQ motive badges, plan field labels
 - [x] RTL typography: system Arabic font stack, cursive ligature fix, directional `.rtl-flip` icon class, stat-strip and form control RTL alignment
 - [x] LifeOS-Vault `AI-Memory/` hub: Agent Handoff, Bugs & Issues, Future Tasks, Session Log — project memory for all agents
+- [x] Calendar `.ics` event titles follow English or Arabic locale; Journey Guide arrow flips in RTL; high-traffic aria labels localized
 
 ## 2026-09-20 Human development frameworks & AI-generated MSQ milestone
 
@@ -64,8 +65,8 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 ## Verification
 
 - `npm run lint`: passed with 0 errors and 0 warnings.
-- `npm test`: **18** unit tests passed, including Arabic parity verification for workspace copy and MSQ archetype tags.
-- `npm run build`: production build passed with Turbopack, including `/api/translate` and `/api/ai/*` server endpoints.
+- `npm test`: **19** unit tests passed, including Arabic parity and localized calendar export (`SUMMARY` / `PRODID`).
+- `npm run build`: production build passed with Turbopack, including `/api/translate` and `/api/ai/*` server endpoints (2026-09-26).
 - `npx playwright test`: **18** Chromium E2E tests pass (RTL toggle, persistence, Journey Guide, AI guide, backup, translation, phone/desktop layouts).
 - Desktop (1440 px) and mobile (390 px) responsive layouts verified.
 

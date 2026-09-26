@@ -64,7 +64,7 @@ export function JourneyGuide({
           onClick={() => onAction(guide.next.action)}
         >
           {tr(guide.next.label)}
-          <ArrowRight size={16} aria-hidden="true" />
+          <ArrowRight size={16} className="rtl-flip" aria-hidden="true" />
         </button>
       </div>
       <button

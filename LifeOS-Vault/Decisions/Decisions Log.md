@@ -1,7 +1,7 @@
 ---
 title: "Decisions Log"
 created: 2026-09-16
-updated: 2026-09-25
+updated: 2026-09-26
 type: decisions
 status: active
 priority: high
@@ -145,6 +145,13 @@ aliases:
 - Moved all standalone design documents from `docs/` (DECISIONS.md, FRAMEWORK-MODELS.md, QUESTIONNAIRE-DESIGN.md, session notes) into the Obsidian vault (`LifeOS-Vault/`) so a single source of truth exists for both human and AI agent navigation.
 - Vault notes use proper YAML frontmatter, Obsidian wikilinks, and callout syntax. The `docs/` folder is removed; all cross-references now point to vault paths.
 - Agent protocol updated in `AGENTS.md` to reference vault paths exclusively.
+
+---
+
+## 2026-09-26: calendar export follows the workspace language
+
+- Reflection-day `.ics` files use the active locale for `SUMMARY` and `PRODID`. Event descriptions already came from localized check-in prompts.
+- Builder lives in `src/lib/calendar-export.mjs` so unit tests can import it without the Next.js bundler. English export stays `LifeOS - A mindful pause` and `PRODID:-//LifeOS//Reflection day//EN`.
 
 ---
 

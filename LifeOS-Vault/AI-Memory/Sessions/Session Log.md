@@ -1,7 +1,7 @@
 ---
 title: "Session Log"
 created: 2026-09-25
-updated: 2026-09-25
+updated: 2026-09-26
 type: log
 status: active
 priority: medium
@@ -18,6 +18,43 @@ aliases:
 > [!info] How to use this file
 > Add a new `## Session YYYY-MM-DD — Agent Name` section at the **top** (newest first) after each working session.
 > Each entry must include: what was done, files changed, tests run (with results), and any open items or bugs found.
+
+---
+
+## Session 2026-09-26 — Cursor
+
+**Focus:** Reconcile vault memory with `main`, then finish the highest-value leftover Arabic strings.
+
+### What Was Done
+
+- Reconciled [[Agent Handoff]] with commits after Antigravity: Cursor `a1340aa`, Gemini/Antigravity `30e2ca2`, docs merge `ff2bd11` and `34b9ccb`.
+- Localized calendar export titles in `src/lib/calendar-export.mjs` (`icsSummary`, `icsProdId` in `workspace.ts`). Check-in descriptions were already Arabic.
+- Journey Guide next-step arrow uses `.rtl-flip`. Settings Maslow chip uses `maslowCenterLabel`.
+- Arabic `aria-label`s for reset phases, phase guidance, reminder times, translate shortcuts, and the AI chat section.
+- Marked the Journey Guide “slide direction” backlog item done: the panel toggles `hidden` and does not slide.
+
+### Files
+
+- `src/lib/calendar-export.mjs` (new)
+- `src/lib/locale/workspace.ts`, `src/lib/locale/assistant.ts`
+- `src/components/WorkspaceForms.tsx`, `JourneyGuide.tsx`, `AiAssistant.tsx`
+- `tests/domain.test.mjs`
+- Vault: Agent Handoff, Future Tasks, Session Log, Decisions Log, Progress Dashboard
+
+### Tests
+
+- `cmd.exe /c npm test`: **19** passed (added calendar locale assertion).
+- `cmd.exe /c npm run lint`: passed.
+- `cmd.exe /c npm run build`: passed.
+- `cmd.exe /c npx playwright test`: **18** passed. First run failed because Chromium was missing from the sandbox cache; `npx playwright install chromium` then the suite passed.
+
+### Git
+
+Committed and pushed to `origin/main` on 2026-09-26.
+
+### Open
+
+Schwartz MSQ tagging, visual regression screenshots, and English error strings remain on [[Future Tasks]].
 
 ---
 

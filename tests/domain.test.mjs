@@ -289,3 +289,22 @@ test("workspaceCopy and MSQ localization support Arabic parity", async () => {
   const blueOpt = m1Ar.options.find((o) => o.id === "m1_blue");
   assert.equal(blueOpt?.archetypeTag, "أزرق: معنى وترابط");
 });
+
+test("calendar export localizes summary and prodid", async () => {
+  const { workspaceCopy } = await import("../src/lib/locale/workspace.ts");
+  const { buildIcsCalendar } = await import("../src/lib/calendar-export.mjs");
+  const copy = workspaceCopy("ar");
+  const ics = buildIcsCalendar({
+    summary: copy.icsSummary,
+    prodId: copy.icsProdId,
+    resetDate: "2026-09-26",
+    reminderTimes: ["09:00"],
+    descriptions: ["وقفة الصباح"],
+    now: new Date("2026-09-26T06:00:00.000Z"),
+  });
+  assert.match(ics, /SUMMARY:لايف أو إس — وقفة واعية/);
+  assert.match(ics, /PRODID:-\/\/LifeOS\/\/يوم التأمل\/\/AR/);
+  assert.match(ics, /DESCRIPTION:وقفة الصباح/);
+  assert.doesNotMatch(ics, /A mindful pause/);
+  assert.equal(workspaceCopy("en").icsProdId, "-//LifeOS//Reflection day//EN");
+});

@@ -44,6 +44,7 @@ import { workspaceCopy } from "@/lib/locale/workspace";
 import { msqMetaFor } from "@/lib/msq-meta";
 import { MASLOW_TIER_LABELS } from "@/lib/maslow";
 import { getCheckInPrompts } from "@/lib/locale/prompts";
+import { buildIcsCalendar } from "@/lib/calendar-export.mjs";
 import { displayArchetype } from "@/lib/assessment";
 export type Modal =
   | { type: "task"; task?: Task }
@@ -196,7 +197,7 @@ export function ResetJourney({
           {copy.resetTag}
         </span>
       </div>
-      <div className="phase-nav" role="tablist" aria-label="Reset phases">
+      <div className="phase-nav" role="tablist" aria-label={copy.ariaResetPhases}>
         {(
           [
             {
@@ -245,7 +246,7 @@ export function ResetJourney({
         className="phase-guidance"
         id="reset-work"
         tabIndex={-1}
-        aria-label="Guidance for this phase"
+        aria-label={copy.ariaPhaseGuidance}
       >
         <h2>{phaseGuide.title}</h2>
         <p>{phaseGuide.explanation}</p>
@@ -400,7 +401,7 @@ export function ResetJourney({
                   <input
                     id={`reminder-${i}`}
                     type="time"
-                    aria-label={`Time for reflection ${i + 1}`}
+                    aria-label={copy.ariaReflectionTime(i + 1)}
                     value={state.reminderTimes[i]}
                     onChange={(e) => {
                       if (e.target.value)
@@ -415,7 +416,7 @@ export function ResetJourney({
                   <p>{prompt}</p>
                   <button
                     className="icon-button"
-                    aria-label={`Reflect: ${prompt}`}
+                    aria-label={copy.ariaReflectOn(prompt)}
                     onClick={() => onCheckIn(prompt)}
                   >
                     <ArrowUpRight size={18} />
@@ -427,7 +428,7 @@ export function ResetJourney({
               <button
                 className="button secondary"
                 onClick={() => {
-                  exportCalendar(state, checkIns);
+                  exportCalendar(state, checkIns, locale);
                   onNotice(copy.calendarExported);
                 }}
               >
@@ -696,43 +697,20 @@ function AnswerForm({
     </form>
   );
 }
-function exportCalendar(state: State, checkInTexts: readonly string[]) {
-  const esc = (s: string) =>
-    s
-      .replace(/\\/g, "\\\\")
-      .replace(/\n/g, "\\n")
-      .replace(/,/g, "\\,")
-      .replace(/;/g, "\\;");
-  const events = checkInTexts.map((p, i) =>
-    [
-      "BEGIN:VEVENT",
-      `UID:${state.resetDate}-${i}@lifeos.local`,
-      `DTSTAMP:${new Date()
-        .toISOString()
-        .replace(/[-:]/g, "")
-        .replace(/\.\d{3}/, "")}`,
-      `DTSTART:${state.resetDate.replace(/-/g, "")}T${state.reminderTimes[i].replace(":", "")}00`,
-      "DURATION:PT5M",
-      "SUMMARY:LifeOS - A mindful pause",
-      `DESCRIPTION:${esc(p)}`,
-      "BEGIN:VALARM",
-      "TRIGGER:PT0M",
-      "ACTION:DISPLAY",
-      `DESCRIPTION:${esc(p)}`,
-      "END:VALARM",
-      "END:VEVENT",
-    ].join("\r\n"),
-  );
+function exportCalendar(
+  state: State,
+  checkInTexts: readonly string[],
+  locale: "en" | "ar",
+) {
+  const copy = workspaceCopy(locale);
   download(
-    [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//LifeOS//Reflection day//EN",
-      "CALSCALE:GREGORIAN",
-      ...events,
-      "END:VCALENDAR",
-      "",
-    ].join("\r\n"),
+    buildIcsCalendar({
+      summary: copy.icsSummary,
+      prodId: copy.icsProdId,
+      resetDate: state.resetDate,
+      reminderTimes: state.reminderTimes,
+      descriptions: checkInTexts,
+    }),
     "lifeos-reflection-day.ics",
     "text/calendar",
   );
@@ -809,7 +787,7 @@ function GoogleTranslateCard({ state }: { state: State }) {
         </div>
         <Languages size={22} />
       </div>
-      <div className="translation-shortcuts" aria-label="Choose LifeOS content">
+      <div className="translation-shortcuts" aria-label={copy.ariaChooseContent}>
         <button type="button" className="text-button" onClick={() => fill(direction)} disabled={!direction}>
           {copy.useDirection}
         </button>
@@ -948,7 +926,7 @@ export function SettingsView({
               </span>
               {state.assessmentProfile.maslowCenter && (
                 <span className="tag">
-                  Maslow:{" "}
+                  {copy.maslowCenterLabel}:{" "}
                   {
                     MASLOW_TIER_LABELS[state.assessmentProfile.maslowCenter][
                       locale

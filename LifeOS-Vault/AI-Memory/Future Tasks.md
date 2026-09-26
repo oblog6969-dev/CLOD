@@ -1,7 +1,7 @@
 ---
 title: "Future Tasks"
 created: 2026-09-25
-updated: 2026-09-25
+updated: 2026-09-26
 type: backlog
 status: active
 priority: high
@@ -35,8 +35,8 @@ aliases:
 ### i18n & RTL
 
 - [ ] **RTL: Verify compound animated transitions** — Some multi-step animated elements (e.g. step-complete confetti, progress bars) may need RTL-aware translate offsets. Manual check on a real Arabic browser needed.
-- [ ] **RTL: Journey Guide panel slide direction** — Confirm the expandable JourneyGuide panel animates from the correct side in RTL (`right → left` open) vs LTR (`left → right` open).
-- [ ] **i18n: Calendar export ICS file headers** — The `.ics` download uses English event titles and descriptions. Add Arabic event strings when locale is `ar`.
+- [x] **RTL: Journey Guide panel slide direction** — Confirmed 2026-09-26 (Cursor): the walkthrough uses `hidden`, not a horizontal slide, so there is no open-direction to flip. The primary CTA arrow now uses `.rtl-flip`.
+- [x] **i18n: Calendar export ICS file headers** — Done 2026-09-26 (Cursor). `SUMMARY` and `PRODID` follow locale via `calendar-export.mjs`. Descriptions already used localized check-in text.
 
 ### Assessment & MSQ
 

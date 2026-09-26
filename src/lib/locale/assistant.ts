@@ -49,6 +49,7 @@ export type AssistantCopy = {
   oneQuestion: string;
   talkTitle: string;
   talkLead: string;
+  talkAria: string;
   you: string;
   ai: string;
   followUp: string;
@@ -115,6 +116,7 @@ const en: AssistantCopy = {
   talkTitle: "Talk it through",
   talkLead:
     "Ask a follow-up about the context you selected. This conversation stays only in this page session.",
+  talkAria: "Continue the conversation",
   you: "You",
   ai: "AI",
   followUp: "Your follow-up",
@@ -182,6 +184,7 @@ const ar: AssistantCopy = {
   talkTitle: "تابع الحوار",
   talkLead:
     "اسأل متابعة عن السياق الذي اخترته. يبقى الحوار في هذه الجلسة فقط.",
+  talkAria: "متابعة الحوار",
   you: "أنت",
   ai: "الذكاء الاصطناعي",
   followUp: "متابعتك",

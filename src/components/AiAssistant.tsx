@@ -523,7 +523,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                   <p>{analysis.question}</p>
                 </div>
               </article>
-              <section className="card ai-chat" aria-label="Continue the conversation">
+              <section className="card ai-chat" aria-label={ac.talkAria}>
                 <div className="section-heading">
                   <div>
                     <h2>{ac.talkTitle}</h2>
