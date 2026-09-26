@@ -614,15 +614,22 @@ function AnswerForm({
                 <button
                   key={opt.id}
                   type="button"
-                  className={`msq-card ${isSelected ? "selected" : ""}`}
+                  className={`msq-card ${isSelected ? "selected" : ""}${opt.valueAligned ? " value-aligned" : ""}`}
                   onClick={() => handleToggle(opt.id)}
                 >
                   <div className="msq-card-head">
-                    {opt.archetypeTag ? (
-                      <span className="msq-opt-tag">{opt.archetypeTag}</span>
-                    ) : (
-                      <span />
-                    )}
+                    <div className="msq-opt-tags">
+                      {opt.archetypeTag ? (
+                        <span className="msq-opt-tag">{opt.archetypeTag}</span>
+                      ) : null}
+                      {opt.valueTag ? (
+                        <span
+                          className={`msq-opt-tag msq-opt-tag-value${opt.valueAligned ? " aligned" : ""}`}
+                        >
+                          {opt.valueTag}
+                        </span>
+                      ) : null}
+                    </div>
                     <span className={`msq-checkbox ${isSelected ? "checked" : ""}`}>
                       {isSelected && <Check size={14} />}
                     </span>

@@ -40,7 +40,7 @@ aliases:
 
 ### Assessment & MSQ
 
-- [ ] **MSQ: Schwartz Values not yet mapped to prompt options** — The Schwartz Values framework is documented in [[Frameworks/Human Development Frameworks]] but not yet integrated as a tagging/filtering axis on MSQ option cards (only Hartman, Birkman, DISC, Hawkins, Hicks are active).
+- [x] **MSQ: Schwartz Values on prompt options** — Done 2026-09-26 (Cursor). Each MSQ option resolves a Schwartz/baseline value (`msq-schwartz.mjs`), shows `valueTag` on cards (EN/AR), highlights aligned options from `profile.topValues`, and sorts options after Hartman/Maslow motive boost.
 - [ ] **Baseline: Re-take flow** — After completing baseline assessment, there is no prominent "Retake assessment" CTA in Settings; it exists but is not clearly labeled. Improve discoverability.
 
 ### AI Integration

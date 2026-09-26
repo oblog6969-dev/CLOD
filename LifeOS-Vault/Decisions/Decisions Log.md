@@ -148,6 +148,14 @@ aliases:
 
 ---
 
+## 2026-09-26: Schwartz values on MSQ cards
+
+- Map every MSQ option to a baseline value key (Hartman defaults plus explicit overrides in `src/lib/msq-schwartz.mjs`).
+- Show educational `valueTag` on each card; emphasize tags that align with `assessmentProfile.topValues` (including related keys such as mastery/achievement).
+- Sort MSQ options using combined motive/Maslow rank and value alignment with `topValues` order from the baseline assessment.
+
+---
+
 ## 2026-09-26: calendar export follows the workspace language
 
 - Reflection-day `.ics` files use the active locale for `SUMMARY` and `PRODID`. Event descriptions already came from localized check-in prompts.

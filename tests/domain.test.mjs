@@ -288,6 +288,39 @@ test("workspaceCopy and MSQ localization support Arabic parity", async () => {
   assert.equal(redOpt?.archetypeTag, "أحمر: إنجاز وقوة");
   const blueOpt = m1Ar.options.find((o) => o.id === "m1_blue");
   assert.equal(blueOpt?.archetypeTag, "أزرق: معنى وترابط");
+  assert.equal(blueOpt?.valueTag, "عطاء وتأثير");
+});
+
+test("every MSQ option resolves a Schwartz value tag", async () => {
+  const { MSQ_CATALOG } = await import("../src/lib/questionnaire.ts");
+  const { resolveValueAffinity } = await import("../src/lib/msq-schwartz.mjs");
+  for (const def of Object.values(MSQ_CATALOG)) {
+    for (const opt of def.options) {
+      assert.ok(
+        resolveValueAffinity(opt),
+        `Missing value affinity for ${opt.id}`,
+      );
+    }
+  }
+});
+
+test("MSQ options sort toward baseline topValues", async () => {
+  const { getPromptMsq } = await import("../src/lib/questionnaire.ts");
+  const profile = {
+    completedAt: new Date().toISOString(),
+    coreMotive: "white",
+    discStyle: "S",
+    primaryNeed: "freedom",
+    stressTrigger: "restriction",
+    consciousnessLevel: 300,
+    topValues: ["self_direction"],
+    archetypeName: "Test",
+    motiveDescription: "Test",
+  };
+  const m6 = getPromptMsq("m6", profile, "en");
+  assert.equal(m6.options[0]?.id, "m6_sovereignty");
+  assert.equal(m6.options[0]?.valueTag, "Self-Direction");
+  assert.equal(m6.options[0]?.valueAligned, true);
 });
 
 test("calendar export localizes summary and prodid", async () => {

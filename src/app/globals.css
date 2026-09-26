@@ -2901,11 +2901,29 @@ textarea::placeholder {
   align-items: center;
   width: 100%;
 }
+.msq-opt-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  max-width: calc(100% - 28px);
+}
 .msq-opt-tag {
   font-size: 11px;
   font-weight: 600;
   color: var(--green);
   letter-spacing: 0.3px;
+}
+.msq-opt-tag-value {
+  color: var(--muted);
+  font-weight: 500;
+}
+.msq-opt-tag-value.aligned {
+  color: var(--green);
+  font-weight: 600;
+}
+.msq-card.value-aligned {
+  border-color: color-mix(in srgb, var(--green) 35%, var(--line));
 }
 .msq-checkbox {
   width: 20px;

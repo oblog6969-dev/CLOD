@@ -115,7 +115,7 @@ Rather than writing answers from scratch:
 | DISC (pace & focus) | Baseline rhythm; daily execution style |
 | Birkman (needs & stress) | Baseline needs; stress pattern hints |
 | Hawkins Map of Consciousness | Baseline inner posture (educational scale) |
-| Schwartz basic values | Baseline values; constraint suggestions |
+| Schwartz basic values | Baseline `topValues`; MSQ option tags and sort order (`msq-schwartz.mjs`) |
 | Hicks emotional continuum | Morning emotional set-point question |
 | Maslow hierarchy (6 tiers) | Heuristic "center of gravity" on profile |
 | Dan Koe one-day protocol | MSQ prompt mapping (`msq-meta.ts`) |

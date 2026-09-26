@@ -1,6 +1,17 @@
 import type { AssessmentProfile, Plan } from "./domain";
 import type { Locale } from "./language";
 import type { MaslowTier } from "./maslow";
+import { enrichMsqOption, sortMsqOptions } from "./msq-schwartz.mjs";
+
+export type BaselineValueKey =
+  | "self_direction"
+  | "achievement"
+  | "security"
+  | "benevolence"
+  | "stimulation"
+  | "mastery"
+  | "wisdom"
+  | "rationality";
 import { MSQ_HEADINGS_AR } from "./locale/msq-ar-headings.mjs";
 import { MSQ_OPTIONS_AR } from "./locale/msq-ar-options.mjs";
 
@@ -11,8 +22,16 @@ const ARCHETYPE_TAG_AR: Record<string, string> = {
   "Yellow: Fun / Vitality": "أصفر: حيوية ومرح",
 };
 
-function localizeMsq(def: MsqPromptDefinition, locale: Locale): MsqPromptDefinition {
-  if (locale !== "ar") return def;
+function localizeMsq(
+  def: MsqPromptDefinition,
+  locale: Locale,
+  profile?: AssessmentProfile | null,
+): MsqPromptDefinition {
+  const withValues = {
+    ...def,
+    options: def.options.map((opt) => enrichMsqOption(opt, locale, profile)),
+  };
+  if (locale !== "ar") return withValues;
   const headings = (MSQ_HEADINGS_AR as Record<string, { title: string; subtitle: string }>)[
     def.id
   ];
@@ -21,10 +40,10 @@ function localizeMsq(def: MsqPromptDefinition, locale: Locale): MsqPromptDefinit
     { label: string; subtext?: string }
   >;
   return {
-    ...def,
+    ...withValues,
     title: headings?.title ?? def.title,
     subtitle: headings?.subtitle ?? def.subtitle,
-    options: def.options.map((opt) => {
+    options: withValues.options.map((opt) => {
       const tr = optionsAr[opt.id];
       return {
         ...opt,
@@ -43,7 +62,10 @@ export type MsqOption = {
   label: string;
   subtext?: string;
   motiveAffinity?: "red" | "blue" | "white" | "yellow";
+  valueAffinity?: BaselineValueKey;
   archetypeTag?: string;
+  valueTag?: string;
+  valueAligned?: boolean;
 };
 
 export type MsqPromptDefinition = {
@@ -726,17 +748,11 @@ export function getPromptMsq(
     const motiveBoost =
       (profile.maslowCenter && MASLOW_MOTIVE[profile.maslowCenter]) ||
       profile.coreMotive;
-    const sortedOptions = [...def.options].sort((a, b) => {
-      if (a.motiveAffinity === motiveBoost) return -1;
-      if (b.motiveAffinity === motiveBoost) return 1;
-      if (a.motiveAffinity === profile.coreMotive) return -1;
-      if (b.motiveAffinity === profile.coreMotive) return 1;
-      return 0;
-    });
+    const sortedOptions = sortMsqOptions(def.options, profile, motiveBoost);
     working = { ...def, options: sortedOptions };
   }
 
-  return localizeMsq(working, locale);
+  return localizeMsq(working, locale, profile);
 }
 
 export function formatMsqAnswer(
