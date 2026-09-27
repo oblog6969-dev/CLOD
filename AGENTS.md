@@ -22,7 +22,8 @@ The `LifeOS-Vault/AI-Memory/` folder is the **shared project memory** for every 
 1. Read `LifeOS-Vault/AI-Memory/Agent Handoff.md` to understand the current project state, environment constraints, and suggested next tasks.
 2. Read `LifeOS-Vault/AI-Memory/Bugs & Issues.md` to check for open or in-progress bugs before writing code.
 3. Check `LifeOS-Vault/AI-Memory/Future Tasks.md` for your task's context and priority level.
-4. If touching design decisions or framework boundaries, also read `LifeOS-Vault/Decisions/Decisions Log.md` and `LifeOS-Vault/Decisions/Decisions Log.md` for relevant context.
+4. If touching design decisions or framework boundaries, also read `LifeOS-Vault/Decisions/Decisions Log.md` for relevant context.
+5. If touching the database, sync, the `State` shape, history analysis, or AI context, read `LifeOS-Vault/Frameworks/Database Rules.md`, check the DB lock in `Agent Handoff.md`, and check migration drift.
 
 **During a session:**
 - If you discover a bug (even one you immediately fix), add it to `LifeOS-Vault/AI-Memory/Bugs & Issues.md` with status `resolved`.
@@ -42,6 +43,17 @@ cmd.exe /c npm run build
 cmd.exe /c npx playwright test
 ```
 
+### Database and synced data (mandatory)
+
+LifeOS has an optional Supabase backend (project `lifeos`, ref `inzddqrbrboldaomarhz`) that syncs people's reflections, test results, and AI insights across devices. **Before touching `supabase/`, `src/lib/sync*.ts`, `src/lib/store.ts`, the `State` shape in `src/lib/domain.ts`, `src/lib/history.ts`, `src/lib/ai-context.ts`, or `src/app/api/ai/*`, read `LifeOS-Vault/Frameworks/Database Rules.md` and follow it.** It defines the roles (Product Owner, Database Steward, Sync Engineer, Data Model Engineer, Analysis & AI Engineer, Verifier), the DB lock, invariants, and what needs owner approval. The non-negotiables:
+
+- Only the Database Steward, holding the **DB lock** recorded in `Agent Handoff.md`, applies migrations. Use `apply_migration` for DDL (never `execute_sql`), save every applied migration as `supabase/migrations/<version>_<name>.sql` in the same session, and never edit an applied one.
+- At session start, check that `list_migrations` matches `supabase/migrations/`; stop and report drift. After any migration, `supabase/tests/sync_push_contract.sql` must print `RESULT PASS` and `get_advisors` must show nothing new.
+- RLS stays on every table. All user-data writes go through `sync_push`, and `anon` gets nothing. No `service_role` key anywhere in the repo or client.
+- Never push unreadable local data; never replace on conflict (merge); sync-applied states never count as local edits. Any new `State` field needs `decode()` validation, a `mergeStates` rule, and tests.
+- Owner approval first for destructive changes, retention changes, new AI data categories, server-side reading of user data, `State.version` bumps, or creating/pausing Supabase projects. Never touch the unrelated `personal-cfo` org/project.
+- Test only in self-rolling-back SQL blocks; never create persistent test users or read real users' rows.
+
 ### Collaboration between development agents
 
 - Establish a bounded task and file ownership before parallel editing. Use isolated worktrees when multiple agents would touch the same files.
@@ -57,5 +69,5 @@ cmd.exe /c npx playwright test
 - Validate imported/persisted data at runtime. Keep legacy storage untouched and back up the current workspace before replacement.
 - Failed saves must remain visible. Never overwrite corrupt storage with a default state automatically.
 - Use semantic buttons, associated labels, native modal dialogs, visible focus, and reduced-motion support.
-- Before handoff: `cmd.exe /c npm run lint`, `cmd.exe /c npm test`, `cmd.exe /c npm run build`, and `cmd.exe /c npx playwright test` for affected interactive flows. Report failures or environment blockers accurately.
+- Before handoff: `cmd.exe /c npm run lint`, `cmd.exe /c npm test`, `cmd.exe /c npm run build`, and `cmd.exe /c npx playwright test` for affected interactive flows. For database changes, also run the SQL contract test and `get_advisors` (see `LifeOS-Vault/Frameworks/Database Rules.md`). Report failures or environment blockers accurately.
 - Completion means the implementation exists, relevant checks pass, and limitations are documented. A checkbox alone is not evidence.

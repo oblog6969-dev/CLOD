@@ -69,11 +69,54 @@ export const AI_PROVIDER_INFO: Record<
     baseUrl: "",
   },
 };
+/** Aggregated history digest: numbers and observations, never journal text. */
+export type AiHistory = {
+  windowDays: number;
+  trackedDays: number;
+  activeDays: number;
+  currentStreak: number;
+  longestStreak: number;
+  moodCounts: Record<string, number>;
+  moodTrend: "up" | "down" | "steady" | "unknown";
+  boundariesKeptPercent: number | null;
+  reflectionsInWindow: number;
+  daysSincePlanChange: number | null;
+  planRevisions: number;
+  assessmentRuns: number;
+  assessmentChanges: string[];
+  projectProgress: string | null;
+  observations: string[];
+};
+export type AiProfile = {
+  archetype: string;
+  coreMotive: string;
+  discStyle: string;
+  primaryNeed: string;
+  stressTrigger: string;
+  topValues: string[];
+  maslowCenter: string | null;
+  assessedAt: string;
+  previousRuns: number;
+  changedSinceLast: string[];
+};
+/** A previously saved AI conclusion, as the person last edited it. */
+export type AiInsightMemory = {
+  date: string;
+  focus: string;
+  summary: string;
+  patterns: string[];
+  recommendations: string[];
+  question: string;
+  editedByUser: boolean;
+};
 export type AiContext = {
   plan?: Record<string, string>;
   tasks?: { title: string; completedToday: boolean }[];
   answers?: Record<string, string>;
   reflections?: { timestamp: string; note: string; mood: string }[];
+  history?: AiHistory;
+  profile?: AiProfile;
+  insights?: AiInsightMemory[];
 };
 export type AiRecommendation = {
   title: string;

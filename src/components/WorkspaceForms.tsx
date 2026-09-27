@@ -17,6 +17,12 @@ import {
   Zap,
   Award,
   Languages,
+  Cloud,
+  CloudOff,
+  GitMerge,
+  History,
+  LogOut,
+  Trash2,
 } from "lucide-react";
 import {
   update,
@@ -24,9 +30,22 @@ import {
   exportOriginal,
   exportLegacy,
   recoverBackup,
+  restore,
 } from "@/lib/store";
 import {
+  useSync,
+  signInWithEmail,
+  signOutOfSync,
+  hasUnsyncedChanges,
+  flushSync,
+  listSnapshots,
+  loadSnapshot,
+  dismissMergeNotice,
+  type SnapshotEntry,
+} from "@/lib/sync";
+import {
   decode,
+  removeAssessment,
   localDate,
   prompts,
   type AssessmentProfile,
@@ -846,6 +865,201 @@ function GoogleTranslateCard({ state }: { state: State }) {
   );
 }
 
+function SyncHistory({ onNotice }: { onNotice: (s: string) => void }) {
+  const { locale, dateLocale } = useLanguage();
+  const copy = workspaceCopy(locale);
+  const [entries, setEntries] = useState<SnapshotEntry[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const formatDay = (day: string) =>
+    new Date(`${day}T12:00:00`).toLocaleDateString(dateLocale, { dateStyle: "medium" });
+  const load = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      setEntries(await listSnapshots());
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : String(reason));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="sync-history">
+      <h3>{copy.syncHistoryTitle}</h3>
+      <p className="key-note">{copy.syncHistoryLead}</p>
+      {entries === null ? (
+        <button type="button" className="button secondary" onClick={load} disabled={busy}>
+          <History size={16} />
+          {copy.syncHistoryLoad}
+        </button>
+      ) : entries.length === 0 ? (
+        <p className="muted">{copy.syncHistoryEmpty}</p>
+      ) : (
+        <ul className="sync-history-list">
+          {entries.map((entry) => (
+            <li key={entry.day}>
+              <span>{formatDay(entry.day)}</span>
+              <button
+                type="button"
+                className="text-button"
+                disabled={busy}
+                onClick={async () => {
+                  if (!window.confirm(copy.syncHistoryConfirm(formatDay(entry.day)))) return;
+                  setBusy(true);
+                  try {
+                    if (restore(await loadSnapshot(entry.day))) onNotice(copy.syncHistoryRestored);
+                  } catch (reason) {
+                    setError(reason instanceof Error ? reason.message : String(reason));
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                {copy.syncHistoryRestore}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {error && <p className="translation-error" role="alert">{error}</p>}
+    </div>
+  );
+}
+
+function SyncCard({ onNotice }: { onNotice: (s: string) => void }) {
+  const { locale, dateLocale } = useLanguage();
+  const copy = workspaceCopy(locale);
+  const sync = useSync();
+  const [email, setEmail] = useState("");
+  const [linkSent, setLinkSent] = useState(false);
+  const [removeLocal, setRemoveLocal] = useState(false);
+
+  const heading = (
+    <div className="section-heading">
+      <div>
+        <h2>{copy.syncTitle}</h2>
+        <p>{copy.syncLead}</p>
+      </div>
+      {sync.status === "offline" ? <CloudOff size={22} /> : <Cloud size={22} />}
+    </div>
+  );
+
+  if (sync.status === "disabled") {
+    return (
+      <section className="card settings-card">
+        {heading}
+        <p className="key-note">{copy.syncNotConfigured}</p>
+      </section>
+    );
+  }
+
+  if (sync.email === null) {
+    return (
+      <section className="card settings-card">
+        {heading}
+        <form
+          className="inline-form"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setLinkSent(false);
+            try {
+              await signInWithEmail(email.trim());
+              setLinkSent(true);
+            } catch {
+              // Shown through sync.error.
+            }
+          }}
+        >
+          <label htmlFor="sync-email">{copy.syncEmailLabel}</label>
+          <input
+            id="sync-email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={copy.syncEmailPlaceholder}
+          />
+          <button className="button primary" disabled={sync.status === "sending-link"}>
+            {sync.status === "sending-link" ? copy.syncSending : copy.syncSendLink}
+          </button>
+        </form>
+        {linkSent && <p className="key-note" role="status">{copy.syncLinkSent}</p>}
+        {sync.status === "error" && (
+          <p className="translation-error" role="alert">
+            {sync.error}
+          </p>
+        )}
+      </section>
+    );
+  }
+
+  const statusLine =
+    sync.status === "syncing"
+      ? copy.syncStatusSyncing
+      : sync.status === "pending"
+        ? copy.syncStatusPending
+        : sync.status === "offline"
+          ? copy.syncStatusOffline
+          : sync.status === "error" || sync.status === "blocked"
+            ? `${copy.syncStatusError} ${sync.error}`
+            : `${copy.syncStatusSynced}${
+                sync.lastSyncedAt
+                  ? ` ${copy.syncLastSynced}: ${new Date(sync.lastSyncedAt).toLocaleTimeString(dateLocale, { timeStyle: "short" })}`
+                  : ""
+              }`;
+
+  return (
+    <section className="card settings-card">
+      {heading}
+      <p>
+        {copy.syncSignedInAs} <strong>{sync.email}</strong>
+      </p>
+      <p
+        className={sync.status === "error" || sync.status === "blocked" ? "translation-error" : "key-note"}
+        role="status"
+      >
+        {statusLine}
+      </p>
+      {sync.merged && (
+        <div className="sync-merged" role="status">
+          <GitMerge size={16} />
+          <span>{copy.syncMerged}</span>
+          <button type="button" className="text-button" onClick={dismissMergeNotice}>
+            {copy.syncDismiss}
+          </button>
+        </div>
+      )}
+      <SyncHistory onNotice={onNotice} />
+      <label className="boundary sync-remove-local">
+        <input
+          type="checkbox"
+          checked={removeLocal}
+          onChange={(e) => setRemoveLocal(e.target.checked)}
+        />
+        <span>{copy.syncRemoveLocal}</span>
+      </label>
+      <div className="settings-buttons">
+        <button
+          type="button"
+          className="button secondary"
+          onClick={async () => {
+            if (hasUnsyncedChanges()) {
+              await flushSync();
+              if (hasUnsyncedChanges() && !window.confirm(copy.syncUnsyncedWarning)) return;
+            }
+            await signOutOfSync({ removeLocalData: removeLocal });
+          }}
+        >
+          <LogOut size={16} />
+          {copy.syncSignOut}
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export function SettingsView({
   state,
   onModal,
@@ -855,7 +1069,7 @@ export function SettingsView({
   onModal: (m: Modal) => void;
   onNotice: (s: string) => void;
 }) {
-  const { locale } = useLanguage();
+  const { locale, dateLocale } = useLanguage();
   const copy = workspaceCopy(locale);
   return (
     <>
@@ -952,6 +1166,35 @@ export function SettingsView({
                 {copy.retakeAssessment}
               </button>
             </div>
+            {(state.assessments?.length ?? 0) > 1 && (
+              <div className="assessment-history">
+                <h3>{copy.previousResultsTitle}</h3>
+                <ul>
+                  {[...(state.assessments ?? [])].reverse().map((run) => (
+                    <li key={run.id}>
+                      <span>
+                        {new Date(run.completedAt).toLocaleDateString(dateLocale, {
+                          dateStyle: "medium",
+                        })}{" "}
+                        · {displayArchetype(run.profile, locale).name}
+                      </span>
+                      <button
+                        type="button"
+                        className="text-button"
+                        aria-label={`${copy.removeResult} ${displayArchetype(run.profile, locale).name}`}
+                        onClick={() => {
+                          if (window.confirm(copy.confirmRemoveResult))
+                            update((s) => removeAssessment(s, run.id));
+                        }}
+                      >
+                        <Trash2 size={14} />
+                        {copy.removeResult}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         ) : (
           <div>
@@ -967,6 +1210,7 @@ export function SettingsView({
           </div>
         )}
       </section>
+      <SyncCard onNotice={onNotice} />
       <section className="card settings-card">
         <h2>{copy.dataTitle}</h2>
         <p>{copy.dataLead}</p>

@@ -1,6 +1,6 @@
 ---
 title: "Progress Dashboard"
-updated: 2026-09-26
+updated: 2026-09-28
 session: LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md
 type: dashboard
 status: verified
@@ -43,6 +43,13 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 - [x] RTL typography: system Arabic font stack, cursive ligature fix, directional `.rtl-flip` icon class, stat-strip and form control RTL alignment
 - [x] LifeOS-Vault `AI-Memory/` hub: Agent Handoff, Bugs & Issues, Future Tasks, Session Log — project memory for all agents
 - [x] Calendar `.ics` event titles follow English or Arabic locale; Journey Guide arrow flips in RTL; high-traffic aria labels localized
+- [x] Optional Supabase cloud sync (rebuilt 2026-09-28): magic-link auth, revisioned writes through `sync_push`, 3-way merge with nothing lost, offline edits preserved, cross-tab lock, pauses when local data is unreadable
+- [x] Daily cloud snapshots kept forever, plus **Restore from history** in Settings
+- [x] Baseline assessment history (every run with its answers) and plan revision history
+- [x] On-device history analysis: "What your history shows" on Reflections (activity, streaks, mood trend, weekday pattern, boundaries, plan age, baseline drift) with minimum-data thresholds
+- [x] AI guide relates to history: History trends, Baseline profile, and Past saved insights context (shared server-side validation for analyze and chat)
+- [x] Every AI analysis auto-saved to **Your saved insights**, editable (edits act as corrections for the AI) and removable
+- [x] Database governance for multi-agent development: [[Frameworks/Database Rules|Database Rules]] (roles, DB lock, invariants, approvals), migrations in `supabase/migrations/`, and the SQL contract test
 
 ## 2026-09-20 Human development frameworks & AI-generated MSQ milestone
 
@@ -64,15 +71,18 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 
 ## Verification
 
-- `npm run lint`: passed with 0 errors and 0 warnings.
-- `npm test`: **19** unit tests passed, including Arabic parity and localized calendar export (`SUMMARY` / `PRODID`).
-- `npm run build`: production build passed with Turbopack, including `/api/translate` and `/api/ai/*` server endpoints (2026-09-26).
-- `npx playwright test`: **18** Chromium E2E tests pass (RTL toggle, persistence, Journey Guide, AI guide, backup, translation, phone/desktop layouts).
-- Desktop (1440 px) and mobile (390 px) responsive layouts verified.
+2026-09-28:
+- `npm run lint`: 0 errors, 0 warnings.
+- `npm test`: **50** unit tests passed (48 + 2 merge-safety tests added with DB governance). These include 9 merge-rule tests, 8 sync-engine tests against a simulated two-device server, and 10 history/insight/AI-context/decode tests. A mutation check (deliberately breaking the merge and dirty tracking) made 10 of them fail, confirming they aren't vacuous.
+- `npm run build`: production build passed (Turbopack, `allowImportingTsExtensions`).
+- `npx playwright test`: **20** Chromium E2E tests passed (18 prior + history card + saved-insight save/edit/feedback-to-AI/remove).
+- Supabase: `sync_push` exercised in rolled-back transactions. It covers first insert, stale-base conflict (returns current state and edit time), correct base, non-object rejection, one snapshot per day, and clamping of a bogus client day. Advisors: performance clean; security shows only the intentional `SECURITY DEFINER` warning and the inapplicable password advisory.
+- In-browser (production build): every view loads with no console errors; signed-out makes zero Supabase requests; bogus and expired magic-link redirects fail safely with feedback.
+- **Not yet verified:** a live magic-link sign-in and a real two-device round trip.
 
 ## Deliberately outside this version
 
-Cloud accounts/sync, autonomous AI actions, push notification delivery, and provider-specific model discovery beyond the models endpoint. Free-tier credits, model availability, and rate limits are controlled by each provider and can change. Custom AI endpoints are restricted to public HTTPS by default; trusted self-hosted endpoints require `LIFEOS_ALLOW_PRIVATE_AI_ENDPOINTS=true`. Calendar reminders require importing the exported file. The source v1 browser key is retained for fields not mapped into the redesigned interface.
+Autonomous AI actions, push notification delivery, and provider-specific model discovery beyond the models endpoint. Free-tier credits, model availability, and rate limits are controlled by each provider and can change. Custom AI endpoints are restricted to public HTTPS by default; trusted self-hosted endpoints require `LIFEOS_ALLOW_PRIVATE_AI_ENDPOINTS=true`. Calendar reminders require importing the exported file. The source v1 browser key is retained for fields not mapped into the redesigned interface.
 
 ## Main references
 

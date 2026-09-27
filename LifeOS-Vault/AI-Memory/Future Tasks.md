@@ -1,7 +1,7 @@
 ---
 title: "Future Tasks"
 created: 2026-09-25
-updated: 2026-09-26
+updated: 2026-09-28
 type: backlog
 status: active
 priority: high
@@ -43,6 +43,17 @@ aliases:
 - [x] **MSQ: Schwartz Values on prompt options** — Done 2026-09-26 (Cursor). Each MSQ option resolves a Schwartz/baseline value (`msq-schwartz.mjs`), shows `valueTag` on cards (EN/AR), highlights aligned options from `profile.topValues`, and sorts options after Hartman/Maslow motive boost.
 - [ ] **Baseline: Re-take flow** — After completing baseline assessment, there is no prominent "Retake assessment" CTA in Settings; it exists but is not clearly labeled. Improve discoverability.
 
+### Cloud sync & history
+
+- [x] **Cloud sync (Supabase)**: first pass 2026-09-27 (Claude), rebuilt 2026-09-28 (Claude). Revisioned `sync_push`, 3-way merge, daily snapshots, restore from history. See [[Decisions/Decisions Log|Decisions Log]] 2026-09-28.
+- [x] **Saved AI insights, assessment history, plan history, history analysis**: done 2026-09-28 (Claude).
+- [ ] 🟠 **Real-account verification**: a live magic-link sign-in on two devices, confirming a change and an offline edit on each arrive on the other. All logic is covered by the simulated two-device tests, but the real Supabase round trip hasn't been exercised with a real session.
+- [ ] 🟠 **Owner action in the Supabase dashboard**: set the Site URL and redirect allow-list (Authentication → URL Configuration) for localhost and the production domain. No MCP tool can do this.
+- [ ] 🟡 **Delete my cloud account**: a UI to delete the account (cascades to `workspaces` and `workspace_snapshots`). Today, removing an insight doesn't erase it from past daily snapshots.
+- [ ] 🟡 **Snapshot pruning policy**: snapshots are kept forever by owner decision. Monitor database size on the free tier (500 MB) and add pruning or thinning if a workspace grows large.
+- [ ] 🟢 **Show what changed in a merge**: the notice says changes were combined, but not which ones.
+- [ ] 🟢 **History over longer windows**: `summarizeHistory` uses 28 days. Add a 90-day or "since the start of this chapter" view, and plan-evolution diffs from `planHistory`.
+
 ### AI Integration
 
 - [ ] **AI Guide: Streaming responses** — Currently the AI guide waits for a full JSON response before rendering. Explore streaming for large providers to reduce perceived latency.
@@ -83,7 +94,6 @@ aliases:
 > [!warning] Exploratory only — not planned features
 > These are brainstorm items. They require a **product decision** before any agent works on them.
 
-- **Cloud sync (Supabase)** — Cross-device sync for workspace data. Significant privacy and auth implications; explicitly out of scope for v2.
 - **MatchWise dyadic/Kegan/Bowen engines** — Advanced relational psychometrics (q86–q95 question bank). Requires license/permission review.
 - **Push notifications / calendar reminders** — Native browser notifications for daytime check-in alerts. Requires permission flow.
 - **Community direction templates** — Curated starting Direction drafts (e.g. "Freelance creative", "Deep work scholar") to reduce blank-page anxiety for new users.

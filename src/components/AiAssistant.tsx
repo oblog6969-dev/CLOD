@@ -21,7 +21,9 @@ import {
   type AiContext,
   type AiProvider,
 } from "@/lib/ai";
-import { emptyDay, prompts, type State } from "@/lib/domain";
+import { addInsight, emptyDay, prompts, type State } from "@/lib/domain";
+import { historyDigest, summarizeHistory } from "@/lib/history";
+import { insightsForAi, profileForAi } from "@/lib/ai-context";
 import { update } from "@/lib/store";
 import { useLanguage } from "@/lib/language";
 import { assistantCopy } from "@/lib/locale/assistant";
@@ -90,7 +92,11 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
     tasks: true,
     answers: false,
     reflections: false,
+    history: true,
+    profile: true,
+    insights: true,
   });
+  const [savedNotice, setSavedNotice] = useState(false);
   useEffect(() => {
     let active = true;
     jsonRequest<Status>("/api/ai/settings")
@@ -107,8 +113,11 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
       answers: Object.values(state.answers).filter((value) => value.trim())
         .length,
       reflections: state.reflections.length,
+      history: summarizeHistory(state, date).trackedDays,
+      profile: state.assessments?.length || (state.assessmentProfile ? 1 : 0),
+      insights: state.insights?.length ?? 0,
     }),
-    [state],
+    [date, state],
   );
   const hasShareable = (Object.keys(include) as (keyof typeof include)[]).some(
     (key) => include[key] && counts[key] > 0,
@@ -133,6 +142,10 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
       );
     if (include.reflections && counts.reflections)
       context.reflections = state.reflections.slice(-20);
+    if (include.history && counts.history)
+      context.history = historyDigest(summarizeHistory(state, date));
+    if (include.profile && counts.profile) context.profile = profileForAi(state);
+    if (include.insights && counts.insights) context.insights = insightsForAi(state);
     return context;
   }, [counts, date, include, state]);
   const connect = async (event: FormEvent<HTMLFormElement>) => {
@@ -197,6 +210,23 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
       setAnalysis(result.analysis);
       setSent(Object.keys(context));
       setChat([]);
+      const at = new Date().toISOString();
+      setSavedNotice(
+        update((current) =>
+          addInsight(current, {
+            id: crypto.randomUUID(),
+            createdAt: at,
+            updatedAt: at,
+            focus: String(data.get("focus") ?? "").trim().slice(0, 1000),
+            summary: result.analysis.summary,
+            patterns: result.analysis.patterns,
+            recommendations: result.analysis.recommendations,
+            question: result.analysis.question,
+            sharedCategories: Object.keys(context),
+            edited: false,
+          }),
+        ),
+      );
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Analysis failed.");
     } finally {
@@ -403,6 +433,9 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                     counts.reflections,
                     ac.ctxJournalDesc,
                   ],
+                  ["history", ac.ctxHistory, counts.history, ac.ctxHistoryDesc],
+                  ["profile", ac.ctxProfile, counts.profile, ac.ctxProfileDesc],
+                  ["insights", ac.ctxInsights, counts.insights, ac.ctxInsightsDesc],
                 ] as const
               ).map(([key, label, count, description]) => (
                 <label className="context-option" key={key}>
@@ -485,6 +518,7 @@ export function AiAssistant({ state, date }: { state: State; date: string }) {
                 <small>
                   {ac.basedOn} {sent.join(", ")}.
                 </small>
+                {savedNotice && <p className="key-note" role="status">{ac.insightSaved}</p>}
               </article>
               <div className="recommendation-grid">
                 {analysis.recommendations.map((recommendation, index) => (

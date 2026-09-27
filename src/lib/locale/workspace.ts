@@ -91,6 +91,36 @@ export type WorkspaceCopy = {
   devSectionTitle: string;
   devSectionLead: string;
   yourArchetype: string;
+  syncTitle: string;
+  syncLead: string;
+  syncNotConfigured: string;
+  syncEmailLabel: string;
+  syncEmailPlaceholder: string;
+  syncSendLink: string;
+  syncSending: string;
+  syncLinkSent: string;
+  syncSignedInAs: string;
+  syncStatusSynced: string;
+  syncStatusSyncing: string;
+  syncStatusError: string;
+  syncSignOut: string;
+  syncStatusPending: string;
+  syncStatusOffline: string;
+  syncLastSynced: string;
+  syncMerged: string;
+  syncDismiss: string;
+  syncRemoveLocal: string;
+  syncUnsyncedWarning: string;
+  syncHistoryTitle: string;
+  syncHistoryLead: string;
+  syncHistoryLoad: string;
+  syncHistoryEmpty: string;
+  syncHistoryRestore: string;
+  syncHistoryConfirm: (day: string) => string;
+  syncHistoryRestored: string;
+  previousResultsTitle: string;
+  removeResult: string;
+  confirmRemoveResult: string;
   dataTitle: string;
   dataLead: string;
   exportBackup: string;
@@ -249,9 +279,43 @@ const en: WorkspaceCopy = {
   devSectionLead:
     "Educational models (Hartman, DISC, Birkman, values, Maslow tiers) shape tap choices—not clinical scores.",
   yourArchetype: "YOUR REFLECTION PROFILE",
+  syncTitle: "Sync across devices",
+  syncLead:
+    "Optional. Sign in with a magic link to keep the same workspace on every device. Nobody else can see your data — only your signed-in account can read or write it.",
+  syncNotConfigured:
+    "Sync isn't set up on this deployment. Your workspace stays on this device only.",
+  syncEmailLabel: "Email",
+  syncEmailPlaceholder: "you@example.com",
+  syncSendLink: "Send magic link",
+  syncSending: "Sending…",
+  syncLinkSent: "Check your email for a sign-in link.",
+  syncSignedInAs: "Signed in as",
+  syncStatusSynced: "Synced.",
+  syncStatusSyncing: "Syncing…",
+  syncStatusError: "Sync error:",
+  syncSignOut: "Sign out",
+  syncStatusPending: "Changes waiting to sync…",
+  syncStatusOffline: "Offline. Your changes are saved here and will sync when you reconnect.",
+  syncLastSynced: "Last synced",
+  syncMerged: "Changes from another device were combined with this one. Nothing was discarded.",
+  syncDismiss: "Got it",
+  syncRemoveLocal: "Also remove this workspace from this device (for shared devices)",
+  syncUnsyncedWarning:
+    "Some changes haven't reached the cloud yet. If you sign out now, they stay only on this device. Sign out anyway?",
+  syncHistoryTitle: "Restore from history",
+  syncHistoryLead:
+    "One snapshot is kept for each day you used LifeOS while signed in. Restoring replaces this workspace (a local recovery copy is kept first) and syncs to your other devices.",
+  syncHistoryLoad: "Show saved days",
+  syncHistoryEmpty: "No snapshots yet. The first one is saved after your next sync.",
+  syncHistoryRestore: "Restore",
+  syncHistoryConfirm: (day) => `Restore your workspace as it was on ${day}?`,
+  syncHistoryRestored: "Workspace restored from history.",
+  previousResultsTitle: "Previous results",
+  removeResult: "Remove",
+  confirmRemoveResult: "Remove this result from your history? The AI guide will no longer see it.",
   dataTitle: "Your data belongs to you",
   dataLead:
-    "No account or cloud connection is required. Browser storage is not encrypted; use a trusted device. Clearing browser data removes your workspace.",
+    "No account is required. If you turn on sync, your workspace, baseline results, and saved AI insights are stored in your private cloud account with one snapshot per day. Browser storage is not encrypted; use a trusted device. Without sync, clearing browser data removes your workspace.",
   exportBackup: "Export backup",
   importBackup: "Import backup",
   exportRaw: "Export raw saved data",
@@ -445,9 +509,43 @@ const ar: WorkspaceCopy = {
   devSectionLead:
     "نماذج تعليمية (Hartman، DISC، Birkman، القيم، مستويات ماسلو) توجّه الخيارات—وليست درجات سريرية.",
   yourArchetype: "ملف تأملك",
+  syncTitle: "المزامنة بين الأجهزة",
+  syncLead:
+    "اختياري. سجّل الدخول برابط سحري للاحتفاظ بمساحة العمل نفسها على كل أجهزتك. لا يمكن لأحد غيرك رؤية بياناتك — فقط حسابك المسجّل يمكنه قراءتها أو تعديلها.",
+  syncNotConfigured:
+    "المزامنة غير مُفعّلة على هذا الخادم. ستبقى مساحة عملك على هذا الجهاز فقط.",
+  syncEmailLabel: "البريد الإلكتروني",
+  syncEmailPlaceholder: "you@example.com",
+  syncSendLink: "إرسال رابط الدخول",
+  syncSending: "جارٍ الإرسال…",
+  syncLinkSent: "تحقق من بريدك الإلكتروني لرابط تسجيل الدخول.",
+  syncSignedInAs: "مسجّل الدخول باسم",
+  syncStatusSynced: "تمت المزامنة.",
+  syncStatusSyncing: "جارٍ المزامنة…",
+  syncStatusError: "خطأ في المزامنة:",
+  syncSignOut: "تسجيل الخروج",
+  syncStatusPending: "تغييرات بانتظار المزامنة…",
+  syncStatusOffline: "غير متصل. تغييراتك محفوظة هنا وستُزامن عند عودة الاتصال.",
+  syncLastSynced: "آخر مزامنة",
+  syncMerged: "دُمجت تغييرات من جهاز آخر مع هذا الجهاز. لم يُحذف شيء.",
+  syncDismiss: "حسناً",
+  syncRemoveLocal: "احذف أيضاً مساحة العمل من هذا الجهاز (للأجهزة المشتركة)",
+  syncUnsyncedWarning:
+    "بعض التغييرات لم تصل إلى السحابة بعد. إذا سجّلت الخروج الآن فستبقى على هذا الجهاز فقط. هل تريد تسجيل الخروج؟",
+  syncHistoryTitle: "الاستعادة من السجل",
+  syncHistoryLead:
+    "تُحفظ لقطة واحدة لكل يوم استخدمت فيه LifeOS وأنت مسجّل الدخول. الاستعادة تستبدل مساحة العمل الحالية (مع حفظ نسخة استرداد محلية أولاً) وتُزامن مع أجهزتك الأخرى.",
+  syncHistoryLoad: "عرض الأيام المحفوظة",
+  syncHistoryEmpty: "لا توجد لقطات بعد. تُحفظ أول لقطة بعد المزامنة التالية.",
+  syncHistoryRestore: "استعادة",
+  syncHistoryConfirm: (day) => `هل تريد استعادة مساحة عملك كما كانت في ${day}؟`,
+  syncHistoryRestored: "تمت استعادة مساحة العمل من السجل.",
+  previousResultsTitle: "النتائج السابقة",
+  removeResult: "حذف",
+  confirmRemoveResult: "حذف هذه النتيجة من سجلك؟ لن يراها دليل الذكاء الاصطناعي بعد الآن.",
   dataTitle: "بياناتك ملكك وحدك",
   dataLead:
-    "لا حاجة لحساب أو اتصال سحابي. تخزين المتصفح غير مشفر؛ استخدم جهازاً موثوقاً. مسح بيانات المتصفح يحذف مساحة عملك.",
+    "لا حاجة لحساب. إذا فعّلت المزامنة، تُحفظ مساحة عملك ونتائج خط الأساس واستنتاجات الذكاء الاصطناعي في حسابك السحابي الخاص مع لقطة واحدة يومياً. تخزين المتصفح غير مشفر؛ استخدم جهازاً موثوقاً. دون مزامنة، يؤدي مسح بيانات المتصفح إلى حذف مساحة عملك.",
   exportBackup: "تصدير نسخة احتياطية",
   importBackup: "استيراد نسخة احتياطية",
   exportRaw: "تصدير البيانات الخام المحفوظة",

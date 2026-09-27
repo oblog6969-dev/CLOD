@@ -8,10 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/domain.test.mjs",
+    "test": "node --test tests/domain.test.mjs tests/sync.test.mjs tests/history.test.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.58.0",
     "lucide-react": "^1.46.0",
     "next": "16.3.5",
     "react": "19.2.8",

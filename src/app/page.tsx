@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { Dialog } from "@/components/Dialog";
 import { AiAssistant } from "@/components/AiAssistant";
+import { SavedInsights } from "@/components/SavedInsights";
+import { HistoryCard } from "@/components/HistoryCard";
 import { JourneyGuide } from "@/components/JourneyGuide";
 import { BaselineAssessmentModal } from "@/components/BaselineAssessmentModal";
 import { planGuidance, type GuideAction, type View } from "@/lib/journey";
@@ -33,12 +35,14 @@ import {
   type Modal,
 } from "@/components/WorkspaceForms";
 import { useLifeOS, update, restore, download } from "@/lib/store";
+import { startSync, useSync } from "@/lib/sync";
 import {
   emptyDay,
   freshState,
   localDate,
   progress,
   prompts,
+  savePlan,
   toggleTask,
   type Plan,
 } from "@/lib/domain";
@@ -88,11 +92,13 @@ function LifeOSApp() {
     constraints: "هذه الحدود هي ما ستحافظ عليه أثناء إحراز التقدم، مثل الراحة أو الوقت مع الآخرين.",
   };
   const snapshot = useLifeOS();
+  const sync = useSync();
   const [view, setView] = useState<View>("today");
   const [modal, setModal] = useState<Modal>(null);
   const [planEdit, setPlanEdit] = useState<Plan | null>(null);
   const [notice, setNotice] = useState("");
   const previousView = useRef(view);
+  useEffect(() => startSync(), []);
   useEffect(() => {
     if (previousView.current !== view) {
       previousView.current = view;
@@ -258,7 +264,13 @@ function LifeOSApp() {
             </span>
             <div>
               <strong>{state.name || tr("Your space", "مساحتك")}</strong>
-              <small>{tr("Saved on this device", "محفوظ على هذا الجهاز")}</small>
+              <small>
+                {sync.email
+                  ? sync.status === "offline" || sync.status === "pending"
+                    ? tr("Changes waiting to sync", "تغييرات بانتظار المزامنة")
+                    : tr("Synced across devices", "متزامن بين أجهزتك")
+                  : tr("Saved on this device", "محفوظ على هذا الجهاز")}
+              </small>
             </div>
             <span className="online-dot" />
           </div>
@@ -804,6 +816,7 @@ function LifeOSApp() {
                   {stats.xp}/{stats.next} {tr("to your next level", "للوصول إلى مستواك التالي")}
                 </p>
               </section>
+              <HistoryCard state={state} date={date} />
               {!state.reflections.length && (
                 <section className="card empty-state">
                   <BookOpen size={30} />
@@ -835,6 +848,7 @@ function LifeOSApp() {
           {view === "assistant" && (
             <div id="ai-workspace" tabIndex={-1}>
               <AiAssistant state={state} date={date} />
+              <SavedInsights state={state} />
             </div>
           )}
           {view === "settings" && (
@@ -946,7 +960,7 @@ function LifeOSApp() {
             onSubmit={(e) => {
               e.preventDefault();
               saved(
-                update((s) => ({ ...s, plan: planEdit })),
+                update((s) => savePlan(s, planEdit)),
                 tr("Your direction is saved. Keep it flexible.", "تم حفظ اتجاهك. أبقه مرناً.") ,
               );
             }}

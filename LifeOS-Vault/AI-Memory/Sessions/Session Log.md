@@ -1,7 +1,7 @@
 ---
 title: "Session Log"
 created: 2026-09-25
-updated: 2026-09-26
+updated: 2026-09-28
 type: log
 status: active
 priority: medium
@@ -18,6 +18,103 @@ aliases:
 > [!info] How to use this file
 > Add a new `## Session YYYY-MM-DD — Agent Name` section at the **top** (newest first) after each working session.
 > Each entry must include: what was done, files changed, tests run (with results), and any open items or bugs found.
+
+---
+
+## Session 2026-09-28 (DB governance) — Claude
+
+**Focus:** Because several AI agents develop LifeOS, the owner asked for database roles every agent follows, then a vault update, a commit, and a push.
+
+### What Was Done
+
+- New [[Frameworks/Database Rules|Database Rules]] covering:
+  - the contract table;
+  - 6 roles;
+  - the DB lock plus a migration-drift check at session start;
+  - 17 invariants (database, migrations, sync/data model, live testing);
+  - an owner-approval matrix;
+  - the standard change workflow;
+  - a data-flow reference.
+- `AGENTS.md`: a mandatory "Database and synced data" section and start-of-session step 5 (also removed a duplicated Decisions Log line). Linked from Start Here, the AI Memory index, and Tech Stack. Tech Stack no longer claims "browser-local only".
+- `supabase/migrations/`: back-filled the 3 live migrations using the exact `list_migrations` versions (`20260927221838`, `20260927225016`, `20260927225542`).
+- `supabase/tests/sync_push_contract.sql`: reusable contract check. Ran it against live: `RESULT PASS`, with 0 test users, workspaces, or snapshots left behind.
+- `src/lib/sync-logic.ts`: unknown `State` fields are now merged as whole values instead of dropped. Two new tests cover a fully populated workspace round trip and an unknown field being carried over.
+- Vault: Decisions Log entry, Agent Handoff (DB lock line, and a corrected previous-commit hash: `16691aa`, not `e1e2417`), Progress Dashboard, this log.
+
+### Tests Run
+
+- `npm test`: **50/50**. Lint, build, and E2E were re-run before commit; see the commit entry below.
+
+### Git
+
+- The 2026-09-27 and 2026-09-28 work is committed to `main` and pushed to `origin` (https://github.com/oblog6969-dev/CLOD). The commit hash is recorded in [[AI-Memory/Agent Handoff|Agent Handoff]] after pushing.
+
+---
+
+## Session 2026-09-28 (cloud history rebuild) — Claude
+
+**Focus:** The owner asked for a review of the 2026-09-27 sync work to make it "more legit". The database's purpose is to sync all devices, analyze history, give conclusions, and let the connected AI relate to the person's history.
+
+### What Was Done
+
+- **Review:** found 7 defects in the first pass (BUG-004 to BUG-010 in [[Bugs & Issues]]). One is critical: unreadable local data could be uploaded over the cloud copy. The others: ping-pong between devices, sync only starting on the Settings view, offline edits overwritten, client clocks deciding winners, the backup slot clobbered, and silent expired links.
+- **Owner decisions** (recorded in the [[Decisions/Decisions Log|Decisions Log]], 2026-09-28): save test results with inputs; auto-save AI analyses, editable and removable; analysis on device; 3-way merge; daily snapshots kept forever.
+- **Supabase migrations:** `sync_revisions_and_snapshots` and `sync_push_return_client_edited_at`. `sync_push` was verified in rolled-back SQL transactions (insert, stale conflict, correct base, invalid state, one snapshot per day, day clamping). The advisors match the expected intentional warnings.
+- **Code:**
+  - new: `sync-engine.ts`, `ai-context.ts`, `history.ts`, `SavedInsights.tsx`, `HistoryCard.tsx`, `tests/history.test.mjs`, `tests/e2e/history.spec.ts`;
+  - rewritten: `sync-logic.ts`, `sync.ts`, `tests/sync.test.mjs`;
+  - modified: `domain.ts`, `store.ts`, `ai.ts`, both AI routes, `AiAssistant.tsx`, `BaselineAssessmentModal.tsx`, `WorkspaceForms.tsx`, `page.tsx`, `globals.css`, `locale/workspace.ts`, `locale/assistant.ts`, `tsconfig.json`, `package.json`, `README.md`, and one E2E locator in `lifeos.spec.ts` (the auto-saved insight now repeats a recommendation title).
+
+### Tests Run
+
+- `npm run lint`: clean.
+- `npm test`: **48/48**. Mutation check: deliberately breaking merge and dirty tracking made 10 tests fail, then the code was restored to 48/48.
+- `npm run build`: passed.
+- `npx playwright test`: **20/20**.
+- Browser smoke test on the production build (port 3200): all views load with no console errors; signed-out makes zero Supabase requests; a bogus token is rejected safely; an `otp_expired` redirect shows "Request a new sign-in link" and clears the URL.
+
+### Open Items
+
+- A live magic-link sign-in and real two-device round trip are still unverified (needs the owner's inbox).
+- Owner: configure the Supabase Auth Site URL and redirect allow-list.
+- No delete-account UI; snapshots kept forever (monitor size).
+- **Nothing committed.**
+
+---
+
+## Session 2026-09-27 — Claude
+
+> [!warning] Superseded by the 2026-09-28 session. The sync design and test claims below were replaced after review.
+
+**Focus:** Add optional Supabase-backed cloud sync across devices (product decision reversing the prior "out of scope for v2" backlog note).
+
+### What Was Done
+
+- Provisioned a new, isolated Supabase project (org `LIFE-OS`, project `lifeos`, ref `inzddqrbrboldaomarhz`) and applied a migration creating `public.workspaces` (`user_id uuid primary key references auth.users`, `state jsonb`, `updated_at timestamptz`) with RLS policies scoping select/insert/update to `auth.uid() = user_id`.
+- Added `@supabase/supabase-js` dependency; new `src/lib/supabase-client.ts` (memoized browser client, `null` when env vars absent).
+- New `src/lib/sync-logic.ts`: pure `decideSyncDirection` last-write-wins decision function, kept dependency-free so it's directly unit-testable under Node's native TS loader (real relative imports elsewhere needed no extension changes for the Next/webpack bundler, so this stayed a separate leaf module rather than adding `.ts` extensions across the codebase).
+- New `src/lib/sync.ts`: the sync engine — tracks Supabase auth session, exposes `useSync()` (status/email/error + `signInWithEmail`/`signOutOfSync`), pushes on local change (1.5s debounce via a new `store.ts` export `onChange`), pulls via the existing `restore()` (reusing its `lifeos_backup_before_replace` safety net), and polls every 30s for changes from other devices.
+- `src/lib/store.ts`: added two small exports, `getState()` and `onChange(fn)`, no behavior change to existing exports.
+- `src/components/WorkspaceForms.tsx`: new `SyncCard` in `SettingsView`, placed before "Your data belongs to you". Self-hides with a note when sync isn't configured.
+- `src/lib/locale/workspace.ts`: added `sync*` EN/AR copy keys; revised `dataLead` copy in both locales since cloud sync is now optionally available.
+- `.env.example`: documented `NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY` as optional, non-secret (RLS-protected). Local `.env.local` created (gitignored) with this session's real project values for dev/testing.
+- `tests/sync.test.mjs`: 5 new unit tests for `decideSyncDirection`; `package.json` test script updated to run both test files.
+- Vault: recorded the decision in [[Decisions/Decisions Log|Decisions Log]] (2026-09-27 entry), updated [[Future Tasks]] and [[Progress/00 - Dashboard|Progress Dashboard]].
+
+### Tests Run
+
+- `npm run lint`: 0 errors, 0 warnings.
+- `npm test`: **26** passed (19 prior + 5 new).
+- `npm run build`: production build passed (Turbopack).
+- Manual browser check via the `browse` skill: Settings sync card renders with no console errors; submitting an invalid/placeholder email surfaces Supabase's own rejection error in the UI; a real address correctly shows "Check your email for a sign-in link." Did not complete an actual magic-link sign-in or verify multi-device pull/push (real email delivery isn't practical to automate) — logged as a follow-up in [[Future Tasks]].
+- `npx playwright test` was not re-run this session (no E2E coverage was added for the sync feature).
+
+### Open Items
+
+- Manual verification still needed: clicking a real magic link end-to-end, and confirming a second browser/device receives a pushed change within the 30s poll window.
+- No account-deletion or cloud-row-deletion UI yet (see [[Future Tasks]]).
+- Mid-session environment note: Supabase's free tier caps active projects at **2 per account** (not per org) — surfaced when creating a new org didn't bypass the limit. An orphaned project from before the new org was set up had to be deleted manually by the user to free a slot.
+- **Nothing was committed to git this session** — all changes are in the working tree, pending the user's review/commit decision.
 
 ---
 

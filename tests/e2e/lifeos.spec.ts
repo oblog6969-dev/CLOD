@@ -258,7 +258,8 @@ test("AI guide shares selected context and lets the user accept one suggestion",
     page.getByRole("checkbox", { name: /Journal reflections/ }),
   ).not.toBeChecked();
   await page.getByRole("button", { name: "Analyze selected context" }).click();
-  await expect(page.getByText("Shrink the first move")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Shrink the first move" })).toBeVisible();
+  await expect(page.locator(".saved-insight")).toHaveCount(1);
   await page.screenshot({ path: "test-results/ai-guide.png", fullPage: true });
   expect(requestBody.context).toHaveProperty("tasks");
   expect(requestBody.context).not.toHaveProperty("answers");

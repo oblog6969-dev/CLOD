@@ -1,7 +1,7 @@
 ---
 title: "Decisions Log"
 created: 2026-09-16
-updated: 2026-09-26
+updated: 2026-09-28
 type: decisions
 status: active
 priority: high
@@ -163,6 +163,54 @@ aliases:
 
 ---
 
+## 2026-09-27: optional Supabase cloud sync across devices
+
+- Reverses the prior "out of scope for v2" note on cloud sync ([[AI-Memory/Future Tasks]]). The product owner explicitly requested cross-device sync; this is that product decision.
+- **Auth**: Supabase email magic link (passwordless), via the browser `@supabase/supabase-js` client only — no custom API routes, cookies, or middleware. `NEXT_PUBLIC_SUPABASE_URL`/`NEXT_PUBLIC_SUPABASE_ANON_KEY` are public, RLS-protected values, not secrets.
+- **Project isolation**: a brand-new dedicated Supabase project (org `LIFE-OS`, project `lifeos`) — never the account's pre-existing `personal-cfo` trading-app project. Supabase's free tier caps active projects at 2 per account (not per org), which surfaced mid-session; an empty scratch project created in `personal-cfo` before the org existed was deleted to free a slot.
+- **Schema**: single `public.workspaces` table (`user_id uuid primary key references auth.users`, `state jsonb`, `updated_at timestamptz`), RLS-scoped so a user can only read/write their own row. Mirrors the existing local `State` blob almost exactly — no relational redesign.
+- **Sync model**: cloud is primary once signed in; `localStorage` stays as an offline cache. Last-write-wins by comparing `updated_at`, decided by a pure, unit-tested function (`decideSyncDirection` in `src/lib/sync-logic.ts`). Pulls reuse the existing `restore()` in `store.ts`, so a bad pull still leaves the `lifeos_backup_before_replace` safety net intact. Pushes are debounced (~1.5s) off local change events; a 30s poll (matching the existing focus/interval refresh rhythm) catches changes pushed from other devices, avoiding a websocket/Realtime dependency.
+- **Scope**: fully optional and additive. Signed-out users get byte-for-byte the same experience as before. One new "Sync across devices" card in Settings (`src/components/WorkspaceForms.tsx`) is the only new surface; it self-hides with a note if the env vars are unset.
+- Verified: `npm run lint`, `npm test` (26 tests, including 5 new `decideSyncDirection` cases in `tests/sync.test.mjs`), `npm run build` all pass. Manually verified in-browser: invalid/placeholder email domains are rejected with Supabase's own error surfaced in the UI; a real address correctly shows "Check your email for a sign-in link." Magic-link completion (actually clicking the emailed link) and multi-device pull/push were not automated — real email delivery isn't practical to automate in CI, so this remains a manual follow-up check.
+
+> [!warning] Superseded 2026-09-28
+> A review of this first sync pass found serious defects before it was ever committed. The next entry records the rebuild, and [[AI-Memory/Bugs & Issues|Bugs & Issues]] BUG-004 to BUG-010 list the defects. The claims above about pulls "reusing the backup safety net" and last-write-wins by timestamp no longer describe the code.
+
+---
+
+## 2026-09-28: cloud history as the basis for analysis and AI context
+
+The product owner set the purpose of the database: sync every device, analyze the person's history, produce conclusions, and let a connected AI relate to the person's situation from that history.
+
+- **Persisted AI insights (reverses 2026-09-19 "results stay in component memory only").** Every successful analysis is saved automatically to `state.insights`. The owner chose automatic saving, provided the person can edit, modify, and remove it. Editing marks an insight `edited`, and the AI prompt treats edited insights as the person's correction, which outranks the model's earlier reading. The follow-up chat transcript is still never persisted.
+- **Test results and inputs are history.** Every baseline run is kept in `state.assessments` with its answers and computed profile; `assessmentProfile` stays the current one. Each changed plan is appended to `state.planHistory`. Past results can be removed individually.
+- **Analysis runs on the device** (`src/lib/history.ts`), deterministic and unit-tested. The database stores history; the app computes conclusions. This keeps analysis available offline and signed-out, and the server never reads private data to analyze it. Conclusions are descriptive, apply minimum-data thresholds (no trend claims under 7 tracked days), and never diagnose.
+- **AI context categories.** The new categories are History trends (an aggregate digest, no note or journal text), Baseline profile (current result plus what changed since the previous run), and Past saved insights (last 5, with edits). All three default to **on**, because they are aggregates or the AI's own output. Reset answers and journal entries stay default **off**, as before. `src/lib/ai-context.ts` validates and bounds every category server-side for both `/api/ai/analyze` and `/api/ai/chat`, replacing two diverging copies.
+- **Sync model.** The server holds a `revision`, and all writes go through `public.sync_push`, which locks the row, rejects a stale base with the current state, and uses the server clock. Clients keep the last synced copy as a merge base and a persisted edit counter. They merge 3-way (`src/lib/sync-logic.ts`): per date for days, per ID for items, per field for the plan and answers. Most-recent-edit wins only on a true same-field conflict. A first link merges, it doesn't replace.
+- **Daily snapshots kept forever.** `public.workspace_snapshots` stores one snapshot per account per day, written only by `sync_push`, readable only by the owner, and restorable from Settings. Storage cost is accepted by the owner; on the Supabase free tier (500 MB), a very large single workspace could eventually need pruning. Deleting a saved insight doesn't remove it from past snapshots until the account is deleted, and this is documented in the README.
+- **`sync_push` is `SECURITY DEFINER` by design.** It is the only write path and acts solely on `auth.uid()`; `anon`/`public` execute is revoked. The Supabase advisor warning `0029_authenticated_security_definer_function_executable` is acknowledged, not a defect. The "leaked password protection" advisory does not apply, because sign-in is passwordless.
+- **Sync never touches unreadable local data.** If `lifeos_v2` can't be decoded, sync pauses rather than pushing a default state over the cloud copy, in line with the AGENTS.md invariant.
+- **Tooling.** `allowImportingTsExtensions` is enabled so pure modules can be tested directly under `node --test` with explicit `.ts` imports.
+
+---
+
+## 2026-09-28: database governance for multi-agent development
+
+- LifeOS is built by several AI agents. The owner asked for explicit database roles that every agent follows. [[Frameworks/Database Rules|Database Rules]] is now mandatory, and `AGENTS.md` makes it binding.
+- **Roles:**
+  - Product Owner (human; the only approver for destructive, retention, privacy, or AI-scope changes);
+  - Database Steward (the only one who applies migrations, one at a time via the DB lock);
+  - Sync Engineer;
+  - Data Model Engineer;
+  - Analysis & AI Engineer;
+  - independent Verifier (never the author).
+- **DB lock:** a single `DB lock:` line in [[AI-Memory/Agent Handoff|Agent Handoff]] serializes schema and `State` changes across agents.
+- **Migrations are code.** The three migrations applied through the MCP (`create_workspaces_table`, `sync_revisions_and_snapshots`, `sync_push_return_client_edited_at`) were back-filled into `supabase/migrations/` with their exact live versions. From now on, applied migrations must be committed in the same session, and drift between `list_migrations` and the folder is checked at session start.
+- **Contract test:** `supabase/tests/sync_push_contract.sql` is a self-rolling-back check that must print `RESULT PASS` after any database change.
+- **Merge safety:** `mergeStates` now carries over any `State` field that lacks a dedicated rule (whole-value 3-way pick) instead of dropping it. This removes a trap where a new field added by one agent would silently disappear during sync. The State-change checklist still requires a proper rule.
+
+---
+
 ## Remaining constraints
 
-Browser storage offers no cross-device sync or transactional multi-tab edits. Reflection-day calendar reminders require calendar import. V1 logs used human-readable timestamps, so missing timestamps cannot be recovered accurately. Keep original exports for archival access.
+Without optional sign-in, browser storage offers no cross-device sync or transactional multi-tab edits. Reflection-day calendar reminders require calendar import. V1 logs used human-readable timestamps, so missing timestamps cannot be recovered accurately. Keep original exports for archival access.

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { type AiChatMessage, type AiContext } from "@/lib/ai";
+import { type AiChatMessage } from "@/lib/ai";
+import { CHAT_LIMITS, HISTORY_GUIDANCE, cleanContext } from "@/lib/ai-context";
 import { AI_COOKIE, safeBaseUrl, sameOrigin, unseal } from "@/lib/ai-server";
 
 export const runtime = "nodejs";
@@ -33,52 +34,6 @@ function cleanMessages(value: unknown): AiChatMessage[] | null {
     })
     .filter((message): message is AiChatMessage => !!message);
   return messages.length && messages.at(-1)?.role === "user" ? messages : null;
-}
-
-function cleanContext(value: unknown): AiContext | null {
-  if (!value || typeof value !== "object") return null;
-  const raw = value as AiContext;
-  const context: AiContext = {};
-  if (raw.plan && typeof raw.plan === "object") {
-    const plan = Object.fromEntries(
-      Object.entries(raw.plan)
-        .slice(0, 8)
-        .map(([key, item]) => [key, text(item, 500)])
-        .filter(([, item]) => item),
-    );
-    if (Object.keys(plan).length) context.plan = plan;
-  }
-  if (Array.isArray(raw.tasks)) {
-    const tasks = raw.tasks
-      .slice(0, 30)
-      .map((task) => ({
-        title: text(task?.title, 300),
-        completedToday: task?.completedToday === true,
-      }))
-      .filter((task) => task.title);
-    if (tasks.length) context.tasks = tasks;
-  }
-  if (raw.answers && typeof raw.answers === "object") {
-    const answers = Object.fromEntries(
-      Object.entries(raw.answers)
-        .slice(0, 30)
-        .map(([key, item]) => [key, text(item, 500)])
-        .filter(([, item]) => item),
-    );
-    if (Object.keys(answers).length) context.answers = answers;
-  }
-  if (Array.isArray(raw.reflections)) {
-    const reflections = raw.reflections
-      .slice(-20)
-      .map((reflection) => ({
-        timestamp: text(reflection?.timestamp, 50),
-        note: text(reflection?.note, 1000),
-        mood: text(reflection?.mood, 100),
-      }))
-      .filter((reflection) => reflection.note);
-    if (reflections.length) context.reflections = reflections;
-  }
-  return Object.keys(context).length ? context : null;
 }
 
 function outputText(response: Record<string, unknown>) {
@@ -135,8 +90,8 @@ export async function POST(request: NextRequest) {
       { error: "Enter a message to continue the conversation." },
       { status: 400 },
     );
-  const context = cleanContext(body.context);
-  const system = `You are an optional reflection companion inside LifeOS. Be warm, specific, concise, and non-judgmental. Help the user reflect on only the context they explicitly shared. Never diagnose, shame, promise outcomes, or make decisions for the user. Suggest small actions within the user's control. Do not claim knowledge beyond the conversation or supplied context.${context ? `\n\nThe user explicitly shared this LifeOS context for this conversation:\n${JSON.stringify(context)}` : ""}`;
+  const context = cleanContext(body.context, CHAT_LIMITS);
+  const system = `You are an optional reflection companion inside LifeOS. Be warm, specific, concise, and non-judgmental. Help the user reflect on only the context they explicitly shared. Never diagnose, shame, promise outcomes, or make decisions for the user. Suggest small actions within the user's control. Do not claim knowledge beyond the conversation or supplied context. ${HISTORY_GUIDANCE}${context ? `\n\nThe user explicitly shared this LifeOS context for this conversation:\n${JSON.stringify(context)}` : ""}`;
   try {
     const baseUrl = await safeBaseUrl(session.provider, session.baseUrl);
     const isOpenAi = session.provider === "openai";

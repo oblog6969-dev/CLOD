@@ -3063,3 +3063,138 @@ textarea::placeholder {
 .plan-revert-field {
   margin-top: 6px;
 }
+
+/* Cloud sync, history, and saved insights */
+.sync-merged {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  padding: 10px 12px;
+  margin: 12px 0;
+  border-radius: 10px;
+  background: var(--soft);
+  color: var(--ink);
+}
+.sync-history {
+  border-top: 1px solid var(--line);
+  margin-top: 18px;
+  padding-top: 16px;
+}
+.sync-history h3,
+.assessment-history h3 {
+  font-size: 14px;
+  margin: 0 0 4px;
+}
+.sync-history .key-note {
+  margin: 4px 0 12px;
+}
+.sync-history-list,
+.assessment-history ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.sync-history-list li,
+.assessment-history li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.assessment-history {
+  margin-top: 18px;
+}
+.sync-remove-local {
+  font-size: 12px;
+  margin-top: 12px;
+}
+.history-card {
+  margin-bottom: 18px;
+}
+.history-conclusions {
+  margin: 14px 0 0;
+  padding-inline-start: 18px;
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.history-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 18px 0 0;
+}
+.history-stats div {
+  background: var(--soft);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.history-stats dt {
+  font-size: 11px;
+  color: var(--muted);
+}
+.history-stats dd {
+  margin: 4px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.saved-insights {
+  margin-top: 18px;
+}
+.saved-insight {
+  border-top: 1px solid var(--line);
+  padding: 16px 0 6px;
+}
+.saved-insight h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 6px 0;
+}
+.saved-insight ul {
+  font-size: 13px;
+  line-height: 1.55;
+  padding-inline-start: 18px;
+}
+.saved-insight-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.saved-insight-question {
+  font-style: italic;
+  font-size: 13px;
+}
+.saved-insight .settings-buttons {
+  margin-top: 10px;
+}
+.insight-editor {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.insight-recs {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+}
+.insight-rec-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 600px) {
+  .insight-rec-row {
+    grid-template-columns: 1fr;
+  }
+}

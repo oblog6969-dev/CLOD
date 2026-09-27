@@ -68,6 +68,20 @@ export function useLifeOS() {
     () => null,
   );
 }
+/** Current saved state, or null when local storage is unreadable (sync must not touch it then). */
+export function getLocalState(): State | null {
+  initialize();
+  return snapshot && !snapshot.blocked ? snapshot.state : null;
+}
+const editListeners = new Set<() => void>();
+/** Fires only for edits made on this page: not for date rollover, other tabs, or sync-applied states. */
+export function onLocalEdit(fn: () => void): () => void {
+  editListeners.add(fn);
+  return () => editListeners.delete(fn);
+}
+function localEdit() {
+  editListeners.forEach((fn) => fn());
+}
 export function update(transform: (state: State) => State): boolean {
   initialize();
   if (!snapshot || snapshot.blocked) return false;
@@ -79,6 +93,7 @@ export function update(transform: (state: State) => State): boolean {
     localStorage.setItem(KEY, JSON.stringify(state));
     snapshot = { state, date: localDate(), error: "", blocked: false };
     emit();
+    localEdit();
     return true;
   } catch {
     snapshot = {
@@ -90,15 +105,19 @@ export function update(transform: (state: State) => State): boolean {
     return false;
   }
 }
-export function restore(state: State): boolean {
+export function restore(
+  state: State,
+  { backup = true, fromSync = false }: { backup?: boolean; fromSync?: boolean } = {},
+): boolean {
   initialize();
   try {
     const checked = decode(state);
     const old = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY);
-    if (old) localStorage.setItem("lifeos_backup_before_replace", old);
+    if (backup && old) localStorage.setItem("lifeos_backup_before_replace", old);
     localStorage.setItem(KEY, JSON.stringify(checked));
     snapshot = { state: checked, date: localDate(), error: "", blocked: false };
     emit();
+    if (!fromSync) localEdit();
     return true;
   } catch {
     if (snapshot)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAiAnalysis, type AiContext } from "@/lib/ai";
+import { isAiAnalysis } from "@/lib/ai";
+import { ANALYZE_LIMITS, HISTORY_GUIDANCE, cleanContext } from "@/lib/ai-context";
 import { AI_COOKIE, safeBaseUrl, sameOrigin, unseal } from "@/lib/ai-server";
 
 export const runtime = "nodejs";
@@ -21,51 +22,6 @@ function limited(id: string) {
 }
 function text(value: unknown, max = 5000) {
   return typeof value === "string" ? value.slice(0, max) : "";
-}
-function cleanContext(input: unknown): AiContext | null {
-  if (!input || typeof input !== "object") return null;
-  const raw = input as AiContext;
-  const context: AiContext = {};
-  if (raw.plan && typeof raw.plan === "object") {
-    const plan = Object.fromEntries(
-      Object.entries(raw.plan)
-        .slice(0, 8)
-        .map(([key, value]) => [key, text(value)])
-        .filter(([, value]) => value),
-    );
-    if (Object.keys(plan).length) context.plan = plan;
-  }
-  if (Array.isArray(raw.tasks)) {
-    const tasks = raw.tasks
-      .slice(0, 30)
-      .map((task) => ({
-        title: text(task?.title, 300),
-        completedToday: task?.completedToday === true,
-      }))
-      .filter((task) => task.title);
-    if (tasks.length) context.tasks = tasks;
-  }
-  if (raw.answers && typeof raw.answers === "object") {
-    const answers = Object.fromEntries(
-      Object.entries(raw.answers)
-        .slice(0, 30)
-        .map(([key, value]) => [key, text(value)])
-        .filter(([, value]) => value),
-    );
-    if (Object.keys(answers).length) context.answers = answers;
-  }
-  if (Array.isArray(raw.reflections)) {
-    const reflections = raw.reflections
-      .slice(-20)
-      .map((reflection) => ({
-        timestamp: text(reflection?.timestamp, 50),
-        note: text(reflection?.note),
-        mood: text(reflection?.mood, 100),
-      }))
-      .filter((reflection) => reflection.note);
-    if (reflections.length) context.reflections = reflections;
-  }
-  return Object.keys(context).length ? context : null;
 }
 function outputText(response: Record<string, unknown>) {
   if (typeof response.output_text === "string") return response.output_text;
@@ -129,7 +85,7 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
-  const context = cleanContext(body.context);
+  const context = cleanContext(body.context, ANALYZE_LIMITS);
   const focus = text(body.focus, 1000);
   if (!context)
     return NextResponse.json(
@@ -168,7 +124,7 @@ export async function POST(request: NextRequest) {
   try {
     const baseUrl = await safeBaseUrl(session.provider, session.baseUrl);
     const system =
-      "You are an optional reflection companion inside LifeOS. Analyze only the supplied user-authored context. Be warm, specific, concise, and non-judgmental. Identify tentative patterns, never diagnose, shame, promise outcomes, or make decisions for the user. Recommend small actions within the user's control. Treat the plan as revisable. Do not claim knowledge beyond the supplied context. Return only one valid JSON object matching the requested shape, without markdown.";
+      "You are an optional reflection companion inside LifeOS. Analyze only the supplied user-authored context. Be warm, specific, concise, and non-judgmental. Identify tentative patterns, never diagnose, shame, promise outcomes, or make decisions for the user. Recommend small actions within the user's control. Treat the plan as revisable. Do not claim knowledge beyond the supplied context. Return only one valid JSON object matching the requested shape, without markdown. " + HISTORY_GUIDANCE;
     const input = `The user requested guidance${focus ? ` with this focus: ${focus}` : ""}. Here is the context they explicitly chose to share:\n${JSON.stringify(context)}`;
     const isOpenAi = session.provider === "openai";
     const upstream = await fetch(`${baseUrl}/${isOpenAi ? "responses" : "chat/completions"}`, {

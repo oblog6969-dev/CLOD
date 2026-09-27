@@ -35,6 +35,32 @@ export type AssessmentProfile = {
   maslowOrientation?: MaslowOrientation;
   maslowTiers?: Partial<Record<MaslowTier, number>>;
 };
+export type AssessmentRecord = {
+  id: string;
+  completedAt: string;
+  answers: Record<string, string>;
+  profile: AssessmentProfile;
+};
+export type PlanRevision = { id: string; savedAt: string; plan: Plan };
+export const INSIGHT_AREAS = ["focus", "wellbeing", "direction", "reflection"] as const;
+export type InsightRecommendation = {
+  title: string;
+  reason: string;
+  nextStep: string;
+  area: (typeof INSIGHT_AREAS)[number];
+};
+export type Insight = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  focus: string;
+  summary: string;
+  patterns: string[];
+  recommendations: InsightRecommendation[];
+  question: string;
+  sharedCategories: string[];
+  edited: boolean;
+};
 export type State = {
   version: 2;
   name: string;
@@ -43,6 +69,9 @@ export type State = {
   answers: Record<string, string>;
   selectedOptions?: Record<string, string[]>;
   assessmentProfile?: AssessmentProfile | null;
+  assessments?: AssessmentRecord[];
+  planHistory?: PlanRevision[];
+  insights?: Insight[];
   plan: Plan;
   steps: { id: string; title: string; done: boolean }[];
   reflections: { id: string; timestamp: string; note: string; mood: string }[];
@@ -241,6 +270,71 @@ export function progress(state: State, date = localDate()) {
       : 0,
   };
 }
+const planKeys: (keyof Plan)[] = [
+  "vision",
+  "antiVision",
+  "identity",
+  "year",
+  "month",
+  "constraints",
+];
+export function savePlan(
+  state: State,
+  plan: Plan,
+  at = new Date().toISOString(),
+  id: string = crypto.randomUUID(),
+): State {
+  if (planKeys.every((k) => plan[k] === state.plan[k])) return state;
+  return {
+    ...state,
+    plan: { ...plan },
+    planHistory: [...(state.planHistory ?? []), { id, savedAt: at, plan: { ...plan } }],
+  };
+}
+export function recordAssessment(
+  state: State,
+  answers: Record<string, string>,
+  profile: AssessmentProfile,
+  at = new Date().toISOString(),
+  id: string = crypto.randomUUID(),
+): State {
+  return {
+    ...state,
+    assessmentProfile: profile,
+    assessments: [
+      ...(state.assessments ?? []),
+      { id, completedAt: at, answers: { ...answers }, profile },
+    ],
+  };
+}
+export function removeAssessment(state: State, id: string): State {
+  return {
+    ...state,
+    assessments: (state.assessments ?? []).filter((a) => a.id !== id),
+  };
+}
+export function addInsight(state: State, insight: Insight): State {
+  return { ...state, insights: [...(state.insights ?? []), insight] };
+}
+export function editInsight(
+  state: State,
+  id: string,
+  patch: Partial<Pick<Insight, "summary" | "patterns" | "recommendations" | "question">>,
+  at = new Date().toISOString(),
+): State {
+  return {
+    ...state,
+    insights: (state.insights ?? []).map((i) =>
+      i.id === id ? { ...i, ...patch, updatedAt: at, edited: true } : i,
+    ),
+  };
+}
+export function removeInsight(state: State, id: string): State {
+  return {
+    ...state,
+    insights: (state.insights ?? []).filter((i) => i.id !== id),
+  };
+}
 const object = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 const string = (v: unknown): v is string =>
@@ -249,6 +343,58 @@ const strings = (v: unknown): v is string[] =>
   Array.isArray(v) && v.every(string) && new Set(v).size === v.length;
 const dateKey = (v: string) =>
   /^\d{4}-\d{2}-\d{2}$/.test(v) && localDate(new Date(`${v}T12:00:00`)) === v;
+const isoTime = (v: unknown) => string(v) && Number.isFinite(Date.parse(v));
+const isProfile = (p: unknown) =>
+  object(p) &&
+  string(p.coreMotive) &&
+  string(p.discStyle) &&
+  string(p.primaryNeed) &&
+  string(p.stressTrigger) &&
+  typeof p.consciousnessLevel === "number" &&
+  Array.isArray(p.topValues);
+const isPlan = (p: unknown) => object(p) && planKeys.every((k) => string(p[k]));
+const uniqueIds = (items: { id: string }[]) =>
+  new Set(items.map((i) => i.id)).size === items.length;
+const isAssessmentRecord = (a: unknown) =>
+  object(a) &&
+  string(a.id) &&
+  isoTime(a.completedAt) &&
+  object(a.answers) &&
+  Object.values(a.answers).every(string) &&
+  isProfile(a.profile);
+const isPlanRevision = (p: unknown) =>
+  object(p) && string(p.id) && isoTime(p.savedAt) && isPlan(p.plan);
+const isInsight = (i: unknown) =>
+  object(i) &&
+  string(i.id) &&
+  isoTime(i.createdAt) &&
+  isoTime(i.updatedAt) &&
+  string(i.focus) &&
+  string(i.summary) &&
+  Array.isArray(i.patterns) &&
+  i.patterns.every(string) &&
+  Array.isArray(i.recommendations) &&
+  i.recommendations.every(
+    (r) =>
+      object(r) &&
+      string(r.title) &&
+      string(r.reason) &&
+      string(r.nextStep) &&
+      (INSIGHT_AREAS as readonly unknown[]).includes(r.area),
+  ) &&
+  string(i.question) &&
+  Array.isArray(i.sharedCategories) &&
+  i.sharedCategories.every(string) &&
+  typeof i.edited === "boolean";
+function checkHistory<T extends { id: string }>(
+  value: unknown,
+  valid: (item: unknown) => boolean,
+  message: string,
+): asserts value is T[] | undefined {
+  if (value === undefined) return;
+  if (!Array.isArray(value) || !value.every(valid) || !uniqueIds(value as T[]))
+    throw new Error(message);
+}
 export function decode(input: unknown): State {
   if (!object(input))
     throw new Error("This file does not contain a LifeOS backup.");
@@ -327,15 +473,12 @@ export function decode(input: unknown): State {
     if (
       s.assessmentProfile !== undefined &&
       s.assessmentProfile !== null &&
-      (!object(s.assessmentProfile) ||
-        !string((s.assessmentProfile as Record<string, unknown>).coreMotive) ||
-        !string((s.assessmentProfile as Record<string, unknown>).discStyle) ||
-        !string((s.assessmentProfile as Record<string, unknown>).primaryNeed) ||
-        !string((s.assessmentProfile as Record<string, unknown>).stressTrigger) ||
-        typeof (s.assessmentProfile as Record<string, unknown>).consciousnessLevel !== "number" ||
-        !Array.isArray((s.assessmentProfile as Record<string, unknown>).topValues))
+      !isProfile(s.assessmentProfile)
     )
       throw new Error("The backup contains an invalid assessment profile.");
+    checkHistory(s.assessments, isAssessmentRecord, "The backup contains an invalid assessment history.");
+    checkHistory(s.planHistory, isPlanRevision, "The backup contains an invalid plan history.");
+    checkHistory(s.insights, isInsight, "The backup contains invalid saved insights.");
     const state = s as unknown as State;
     if (
       new Set(state.tasks.map((t) => t.id)).size !== state.tasks.length ||

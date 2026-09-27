@@ -33,6 +33,28 @@ export type AssistantCopy = {
   ctxAnswersDesc: string;
   ctxJournal: string;
   ctxJournalDesc: string;
+  ctxHistory: string;
+  ctxHistoryDesc: string;
+  ctxProfile: string;
+  ctxProfileDesc: string;
+  ctxInsights: string;
+  ctxInsightsDesc: string;
+  insightSaved: string;
+  savedTitle: string;
+  savedLead: string;
+  savedEmpty: string;
+  savedEdited: string;
+  savedEdit: string;
+  savedDelete: string;
+  savedConfirmDelete: string;
+  savedSave: string;
+  savedCancel: string;
+  savedSummary: string;
+  savedPatterns: string;
+  savedPatternsHint: string;
+  savedQuestion: string;
+  savedRecommendations: string;
+  savedFocus: string;
   available: (n: number) => string;
   focusLabel: string;
   focusOptional: string;
@@ -96,6 +118,28 @@ const en: AssistantCopy = {
   ctxAnswersDesc: "Your private guided-reflection answers",
   ctxJournal: "Journal reflections",
   ctxJournalDesc: "Up to the 20 most recent notes",
+  ctxHistory: "History trends",
+  ctxHistoryDesc: "Numbers and observations from your last 4 weeks, no journal text",
+  ctxProfile: "Baseline profile",
+  ctxProfileDesc: "Your current result and what changed since the previous one",
+  ctxInsights: "Past saved insights",
+  ctxInsightsDesc: "Your 5 most recent, including your edits",
+  insightSaved: "Saved to your insights. You can edit or remove it below.",
+  savedTitle: "Your saved insights",
+  savedLead: "Every analysis is kept here so the guide can build on it. Edit anything that doesn't fit; your edits are treated as corrections.",
+  savedEmpty: "No saved insights yet. They appear here after an analysis.",
+  savedEdited: "Edited by you",
+  savedEdit: "Edit",
+  savedDelete: "Remove",
+  savedConfirmDelete: "Remove this insight? The guide will no longer see it.",
+  savedSave: "Save changes",
+  savedCancel: "Cancel",
+  savedSummary: "Summary",
+  savedPatterns: "Patterns",
+  savedPatternsHint: "One per line",
+  savedQuestion: "Question to sit with",
+  savedRecommendations: "Suggested steps",
+  savedFocus: "You asked about:",
   available: (n) => `${n} available`,
   focusLabel: "What would you like help with?",
   focusOptional: "(optional)",
@@ -164,6 +208,28 @@ const ar: AssistantCopy = {
   ctxAnswersDesc: "إجابات التأمل الخاصة",
   ctxJournal: "تأملات اليومية",
   ctxJournalDesc: "حتى 20 ملاحظة حديثة",
+  ctxHistory: "اتجاهات سجلّك",
+  ctxHistoryDesc: "أرقام وملاحظات من آخر 4 أسابيع، دون نصوص اليومية",
+  ctxProfile: "ملف خط الأساس",
+  ctxProfileDesc: "نتيجتك الحالية وما تغيّر منذ السابقة",
+  ctxInsights: "الاستنتاجات المحفوظة سابقاً",
+  ctxInsightsDesc: "آخر 5 استنتاجات، بما فيها تعديلاتك",
+  insightSaved: "حُفظ في استنتاجاتك. يمكنك تعديله أو حذفه أدناه.",
+  savedTitle: "استنتاجاتك المحفوظة",
+  savedLead: "يُحفظ كل تحليل هنا ليبني عليه الدليل. عدّل ما لا يناسبك؛ تُعامل تعديلاتك كتصحيحات.",
+  savedEmpty: "لا توجد استنتاجات محفوظة بعد. تظهر هنا بعد أي تحليل.",
+  savedEdited: "عدّلتَه أنت",
+  savedEdit: "تعديل",
+  savedDelete: "حذف",
+  savedConfirmDelete: "حذف هذا الاستنتاج؟ لن يراه الدليل بعد الآن.",
+  savedSave: "حفظ التغييرات",
+  savedCancel: "إلغاء",
+  savedSummary: "الخلاصة",
+  savedPatterns: "الأنماط",
+  savedPatternsHint: "نمط في كل سطر",
+  savedQuestion: "سؤال للتأمل",
+  savedRecommendations: "خطوات مقترحة",
+  savedFocus: "سألتَ عن:",
   available: (n) => `${n} متاح`,
   focusLabel: "بماذا تريد المساعدة؟",
   focusOptional: "(اختياري)",

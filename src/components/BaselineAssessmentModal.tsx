@@ -15,7 +15,7 @@ import {
   getAssessmentQuestions,
 } from "@/lib/assessment";
 import { update } from "@/lib/store";
-import type { AssessmentProfile } from "@/lib/domain";
+import { recordAssessment, type AssessmentProfile } from "@/lib/domain";
 import { useLanguage } from "@/lib/language";
 import { workspaceCopy } from "@/lib/locale/workspace";
 import {
@@ -53,7 +53,7 @@ export function BaselineAssessmentModal({
 
     if (isLast) {
       const calculated = calculateAssessment(nextAnswers);
-      update((s) => ({ ...s, assessmentProfile: calculated }));
+      update((s) => recordAssessment(s, nextAnswers, calculated));
       setResult(calculated);
     } else {
       setIndex((i) => i + 1);
@@ -232,7 +232,7 @@ export function BaselineAssessmentModal({
               onClick={() => {
                 if (isLast) {
                   const calculated = calculateAssessment(answers);
-                  update((s) => ({ ...s, assessmentProfile: calculated }));
+                  update((s) => recordAssessment(s, answers, calculated));
                   setResult(calculated);
                 } else {
                   setIndex((i) => i + 1);
