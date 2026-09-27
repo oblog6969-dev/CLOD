@@ -43,11 +43,11 @@ aliases:
 
 ### Tests Run
 
-- `npm test`: **50/50**. Lint, build, and E2E were re-run before commit; see the commit entry below.
+- `npm run lint` clean · `npm test` **50/50** · `npm run build` passed · `npx playwright test` **20/20** · `sync_push_contract.sql` `RESULT PASS` (rolled back, 0 leftovers).
 
 ### Git
 
-- The 2026-09-27 and 2026-09-28 work is committed to `main` and pushed to `origin` (https://github.com/oblog6969-dev/CLOD). The commit hash is recorded in [[AI-Memory/Agent Handoff|Agent Handoff]] after pushing.
+- Committed as **`81189ad`** on `main` and pushed to `origin` (https://github.com/oblog6969-dev/CLOD); `16691aa..81189ad`. Pre-commit checks: lint clean, 50/50 unit tests, build passed, 20/20 E2E. The staged diff was scanned for keys (none; `.env.local` stays ignored).
 
 ---
 

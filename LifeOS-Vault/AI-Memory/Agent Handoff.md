@@ -25,7 +25,7 @@ aliases:
 - **Date:** 2026-09-28
 - **Agent:** Claude
 - **Branch:** `main`
-- **Commit:** see [[AI-Memory/Sessions/Session Log|Session Log]] 2026-09-28 (DB governance) for the commit that contains the 2026-09-27 and 2026-09-28 work. The previous commit was `16691aa` (Schwartz values), not `e1e2417` as an earlier version of this note said.
+- **Commit:** `81189ad` (feat(sync): optional Supabase sync, history, and AI memory with DB rules for agents), pushed to `origin/main`. It contains all of the 2026-09-27 and 2026-09-28 work. The previous commit was `16691aa` (Schwartz values), not `e1e2417` as an earlier version of this note said.
 
 > [!important] 🔒 DB lock: free
 > Take it before any migration or `State` change: `DB lock: <agent> · <YYYY-MM-DD> · <task>`. Release it when done. Rules: [[Frameworks/Database Rules|Database Rules]].
