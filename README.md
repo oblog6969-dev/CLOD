@@ -76,7 +76,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Browser tests start a production server on port 3100. Unit tests cover reversible points, level boundaries, independent dates/streaks, project progress, archive history, malformed imports, v1 migration, the 3-way merge rules, the sync engine against a simulated two-device server (no ping-pong, offline edits survive, in-flight edits stay pending, deletions propagate, unreadable local data is never pushed), history analysis thresholds, and server-side AI context bounds. Browser tests cover core editing, persistence, keyboard dialogs, the reflection-to-plan flow, recovery, mobile overflow, corrupt storage, midnight rollover, the history card, and saving/editing/removing AI insights. Live magic-link sign-in is not automated.
+Browser tests start a production server on port 3100. After intentional RTL layout changes, refresh visual baselines with `npx playwright test tests/e2e/rtl-visual.spec.ts --update-snapshots`. Unit tests cover reversible points, level boundaries, independent dates/streaks, project progress, archive history, malformed imports, v1 migration, the 3-way merge rules, the sync engine against a simulated two-device server (no ping-pong, offline edits survive, in-flight edits stay pending, deletions propagate, unreadable local data is never pushed), history analysis thresholds, and server-side AI context bounds. Browser tests cover core editing, persistence, keyboard dialogs, the reflection-to-plan flow, recovery, mobile overflow, corrupt storage, midnight rollover, the history card, and saving/editing/removing AI insights. Live magic-link sign-in is not automated.
 
 ## Boundaries
 

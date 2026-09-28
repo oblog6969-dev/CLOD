@@ -1,7 +1,7 @@
 ---
 title: "Progress Dashboard"
 updated: 2026-09-28
-session: LifeOS-Vault/AI-Memory/Sessions/2026-09-25 Session Notes.md
+session: LifeOS-Vault/AI-Memory/Sessions/Session Log.md
 type: dashboard
 status: verified
 tags: [project/lifeos, status/verified]
@@ -50,6 +50,23 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 - [x] AI guide relates to history: History trends, Baseline profile, and Past saved insights context (shared server-side validation for analyze and chat)
 - [x] Every AI analysis auto-saved to **Your saved insights**, editable (edits act as corrections for the AI) and removable
 - [x] Database governance for multi-agent development: [[Frameworks/Database Rules|Database Rules]] (roles, DB lock, invariants, approvals), migrations in `supabase/migrations/`, and the SQL contract test
+- [x] Schwartz value tags on MSQ cards and sort by `topValues` (`msq-schwartz.mjs`) — Cursor · Composer, `16691aa`
+- [x] Sync two-device verification runbook; RTL visual regression E2E (390 / 1440); localized storage and import errors — Cursor · Composer (this session)
+
+## AI agent attribution (who built what)
+
+Record **agent** and **model** in [[AI-Memory/Sessions/Session Log|Session Log]] entries so progress is traceable across tools.
+
+| Date | Agent | Model | Delivered (summary) | Commit |
+|------|--------|--------|---------------------|--------|
+| 2026-09-28 | Cursor | Composer | Sync runbook, `sync.spec` + `rtl-visual` E2E, `storage-errors` / `import-errors` | (this commit) |
+| 2026-09-28 | Claude | Anthropic (model N/R) | Supabase sync rebuild, history, AI context, DB governance | `81189ad` |
+| 2026-09-26 | Cursor | Composer | Schwartz MSQ value tags and sorting | `16691aa` |
+| 2026-09-26 | Cursor | Composer | Arabic ICS export, RTL arrow, aria labels, vault reconcile | `e1e2417` |
+| 2026-09-25 | Antigravity | Gemini | Settings/Journey Arabic, RTL `.rtl-flip`, AI-Memory hub | `30e2ca2` |
+| 2026-09-25 | Cursor | Composer | Maslow heuristic, plan draft review, Arabic depth (first pass) | `a1340aa` |
+
+N/R = not recorded in vault at time of writing.
 
 ## 2026-09-20 Human development frameworks & AI-generated MSQ milestone
 
@@ -71,11 +88,15 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 
 ## Verification
 
-2026-09-28:
+2026-09-28 (Claude · `81189ad`):
 - `npm run lint`: 0 errors, 0 warnings.
 - `npm test`: **50** unit tests passed (48 + 2 merge-safety tests added with DB governance). These include 9 merge-rule tests, 8 sync-engine tests against a simulated two-device server, and 10 history/insight/AI-context/decode tests. A mutation check (deliberately breaking the merge and dirty tracking) made 10 of them fail, confirming they aren't vacuous.
 - `npm run build`: production build passed (Turbopack, `allowImportingTsExtensions`).
 - `npx playwright test`: **20** Chromium E2E tests passed (18 prior + history card + saved-insight save/edit/feedback-to-AI/remove).
+
+2026-09-28 (Cursor · Composer · backlog sprint):
+- `npm test`: **51** passed (includes locale error parity).
+- `npx playwright test`: **24** passed (adds `sync.spec`, `rtl-visual` with snapshot baselines).
 - Supabase: `sync_push` exercised in rolled-back transactions. It covers first insert, stale-base conflict (returns current state and edit time), correct base, non-object rejection, one snapshot per day, and clamping of a bogus client day. Advisors: performance clean; security shows only the intentional `SECURITY DEFINER` warning and the inapplicable password advisory.
 - In-browser (production build): every view loads with no console errors; signed-out makes zero Supabase requests; bogus and expired magic-link redirects fail safely with feedback.
 - **Not yet verified:** a live magic-link sign-in and a real two-device round trip.

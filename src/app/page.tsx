@@ -52,6 +52,7 @@ import {
   summarizePlanDraft,
   type PlanFieldStatus,
 } from "@/lib/plan-draft";
+import { displayStorageError } from "@/lib/locale/storage-errors";
 
 const navigation = [
   { id: "today", icon: Sun },
@@ -317,7 +318,7 @@ function LifeOSApp() {
         <main id="main" tabIndex={-1}>
           {(error || blocked) && (
             <div role="alert" className="alert">
-              {error}{" "}
+              {displayStorageError(error, locale)}{" "}
               <button onClick={() => setView("settings")}>
                 {tr("Open data settings", "فتح إعدادات البيانات")} <ArrowRight size={14} />
               </button>

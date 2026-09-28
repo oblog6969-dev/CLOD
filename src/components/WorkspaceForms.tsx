@@ -65,6 +65,7 @@ import { MASLOW_TIER_LABELS } from "@/lib/maslow";
 import { getCheckInPrompts } from "@/lib/locale/prompts";
 import { buildIcsCalendar } from "@/lib/calendar-export.mjs";
 import { displayArchetype } from "@/lib/assessment";
+import { displayImportError } from "@/lib/locale/import-errors";
 export type Modal =
   | { type: "task"; task?: Task }
   | { type: "checkin"; prompt?: string }
@@ -1247,9 +1248,9 @@ export function SettingsView({
                   });
                 } catch (err) {
                   onNotice(
-                    err instanceof Error
-                      ? err.message
-                      : copy.backupReadError,
+                    err instanceof Error && err.message === copy.backupSizeError
+                      ? copy.backupSizeError
+                      : displayImportError(err, locale) || copy.backupReadError,
                   );
                 }
               }}

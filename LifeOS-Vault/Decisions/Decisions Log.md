@@ -194,6 +194,13 @@ The product owner set the purpose of the database: sync every device, analyze th
 
 ---
 
+## 2026-09-28: record agent and model on progress
+
+- [[Progress/00 - Dashboard|Progress Dashboard]] keeps an **AI agent attribution** table (agent, model, summary, commit).
+- Every [[AI-Memory/Sessions/Session Log|Session Log]] entry must name the **agent** and **model** when known so work is traceable across Cursor, Claude, Gemini/Antigravity, Codex, etc.
+
+---
+
 ## 2026-09-28: database governance for multi-agent development
 
 - LifeOS is built by several AI agents. The owner asked for explicit database roles that every agent follows. [[Frameworks/Database Rules|Database Rules]] is now mandatory, and `AGENTS.md` makes it binding.

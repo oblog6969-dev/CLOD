@@ -17,11 +17,40 @@ aliases:
 
 > [!info] How to use this file
 > Add a new `## Session YYYY-MM-DD — Agent Name` section at the **top** (newest first) after each working session.
-> Each entry must include: what was done, files changed, tests run (with results), and any open items or bugs found.
+> Each entry must include: **agent name**, **model** (when known), what was done, files changed, tests run (with results), git commit hash when pushed, and any open items.
+
+---
+
+## Session 2026-09-28 — Cursor (backlog sprint)
+
+- **Agent:** Cursor
+- **Model:** Composer (Cursor default coding agent)
+
+**Focus:** Work suggested next tasks in order: sync verification aid, RTL visual regression, partial error localization.
+
+### What Was Done
+
+- Added [[AI-Memory/Sync Two-Device Verification|Sync Two-Device Verification]] runbook.
+- `tests/e2e/sync.spec.ts`, `tests/e2e/rtl-visual.spec.ts` + `rtl-visual.spec.ts-snapshots/` (390px, 1440px Arabic Today).
+- `src/lib/locale/storage-errors.ts`, `import-errors.ts`; wired in `page.tsx` and `WorkspaceForms.tsx`.
+- Unit test for locale errors; README note for `--update-snapshots`.
+
+### Tests
+
+- `npm test`: **51** passed · lint clean · build passed · `npx playwright test`: **24** passed.
+
+### Open
+
+- Owner: live two-device magic-link verification + Supabase Auth URL config.
+- AI streaming/model picker not started.
+- Git: committed and pushed in follow-up commit (see below).
 
 ---
 
 ## Session 2026-09-28 (DB governance) — Claude
+
+- **Agent:** Claude (Anthropic)
+- **Model:** not recorded in vault
 
 **Focus:** Because several AI agents develop LifeOS, the owner asked for database roles every agent follows, then a vault update, a commit, and a push.
 

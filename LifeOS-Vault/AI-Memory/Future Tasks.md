@@ -47,7 +47,7 @@ aliases:
 
 - [x] **Cloud sync (Supabase)**: first pass 2026-09-27 (Claude), rebuilt 2026-09-28 (Claude). Revisioned `sync_push`, 3-way merge, daily snapshots, restore from history. See [[Decisions/Decisions Log|Decisions Log]] 2026-09-28.
 - [x] **Saved AI insights, assessment history, plan history, history analysis**: done 2026-09-28 (Claude).
-- [ ] 🟠 **Real-account verification**: a live magic-link sign-in on two devices, confirming a change and an offline edit on each arrive on the other. All logic is covered by the simulated two-device tests, but the real Supabase round trip hasn't been exercised with a real session.
+- [ ] 🟠 **Real-account verification**: follow [[AI-Memory/Sync Two-Device Verification|Sync Two-Device Verification]]. E2E smoke: `tests/e2e/sync.spec.ts` (local-only deploy). Live magic-link on two devices still owed by owner.
 - [ ] 🟠 **Owner action in the Supabase dashboard**: set the Site URL and redirect allow-list (Authentication → URL Configuration) for localhost and the production domain. No MCP tool can do this.
 - [ ] 🟡 **Delete my cloud account**: a UI to delete the account (cascades to `workspaces` and `workspace_snapshots`). Today, removing an insight doesn't erase it from past daily snapshots.
 - [ ] 🟡 **Snapshot pruning policy**: snapshots are kept forever by owner decision. Monitor database size on the free tier (500 MB) and add pruning or thinning if a workspace grows large.
@@ -71,11 +71,11 @@ aliases:
 ### Localization
 
 - [ ] **Dates in MSQ archival summaries** — Archived step timestamps show in ISO format in Arabic mode. Render them using `toLocaleDateString('ar-EG')`.
-- [ ] **Error messages** — Several caught errors in `domain.ts` and API routes still throw/display English-only strings. Pipe them through the locale system.
+- [ ] **Error messages** — Storage alerts (`storage-errors.ts`) and backup import errors (`import-errors.ts`) are localized. API route JSON errors and remaining `domain.ts` paths still English-only.
 
 ### Testing
 
-- [ ] **Visual regression tests** — Add a Playwright screenshot comparison test for the Arabic RTL layout on both mobile (390 px) and desktop (1440 px) viewports to catch future CSS regressions.
+- [x] **Visual regression tests** — Done 2026-09-28 (Cursor). `tests/e2e/rtl-visual.spec.ts` baselines at 390px and 1440px; update with `--update-snapshots` after intentional layout changes.
 - [ ] **AI provider mock tests** — The AI guide E2E tests use mock fetch intercepts. Add edge-case tests: provider returns invalid JSON, rate limit exceeded, streaming timeout.
 
 ---

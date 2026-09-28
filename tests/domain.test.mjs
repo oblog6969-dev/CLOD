@@ -323,6 +323,18 @@ test("MSQ options sort toward baseline topValues", async () => {
   assert.equal(m6.options[0]?.valueAligned, true);
 });
 
+test("storage and import errors localize to Arabic", async () => {
+  const { displayStorageError } = await import("../src/lib/locale/storage-errors.ts");
+  const { displayImportError } = await import("../src/lib/locale/import-errors.ts");
+  const corrupt =
+    "Your saved data could not be opened. Export the original data below before restoring a backup or starting fresh.";
+  assert.match(displayStorageError(corrupt, "ar"), /تعذّر فتح/);
+  assert.equal(
+    displayImportError(new Error("This file does not contain a LifeOS backup."), "ar"),
+    "هذا الملف لا يحتوي على نسخة احتياطية من لايف أو إس.",
+  );
+});
+
 test("calendar export localizes summary and prodid", async () => {
   const { workspaceCopy } = await import("../src/lib/locale/workspace.ts");
   const { buildIcsCalendar } = await import("../src/lib/calendar-export.mjs");

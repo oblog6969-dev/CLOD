@@ -23,7 +23,8 @@ aliases:
 ## 📍 Last Updated
 
 - **Date:** 2026-09-28
-- **Agent:** Claude
+- **Agent:** Cursor
+- **Model:** Composer
 - **Branch:** `main`
 - **Commit:** `81189ad` (feat(sync): optional Supabase sync, history, and AI memory with DB rules for agents), pushed to `origin/main`. It contains all of the 2026-09-27 and 2026-09-28 work. The previous commit was `16691aa` (Schwartz values), not `e1e2417` as an earlier version of this note said.
 
@@ -34,7 +35,13 @@ aliases:
 
 ## ✅ What Was Just Completed
 
-### Database governance for multi-agent work (latest)
+### Backlog sprint (Cursor · Composer)
+
+- [[AI-Memory/Sync Two-Device Verification|Sync Two-Device Verification]] runbook for owner sign-off.
+- E2E: `tests/e2e/sync.spec.ts` (sync card visible; local-only or email form), `tests/e2e/rtl-visual.spec.ts` with snapshot baselines.
+- Localized storage alerts (`storage-errors.ts`) and backup import errors (`import-errors.ts`).
+
+### Database governance for multi-agent work (Claude, `81189ad`)
 
 - [[Frameworks/Database Rules|Database Rules]] defines the roles, the DB lock, invariants, the owner-approval matrix, and the change workflow. It is binding through `AGENTS.md` and linked from Start Here, the AI Memory index, and Tech Stack.
 - `supabase/migrations/` back-fills the 3 live migrations with exact versions; `supabase/tests/sync_push_contract.sql` passed against live and rolled back cleanly.
@@ -113,10 +120,10 @@ The owner's goal for the database: sync all devices, analyze the person's histor
 
 In priority order (from [[Future Tasks]]):
 
-1. **Sync: live two-device verification.** Sign in by magic link on two browsers, then confirm an edit on each (and an offline edit) arrives on the other and appears in Restore from history.
-2. **Visual regression tests** — Playwright screenshot comparisons for Arabic RTL at 390 px and 1440 px.
-3. **Localized error strings** — Pipe English-only errors in `domain.ts` and API routes through the locale packs.
-4. **AI Guide streaming and model picker** — Larger UX follow-ups; still on the backlog.
+1. **Sync: live two-device verification (owner).** Follow [[AI-Memory/Sync Two-Device Verification|Sync Two-Device Verification]]; configure Supabase Auth URLs.
+2. **Localized error strings (remainder)** — API route JSON errors still English-only.
+3. **AI Guide streaming and model picker** — Larger UX follow-ups.
+4. **Baseline retake discoverability** — Settings CTA copy/placement ([[Future Tasks]]).
 
 ---
 

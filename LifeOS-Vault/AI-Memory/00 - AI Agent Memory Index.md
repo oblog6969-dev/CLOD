@@ -38,7 +38,7 @@ aliases:
 ## 🗺️ Where to Navigate Next
 
 - **Starting a new session?** → Read [[AI-Memory/Agent Handoff|Agent Handoff]] first, then [[AI-Memory/Bugs & Issues|Bugs & Issues]] for any blocking issues.
-- **Finished a session?** → Update [[AI-Memory/Sessions/Session Log|Session Log]], close resolved bugs in [[AI-Memory/Bugs & Issues|Bugs & Issues]], and update [[AI-Memory/Agent Handoff|Agent Handoff]].
+- **Finished a session?** → Update [[AI-Memory/Sessions/Session Log|Session Log]] with **agent name + model**, close resolved bugs in [[AI-Memory/Bugs & Issues|Bugs & Issues]], update [[Progress/00 - Dashboard|Progress Dashboard]] attribution table if needed, and update [[AI-Memory/Agent Handoff|Agent Handoff]].
 - **Adding a feature?** → Cross it off [[AI-Memory/Future Tasks|Future Tasks]] when done. Add a session entry.
 - **Found a bug?** → Log it in [[AI-Memory/Bugs & Issues|Bugs & Issues]] before touching other code.
 - **Touching the database, sync, or the `State` shape?** → Read [[Frameworks/Database Rules|Database Rules]], check the **DB lock** in [[AI-Memory/Agent Handoff|Agent Handoff]], and check migration drift first.
