@@ -39,11 +39,14 @@ aliases:
 
 - `npm test`: **51** passed · lint clean · build passed · `npx playwright test`: **24** passed.
 
+### Git
+
+- Committed as **`6c7ce14`** on `main` (`feat(qa): sync runbook, RTL visual E2E, localized storage/import errors`).
+
 ### Open
 
 - Owner: live two-device magic-link verification + Supabase Auth URL config.
 - AI streaming/model picker not started.
-- Git: committed and pushed in follow-up commit (see below).
 
 ---
 

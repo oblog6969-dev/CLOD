@@ -26,7 +26,7 @@ aliases:
 - **Agent:** Cursor
 - **Model:** Composer
 - **Branch:** `main`
-- **Commit:** `81189ad` (feat(sync): optional Supabase sync, history, and AI memory with DB rules for agents), pushed to `origin/main`. It contains all of the 2026-09-27 and 2026-09-28 work. The previous commit was `16691aa` (Schwartz values), not `e1e2417` as an earlier version of this note said.
+- **Commit:** `6c7ce14` (feat(qa): sync runbook, RTL visual E2E, localized storage/import errors) — Cursor · Composer backlog sprint. Prior: `81189ad` (Claude sync/DB governance), `16691aa` (Schwartz values).
 
 > [!important] 🔒 DB lock: free
 > Take it before any migration or `State` change: `DB lock: <agent> · <YYYY-MM-DD> · <task>`. Release it when done. Rules: [[Frameworks/Database Rules|Database Rules]].
