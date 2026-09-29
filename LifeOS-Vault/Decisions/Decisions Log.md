@@ -1,7 +1,7 @@
 ---
 title: "Decisions Log"
 created: 2026-09-16
-updated: 2026-09-28
+updated: 2026-09-29
 type: decisions
 status: active
 priority: high
@@ -215,6 +215,17 @@ The product owner set the purpose of the database: sync every device, analyze th
 - **Migrations are code.** The three migrations applied through the MCP (`create_workspaces_table`, `sync_revisions_and_snapshots`, `sync_push_return_client_edited_at`) were back-filled into `supabase/migrations/` with their exact live versions. From now on, applied migrations must be committed in the same session, and drift between `list_migrations` and the folder is checked at session start.
 - **Contract test:** `supabase/tests/sync_push_contract.sql` is a self-rolling-back check that must print `RESULT PASS` after any database change.
 - **Merge safety:** `mergeStates` now carries over any `State` field that lacks a dedicated rule (whole-value 3-way pick) instead of dropping it. This removes a trap where a new field added by one agent would silently disappear during sync. The State-change checklist still requires a proper rule.
+
+---
+
+## 2026-09-29: MatchWise 14 frameworks import and multi-cycle AI question engine
+
+- **14 MatchWise Frameworks Imported:** Copied all 14 clinical and behavioral psychometric specifications from `D:\AI\MatchWise\Vault\Progress\Frameworks` into `LifeOS-Vault/Frameworks/` (Hartman, Hawkins, Birkman, DISC, Schwartz, Maslow 6-Tier, Kegan/Bowen, Attachment, TKI, Gottman, FIRO-B, Big Five, MBTI, Hicks Scale).
+- **AI Question Generation Engine (`src/lib/ai-question-engine.ts`):** Created a dedicated psychometric prompt engine synthesizing user profile parameters (core motive, DISC tempo, Birkman needs/stress, Hawkins LoC, Maslow center of gravity, Schwartz values) into structured question generation for connected LLMs.
+- **5 Recursive Cycles Supported:** Formalized Daily (morning reset/evening synthesis), Weekly (friction audit/habit defense), Monthly (Boss Fight project review/Maslow D vs B needs), Quarterly (Hawkins LoC check/archetype drift), and Annual (Kegan Stage 4 self-authoring/identity evolution).
+- **Anti-Idealization Heuristic (MatchWise Standard):** System prompts explicitly forbid generic, abstract virtues ("I choose kindness/wisdom"), requiring concrete behavioral trade-offs and observable stress behaviors.
+- **Offline Psychometric Resiliency:** `generateOfflineFallbackQuestion` ensures high-signal questions and options generate instantly in English and Arabic even without an AI key or network connection.
+- **Endpoint Upgrade:** Updated `/api/ai/questions/route.ts` to support multi-cycle inquiries while preserving full backward compatibility with MSQ prompts. Added `tests/ai-question-engine.test.mjs` (53 unit tests passing).
 
 ---
 

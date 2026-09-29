@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AI_COOKIE, sameOrigin, unseal } from "@/lib/ai-server";
 import { MSQ_CATALOG } from "@/lib/questionnaire";
+import {
+  buildFrameworkSystemPrompt,
+  generateOfflineFallbackQuestion,
+  type CycleType,
+  type QuestionPhase,
+} from "@/lib/ai-question-engine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,12 +39,12 @@ function outputText(response: Record<string, unknown>) {
     .join("");
 }
 
-function parseOptions(raw: string) {
+function parsePayload(raw: string) {
   const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
   try {
     const parsed = JSON.parse(cleaned);
-    if (Array.isArray(parsed.options) && parsed.options.length > 0) {
-      return parsed.options;
+    if (parsed && typeof parsed === "object") {
+      return parsed;
     }
   } catch {
     const start = cleaned.indexOf("{");
@@ -46,8 +52,8 @@ function parseOptions(raw: string) {
     if (start >= 0 && end > start) {
       try {
         const sliced = JSON.parse(cleaned.slice(start, end + 1));
-        if (Array.isArray(sliced.options) && sliced.options.length > 0) {
-          return sliced.options;
+        if (sliced && typeof sliced === "object") {
+          return sliced;
         }
       } catch {
         // Fallback
@@ -72,8 +78,11 @@ export async function POST(request: NextRequest) {
 
   let body: {
     promptId?: string;
+    cycle?: CycleType;
+    phase?: QuestionPhase;
     profile?: Record<string, unknown>;
     plan?: Record<string, string>;
+    locale?: "en" | "ar";
   };
   try {
     body = await request.json();
@@ -83,41 +92,42 @@ export async function POST(request: NextRequest) {
 
   const promptId = typeof body.promptId === "string" ? body.promptId : "m1";
   const def = MSQ_CATALOG[promptId];
-  if (!def) {
-    return NextResponse.json({ error: "Unknown prompt identifier." }, { status: 400 });
-  }
+  const cycle: CycleType = body.cycle || "daily";
+  const phase: QuestionPhase = body.phase || "multi_cycle_review";
+  const profile = (body.profile || {}) as Record<string, unknown>;
+  const plan = (body.plan || {}) as Record<string, string>;
+  const locale = body.locale === "ar" ? "ar" : "en";
 
-  const profile = body.profile || {};
-  const plan = body.plan || {};
+  const fallbackResult = generateOfflineFallbackQuestion({
+    cycle,
+    phase,
+    promptId,
+    promptTitle: def?.title,
+    promptSubtitle: def?.subtitle,
+    profile,
+    plan,
+    locale,
+  });
 
-  const systemPrompt = `You are a high-performance personal development mentor combining Dan Koe's philosophy (Identity, Anti-Vision, Vision, Levers, Constraints) with clinical behavioral frameworks (Hartman Color Code, Hawkins Map of Consciousness, Birkman Method, DISC).
-Generate 3 or 4 tailored, insightful multiple-choice options for the following reflection question:
-Title: "${def.title}"
-Subtitle: "${def.subtitle}"
+  const promptTitle = def ? def.title : fallbackResult.title;
+  const promptSubtitle = def ? def.subtitle : fallbackResult.subtitle;
 
-User Context:
-- Core Motive: ${profile.coreMotive || "Autonomous"}
-- DISC Pace: ${profile.discStyle || "Decisive"}
-- Primary Need: ${profile.primaryNeed || "Freedom"}
-- Stress Trigger: ${profile.stressTrigger || "Chaos"}
-- Consciousness Target: ${profile.consciousnessLevel || 280}+
-- Active Anti-Vision: ${plan.antiVision || "None yet"}
-- Active Vision: ${plan.vision || "None yet"}
+  const systemPrompt = buildFrameworkSystemPrompt({
+    cycle,
+    phase,
+    promptId,
+    promptTitle,
+    promptSubtitle,
+    profile,
+    plan,
+    locale,
+  });
 
-Output valid JSON ONLY in this format:
-{
-  "options": [
-    {
-      "id": "ai_opt_1",
-      "label": "Concise, punchy action/reflection statement",
-      "subtext": "Brief nuance or underlying insight"
-    }
-  ]
-}`;
+  const userInstruction = `Generate sharp, authentic options for this question now:\nTitle: "${promptTitle}"\nSubtitle: "${promptSubtitle}"`;
 
   try {
     const isResponses = session.provider === "openai" && !session.baseUrl.includes("/chat/completions");
-    let generatedOptions: unknown = null;
+    let parsedData: Record<string, unknown> | null = null;
 
     if (isResponses) {
       const response = await fetch(`${session.baseUrl}/responses`, {
@@ -130,7 +140,7 @@ Output valid JSON ONLY in this format:
           model: session.model,
           input: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: "Generate 4 options now." },
+            { role: "user", content: userInstruction },
           ],
           store: false,
         }),
@@ -141,7 +151,7 @@ Output valid JSON ONLY in this format:
         throw new Error(`OpenAI responded with status ${response.status}`);
       }
       const data = (await response.json()) as Record<string, unknown>;
-      generatedOptions = parseOptions(outputText(data));
+      parsedData = parsePayload(outputText(data));
     } else {
       const base = session.baseUrl.replace(/\/+$/, "");
       const chatUrl = base.endsWith("/chat/completions") ? base : `${base}/chat/completions`;
@@ -155,7 +165,7 @@ Output valid JSON ONLY in this format:
           model: session.model,
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: "Generate 4 options now." },
+            { role: "user", content: userInstruction },
           ],
           temperature: 0.7,
         }),
@@ -166,17 +176,39 @@ Output valid JSON ONLY in this format:
         throw new Error(`AI provider responded with status ${response.status}`);
       }
       const data = (await response.json()) as Record<string, unknown>;
-      generatedOptions = parseOptions(chatText(data));
+      parsedData = parsePayload(chatText(data));
     }
 
-    if (Array.isArray(generatedOptions) && generatedOptions.length > 0) {
-      return NextResponse.json({ options: generatedOptions });
+    if (parsedData && Array.isArray(parsedData.options) && parsedData.options.length > 0) {
+      return NextResponse.json({
+        title: typeof parsedData.title === "string" ? parsedData.title : promptTitle,
+        subtitle: typeof parsedData.subtitle === "string" ? parsedData.subtitle : promptSubtitle,
+        frameworks: Array.isArray(parsedData.frameworks) ? parsedData.frameworks : fallbackResult.frameworks,
+        options: parsedData.options,
+        cycle,
+        phase,
+      });
     }
 
-    return NextResponse.json({ options: def.options });
+    // Curated MSQ or offline fallback
+    return NextResponse.json({
+      title: promptTitle,
+      subtitle: promptSubtitle,
+      options: def?.options || fallbackResult.options,
+      frameworks: fallbackResult.frameworks,
+      cycle,
+      phase,
+    });
   } catch (err) {
     console.error("AI questions generation error:", err);
-    // Fall back smoothly to default curated options
-    return NextResponse.json({ options: def.options, fallback: true });
+    return NextResponse.json({
+      title: promptTitle,
+      subtitle: promptSubtitle,
+      options: def?.options || fallbackResult.options,
+      frameworks: fallbackResult.frameworks,
+      cycle,
+      phase,
+      fallback: true,
+    });
   }
 }

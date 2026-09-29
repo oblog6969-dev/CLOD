@@ -163,3 +163,5 @@ export function isAiAnalysis(value: unknown): value is AiAnalysis {
     })
   );
 }
+
+export type { CycleType, QuestionPhase } from "./ai-question-engine.ts";

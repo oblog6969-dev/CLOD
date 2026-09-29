@@ -47,38 +47,51 @@ flowchart LR
 
 ## 2. Framework Breakdown & LifeOS Mapping
 
-### 2.1 Dr. Taylor Hartman Color Code (Core Motives)
+### 2.1 Dr. Taylor Hartman Color Code ([[Hartman Color Code|Core Motives]])
 - **Red (Power & Results):** Driven by tangible impact, leadership, execution, and high-agency leverage.
 - **Blue (Intimacy & Quality):** Driven by deep meaning, authentic connection, loyalty, and craft excellence.
 - **White (Peace & Clarity):** Driven by serenity, autonomy, low drama, and quiet mental space.
 - **Yellow (Fun & Vitality):** Driven by creative play, enthusiasm, novelty, and celebratory energy.
 - **LifeOS Role:** The user's core motive sorts and tailors the options presented in morning questions `m1` to `m14`.
 
-### 2.2 David Hawkins Map of Consciousness (Force vs. Power)
+### 2.2 David Hawkins Map of Consciousness ([[Hawkins Map of Consciousness|Force vs. Power]])
 - **Levels < 200 (Force / Reactive Resistance):** Pride, Anger, Desire, Fear, Grief, Apathy, Guilt, Shame. Manifests in procrastination, avoidance, and blame.
 - **Levels ≥ 200 (Power / Generative Growth):** Courage (200), Neutrality (250), Willingness (310), Acceptance (350), Reason (400), Love (500), Peace (600).
 - **LifeOS Role:** Calibrates daily operating posture. Evaluates whether the user's Anti-Vision is driving reactive anxiety (Force) or intentional responsibility (Power).
 
-### 2.3 Abraham Hicks Emotional Guidance Scale
+### 2.3 Abraham Hicks Emotional Guidance Scale ([[Hicks Emotional Guidance Scale]])
 - **Continuum:** 22 emotional set points ranging from Joy/Appreciation (1) down to Fear/Despair (22).
 - **LifeOS Role:** Daytime interrupts and mood check-ins allow quick-tap emotional alignment, tracking whether the user is in an upward or downward spiral without requiring long journal entries.
 
-### 2.4 The Birkman Method (Tri-Layer Behavior)
+### 2.4 The Birkman Method ([[The Birkman Method|Tri-Layer Behavior]])
 - **Usual Style:** How the person naturally behaves when productive.
 - **Underlying Needs:** What the individual requires from their schedule, environment, and peers to thrive (e.g., Need for Freedom vs. Need for Structure).
 - **Stress Triggers & Behavior:** How the person reacts when their needs are violated (Withdrawing, Demanding, Digging in, Resisting).
 - **LifeOS Role:** Directly powers the **Constraints** field and Anti-Vision in the direction draft.
 
-### 2.5 DISC Assessment (Pace & Focus)
+### 2.5 DISC Assessment ([[DISC Assessment|Pace & Focus]])
 - **D (Dominance):** Fast pace, task focus. Thrives on 90-minute uninterrupted power blocks.
 - **I (Influence):** Fast pace, people/creative focus. Thrives on dynamic creative sprints.
 - **S (Steadiness):** Steady pace, people/harmony focus. Thrives on unhurried, ritualized daily cadence.
 - **C (Conscientiousness):** Methodical pace, detail focus. Thrives on analytical checklists and deep precision.
 - **LifeOS Role:** Shapes the rhythm of **Daily Levers** and monthly Boss Fight milestones.
 
-### 2.6 Schwartz Theory of Basic Human Values
+### 2.6 Schwartz Theory of Basic Human Values ([[Schwartz Basic Values]])
 - Identifies universal human motivators: Self-Direction, Mastery/Achievement, Security/Harmony, Benevolence/Impact.
 - **LifeOS Role:** Grounding the **1-Year Goal** and **Vision** in lasting trans-situational values.
+
+### 2.7 All 14 Psychometric & Relational Framework Specifications (from MatchWise)
+
+Individual clinical specifications imported directly into this vault:
+
+| Category | Framework Notes |
+| :--- | :--- |
+| **Needs Hierarchy & Human Development** | [[Maslow Hierarchy of Needs]], [[Kegan Orders of Mind & Bowen Differentiation]] |
+| **Spiritual & Emotional Resonance** | [[Hawkins Map of Consciousness]], [[Hicks Emotional Guidance Scale]] |
+| **Core Motives & Temperament** | [[Hartman Color Code]], [[DISC Assessment]], [[MBTI & Cognitive Functions]] |
+| **Submerged Personality & Needs** | [[The Birkman Method]], [[Big Five (OCEAN)]] |
+| **Relational Dyad & Intimacy** | [[Adult Attachment (ECR)]], [[FIRO-B Reciprocity]], [[Gottman Relationship House]] |
+| **Conflict & Values** | [[TKI Conflict Modes]], [[Schwartz Basic Values]] |
 
 ---
 
@@ -97,6 +110,7 @@ Rather than writing answers from scratch:
 ## 4. Vault Navigation
 
 - **Parent MOC:** [[00 - Start Here]]
+- **AI Question Generation Protocol:** [[Frameworks/AI Question Generation Protocol]]
 - **Milestone Log:** [[Progress/00 - Dashboard]]
 - **Dan Koe Protocol:** [[Frameworks/Dan Koe Principles]]
 - **Technology Stack:** [[Frameworks/Tech Stack]]

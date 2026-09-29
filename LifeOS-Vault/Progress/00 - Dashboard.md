@@ -5,6 +5,9 @@ session: LifeOS-Vault/AI-Memory/Sessions/Session Log.md
 type: dashboard
 status: verified
 tags: [project/lifeos, status/verified]
+aliases:
+  - 00 - Progress Dashboard
+  - Progress Dashboard
 ---
 
 # Progress Dashboard
@@ -52,6 +55,7 @@ The original dashboard prototype has been replaced with a daily-use experience. 
 - [x] Database governance for multi-agent development: [[Frameworks/Database Rules|Database Rules]] (roles, DB lock, invariants, approvals), migrations in `supabase/migrations/`, and the SQL contract test
 - [x] Schwartz value tags on MSQ cards and sort by `topValues` (`msq-schwartz.mjs`) — Cursor · Composer, `16691aa`
 - [x] Sync two-device verification runbook; RTL visual regression E2E (390 / 1440); localized storage and import errors — Cursor · Composer (this session)
+- [x] MatchWise multi-framework question generation engine & protocol: 14 psychometric frameworks imported, multi-cycle support (Daily, Weekly, Monthly, Quarterly, Annual), anti-idealization heuristics, offline psychometric fallback, 53 unit tests passing — Antigravity · Gemini
 
 ## AI agent attribution (who built what)
 
@@ -59,6 +63,7 @@ Record **agent** and **model** in [[AI-Memory/Sessions/Session Log|Session Log]]
 
 | Date | Agent | Model | Delivered (summary) | Commit |
 |------|--------|--------|---------------------|--------|
+| 2026-09-29 | Antigravity | Gemini | MatchWise 14 frameworks import, multi-cycle AI question engine & protocol | working |
 | 2026-09-28 | Cursor | Composer | Sync runbook, `sync.spec` + `rtl-visual` E2E, `storage-errors` / `import-errors` | `6c7ce14` |
 | 2026-09-28 | Claude | Anthropic (model N/R) | Supabase sync rebuild, history, AI context, DB governance | `81189ad` |
 | 2026-09-26 | Cursor | Composer | Schwartz MSQ value tags and sorting | `16691aa` |

@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/domain.test.mjs tests/sync.test.mjs tests/history.test.mjs",
+    "test": "node --test tests/domain.test.mjs tests/sync.test.mjs tests/history.test.mjs tests/ai-question-engine.test.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {

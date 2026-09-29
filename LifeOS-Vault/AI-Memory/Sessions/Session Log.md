@@ -1,7 +1,7 @@
 ---
 title: "Session Log"
 created: 2026-09-25
-updated: 2026-09-28
+updated: 2026-09-29
 type: log
 status: active
 priority: medium
@@ -18,6 +18,48 @@ aliases:
 > [!info] How to use this file
 > Add a new `## Session YYYY-MM-DD — Agent Name` section at the **top** (newest first) after each working session.
 > Each entry must include: **agent name**, **model** (when known), what was done, files changed, tests run (with results), git commit hash when pushed, and any open items.
+
+---
+
+## Session 2026-09-29 — Antigravity (MatchWise Frameworks & AI Question Engine)
+
+- **Agent:** Antigravity
+- **Model:** Gemini 3.8 Flash
+
+**Focus:** Import all 14 clinical psychometric frameworks from MatchWise project (`D:\AI\MatchWise`), formalize the 5-phase lifecycle and 5 recursive cycles (Daily, Weekly, Monthly, Quarterly, Annual), implement the Psychometric AI Question Generation Engine, and document protocol in the vault.
+
+### What Was Done
+
+- **14 MatchWise Frameworks Imported:** Copied from `D:\AI\MatchWise\Vault\Progress\Frameworks` into `LifeOS-Vault/Frameworks/`:
+  - `Adult Attachment (ECR).md`
+  - `Big Five (OCEAN).md`
+  - `DISC Assessment.md`
+  - `FIRO-B Reciprocity.md`
+  - `Gottman Relationship House.md`
+  - `Hartman Color Code.md`
+  - `Hawkins Map of Consciousness.md`
+  - `Hicks Emotional Guidance Scale.md`
+  - `Kegan Orders of Mind & Bowen Differentiation.md`
+  - `Maslow Hierarchy of Needs.md`
+  - `MBTI & Cognitive Functions.md`
+  - `Schwartz Basic Values.md`
+  - `The Birkman Method.md`
+  - `TKI Conflict Modes.md`
+- **Master Protocol Created:** `LifeOS-Vault/Frameworks/AI Question Generation Protocol.md` documenting the 5-phase lifecycle, 5 recursive cycles, framework matrix, anti-idealization heuristics, and prompt schemas.
+- **Vault Hub Integration:** Updated `00 - Start Here.md` and `Frameworks/Human Development Frameworks.md` with cross-links. Added upstream aliases to `Progress/00 - Dashboard.md`.
+- **Question Generation Engine (`src/lib/ai-question-engine.ts`):** Implemented prompt constructor injecting all 14 frameworks, user profile parameters, and cycle/phase directives, with autonomous offline fallback (`generateOfflineFallbackQuestion`) supporting Arabic and English.
+- **API Endpoint Upgrade (`src/app/api/ai/questions/route.ts`):** Upgraded to support multi-cycle inquiries while preserving backward compatibility for MSQ reflection cards.
+- **Types & Re-exports (`src/lib/ai.ts`):** Exported `CycleType` and `QuestionPhase`.
+- **Unit Test Suite (`tests/ai-question-engine.test.mjs`):** Added 2 automated tests covering framework prompt assembly, cycle coverage, and bilingual generation.
+
+### Tests
+
+- `npm test`: **53** passed (all 53 unit tests passing in ~320ms).
+- Build clean; backwards-compatibility verified.
+
+### Git
+
+- Committing changes on `main`.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "Agent Handoff"
 created: 2026-09-25
-updated: 2026-09-28
+updated: 2026-09-29
 type: handoff
 status: active
 priority: high
@@ -22,11 +22,11 @@ aliases:
 
 ## 📍 Last Updated
 
-- **Date:** 2026-09-28
-- **Agent:** Cursor
-- **Model:** Composer
+- **Date:** 2026-09-29
+- **Agent:** Antigravity
+- **Model:** Gemini 3.8 Flash
 - **Branch:** `main`
-- **Commit:** `6c7ce14` (feat(qa): sync runbook, RTL visual E2E, localized storage/import errors) — Cursor · Composer backlog sprint. Prior: `81189ad` (Claude sync/DB governance), `16691aa` (Schwartz values).
+- **Focus:** MatchWise 14 Psychometric Frameworks Import & Multi-Cycle AI Question Generation Engine
 
 > [!important] 🔒 DB lock: free
 > Take it before any migration or `State` change: `DB lock: <agent> · <YYYY-MM-DD> · <task>`. Release it when done. Rules: [[Frameworks/Database Rules|Database Rules]].
@@ -34,6 +34,14 @@ aliases:
 ---
 
 ## ✅ What Was Just Completed
+
+### MatchWise 14 Frameworks & Multi-Cycle AI Question Generation (Antigravity · Gemini)
+
+- **14 MatchWise Frameworks Imported:** Copied from `D:\AI\MatchWise\Vault\Progress\Frameworks` into `LifeOS-Vault/Frameworks/` (Hartman, Hawkins, Birkman, DISC, Schwartz, Maslow 6-Tier, Kegan/Bowen, Attachment, TKI, Gottman, FIRO-B, Big Five, MBTI, Hicks Scale).
+- **Master Protocol:** Created [[Frameworks/AI Question Generation Protocol|AI Question Generation Protocol]] detailing the 5-phase lifecycle (Assessment → Vision/Mission → Planning/Levers → Measurement → Connected AI) and 5 recursive cycles (Daily, Weekly, Monthly, Quarterly, Annual), framework matrix, and MatchWise anti-idealization rules.
+- **Engine Core:** Implemented `src/lib/ai-question-engine.ts` with `buildFrameworkSystemPrompt` and `generateOfflineFallbackQuestion` (autonomous psychometric generation in English and Arabic without requiring an AI key).
+- **Endpoint Upgrade:** Updated `src/app/api/ai/questions/route.ts` to support multi-cycle inquiries while preserving backward compatibility for MSQ reflection cards.
+- **Unit Tests:** Added `tests/ai-question-engine.test.mjs`; all **53** tests pass in ~320ms (`npm test`).
 
 ### Backlog sprint (Cursor · Composer)
 

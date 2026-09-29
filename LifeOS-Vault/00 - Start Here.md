@@ -26,6 +26,7 @@ Help people reflect for a day, choose their own direction, and return to meaning
 ## 📂 Vault Structure
 - [[Progress/00 - Dashboard|Progress Dashboard]]
 - [[Frameworks/Human Development Frameworks|Human Development Frameworks (MatchWise Psychometrics)]]
+- [[Frameworks/AI Question Generation Protocol|AI Question Generation Protocol (MatchWise Multi-Cycle Engine)]]
 - [[Frameworks/Dan Koe Principles|Dan Koe's Principles & Questionnaire Design]]
 - [[Frameworks/Tech Stack|Technology Stack]]
 - [[Frameworks/Database Rules|🗄️ Database Rules for AI Agents]] (mandatory before DB, sync, or data-model work)
