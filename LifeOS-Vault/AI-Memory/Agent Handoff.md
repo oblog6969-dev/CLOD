@@ -26,6 +26,7 @@ aliases:
 - **Agent:** Antigravity
 - **Model:** Gemini 3.8 Flash
 - **Branch:** `main`
+- **Commit:** `387ca33` (feat(frameworks): import MatchWise 14 frameworks and implement multi-cycle AI question engine) — Antigravity · Gemini. Prior: `6c7ce14` (Cursor backlog sprint), `81189ad` (Claude sync/DB governance).
 - **Focus:** MatchWise 14 Psychometric Frameworks Import & Multi-Cycle AI Question Generation Engine
 
 > [!important] 🔒 DB lock: free

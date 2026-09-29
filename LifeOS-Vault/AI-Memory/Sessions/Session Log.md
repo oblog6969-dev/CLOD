@@ -59,7 +59,7 @@ aliases:
 
 ### Git
 
-- Committing changes on `main`.
+- Committed as **`387ca33`** on `main` (`feat(frameworks): import MatchWise 14 frameworks and implement multi-cycle AI question engine`).
 
 ---
 
